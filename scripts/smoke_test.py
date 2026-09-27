@@ -19,7 +19,7 @@ args = p.parse_args()
 
 llm = get_provider(args.provider)
 r = llm.chat([{"role": "user", "content": "Responde en una linea: que es un punto de reorden en inventarios?"}],
-             max_tokens=120)
+             max_tokens=800)
 print(f"[{r.provider}] {r.model}")
 print(f"  respuesta : {r.text.strip()}")
 print(f"  tokens    : in={r.input_tokens} out={r.output_tokens}")
