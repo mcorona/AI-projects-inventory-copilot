@@ -86,7 +86,7 @@ esquema (`inventory://schema`) se exponen por MCP, todas de solo lectura:
 python -m src.mcp_server        # stdio
 ```
 
-Para Claude Code, agrega a `.mcp.json` en la raíz del proyecto:
+El repo incluye `.mcp.json`, así que Claude Code lo detecta al abrir el proyecto (pide aprobarlo la primera vez). Su contenido:
 
 ```json
 {
