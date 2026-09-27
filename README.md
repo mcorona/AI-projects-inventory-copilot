@@ -43,6 +43,8 @@ cp .env.example .env
 docker compose up -d
 python -m pytest -q
 python -m scripts.smoke_test
+python -m scripts.generate_data      # datos sinteticos reproducibles (seed 42)
+python -m evals.run_sql_eval         # execution accuracy del text-to-SQL
 ```
 
 En LM Studio: carga el modelo de chat y el de embeddings, y activa el servidor local
@@ -52,7 +54,7 @@ En LM Studio: carga el modelo de chat y el de embeddings, y activa el servidor l
 
 | Rol | Modelo | Memoria aprox. (Q4) |
 |---|---|---|
-| Chat / SQL (principal) | Qwen3-30B-A3B (MoE) | ~18 GB |
+| Chat / SQL (principal) | Qwen3.6-35B-A3B (MoE) | ~20 GB |
 | Chat (alternativa) | gpt-oss-20b | ~12 GB |
 | Embeddings | bge-m3 (multilingüe, 1024 dim) | ~1 GB |
 
@@ -65,6 +67,7 @@ LLM_PROVIDER=bedrock   python -m scripts.smoke_test
 
 ## Decisiones de arquitectura
 - [ADR-001: Capa LLM agnóstica de proveedor](docs/adr/001-provider-agnostic-llm.md)
+- [ADR-002: Tool text-to-SQL evaluada por execution accuracy](docs/adr/002-text-to-sql-execution-accuracy.md)
 
 ## Datos
 Todos los datos son **sintéticos**. Nunca envíes datos reales a proveedores gratuitos.
