@@ -103,7 +103,7 @@ def get_provider(name: str | None = None) -> LLMProvider:
     if name == "lmstudio":
         return OpenAICompatibleProvider(
             "lmstudio", os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1"),
-            os.getenv("LMSTUDIO_CHAT_MODEL", "qwen/qwen3-30b-a3b"),
+            os.getenv("LMSTUDIO_CHAT_MODEL", "qwen/qwen3.6-35b-a3b"),
             os.getenv("LMSTUDIO_EMBED_MODEL", "text-embedding-bge-m3"))
     if name == "omniroute":
         return OpenAICompatibleProvider(
