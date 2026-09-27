@@ -1,0 +1,298 @@
+{
+  "summary": {
+    "n": 12,
+    "tool_selection_accuracy": 1.0,
+    "answered_rate": 1.0,
+    "avg_tool_calls": 1.25,
+    "latency_p50_ms": 4109.1,
+    "input_tokens": 122598,
+    "output_tokens": 1028,
+    "provider": "omniroute",
+    "models": {
+      "minimax-m2.1": 25
+    }
+  },
+  "items": [
+    {
+      "id": "a01",
+      "question": "¿Cómo está el SKU-0042?",
+      "expected": [
+        "get_sku_status"
+      ],
+      "used": [
+        "get_sku_status"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "**SKU-0042: Cable THHN Pro**\n\n| Concepto | Valor |\n|----------|-------|\n| Existencias totales | 853 unidades |\n| Punto de reorden | 469 |\n| Estado | ✅ Por encima del punto de reorden |\n| Ventas 30 días | 525 unidades |\n| Días de cobertura | 48.7 días |\n| Proveedor | Andes Distribuciones (CO) |\n| Lead time | 18 días |\n\n**Detalle por CEDIS:**\n- CEDIS Centro (CDMX): 299 uds\n- CEDIS Norte (Monterrey): 131 uds  \n- CEDIS Occidente (Guadalajara): 423 uds\n\nEl SKU está bien abastecido con 48.7 días de cobertura, muy por encima del lead time de 18 días. No requiere acción inmediata.",
+      "llm_calls": 2,
+      "input_tokens": 9615,
+      "output_tokens": 146,
+      "latency_ms": 4109.1,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a02",
+      "question": "¿Cuántos días de cobertura le quedan al SKU-0152?",
+      "expected": [
+        "get_sku_status"
+      ],
+      "used": [
+        "get_sku_status"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El SKU-0152 (Cinta canela XL) tiene **82.5 días de cobertura** restantes, con un stock total de 3,197 unidades. [ fuente: datos del sistema ]",
+      "llm_calls": 2,
+      "input_tokens": 9505,
+      "output_tokens": 36,
+      "latency_ms": 2265.1,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a03",
+      "question": "¿Quién es el proveedor del SKU-0101 y cuál es su tiempo de entrega?",
+      "expected": [
+        "get_sku_status"
+      ],
+      "used": [
+        "get_sku_status"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "**SKU-0101** (Buje de bronce 1\"):\n\n- **Proveedor:** Electrónica Pacífico\n- **Tiempo de entrega (lead time):** 10 días\n\nAmbos datos provienen directamente del sistema de inventario.",
+      "llm_calls": 2,
+      "input_tokens": 9502,
+      "output_tokens": 46,
+      "latency_ms": 2333.1,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a04",
+      "question": "¿Cuántos productos hay en la categoría Rodamientos?",
+      "expected": [
+        "query_inventory"
+      ],
+      "used": [
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Hay **25 productos** en la categoría Rodamientos.",
+      "llm_calls": 2,
+      "input_tokens": 9305,
+      "output_tokens": 13,
+      "latency_ms": 3062.3,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a05",
+      "question": "¿Cuáles son los 3 SKUs más vendidos de septiembre de 2026?",
+      "expected": [
+        "query_inventory"
+      ],
+      "used": [
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Los 3 SKUs más vendidos de septiembre 2026 (a la fecha):\n\n| Rank | SKU | Unidades vendidas |\n|------|-----|-------------------|\n| 1 | **SKU-0144** | 1,168 |\n| 2 | **SKU-0152** | 1,018 |\n| 3 | **SKU-0056** | 984 |\n\n*Datos actualizados al 27 de septiembre de 2026.*",
+      "llm_calls": 2,
+      "input_tokens": 9526,
+      "output_tokens": 67,
+      "latency_ms": 6005.9,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a06",
+      "question": "¿Qué almacén tiene el mayor valor de inventario?",
+      "expected": [
+        "query_inventory"
+      ],
+      "used": [
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "**CEDIS Norte** tiene el mayor valor de inventario con **$8,866,070.32**.\n\nLe siguen:\n- CEDIS Occidente: $7,195,094.99\n- CEDIS Centro: $6,910,764.69",
+      "llm_calls": 2,
+      "input_tokens": 9466,
+      "output_tokens": 38,
+      "latency_ms": 4882.9,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a07",
+      "question": "¿Cuál es la política de devoluciones de equipo de protección personal?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "**Política de devoluciones de equipo de protección personal (EPP):**\n\nSegún [devoluciones.md], los productos de la categoría **Seguridad** (EPP: guantes, cascos, lentes, arneses) tienen estas condiciones:\n\n- **Plazo general:** 30 días naturales desde la entrega\n- **Condición para EPP:** deben estar en empaque original y sin uso\n- **Restricción importante:** **NO se aceptan** si el empaque fue abierto, por razones de higiene\n- **Nota de crédito:** se emite máximo 10 días hábiles después de recibir la devolución\n\nEl EPP solo puede/devuelto si el empaque está sellado.",
+      "llm_calls": 2,
+      "input_tokens": 9859,
+      "output_tokens": 144,
+      "latency_ms": 3569.2,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a08",
+      "question": "¿Quién aprueba una orden de compra de 300 mil pesos?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Una orden de **$300,000 MXN** la aprueba el **Director de operaciones**, ya que supera los $250,000 MXN según la tabla de niveles de aprobación.\n\n[fuente: ordenes_de_compra.md]",
+      "llm_calls": 2,
+      "input_tokens": 9792,
+      "output_tokens": 45,
+      "latency_ms": 3307.1,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a09",
+      "question": "¿Cómo se calcula el punto de reorden?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Según la política interna, el **punto de reorden** se calcula así:\n\n**punto de reorden = demanda diaria promedio × tiempo de entrega del proveedor (días) × factor de seguridad**\n\nComponentes:\n- **Demanda diaria promedio**: tomada de los últimos 90 días de ventas\n- **Factor de seguridad**: 1.2 para SKUs normales, 1.5 para SKUs críticos\n- **Tiempo de entrega**: días que tarda el proveedor en entregar\n\nEl punto de reorden se recalcula cada trimestre o cuando el proveedor cambia su tiempo de entrega, y se evalúa sobre el stock total de los tres CEDIS.\n\n[fuente: politica_reorden.md - sección \"Cálculo del punto de reorden\"]",
+      "llm_calls": 2,
+      "input_tokens": 9917,
+      "output_tokens": 157,
+      "latency_ms": 4447.2,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a10",
+      "question": "El SKU-0009 está bajo su punto de reorden; ¿a qué nivel se debe escalar según la política de SKUs críticos?",
+      "expected": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "used": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El SKU-0009 (**Perno de anclaje 3/4\"**) está en **Nivel 2 de escalamiento**.\n\n**Datos clave:**\n- Stock total: 84 unidades (punto de reorden: 1,036)\n- Días de cobertura: **3.8 días**\n- Es un SKU crítico: sí\n\nSegún la política de escalamiento [fuente: skus_criticos.md], el **Nivel 2 (gerente de compras)** aplica cuando el SKU crítico tiene **menos de 7 días de cobertura**. En este caso, con 3.8 días se debe escalar inmediatamente al gerente de compras para evaluar compra urgente y transferencias entre CEDIS.",
+      "llm_calls": 2,
+      "input_tokens": 10351,
+      "output_tokens": 129,
+      "latency_ms": 6817.9,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    },
+    {
+      "id": "a11",
+      "question": "¿Cuántos SKUs críticos están bajo su punto de reorden y qué dice la política sobre cuándo reordenar?",
+      "expected": [
+        "query_inventory",
+        "search_documents"
+      ],
+      "used": [
+        "query_inventory",
+        "search_documents",
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "**Respuesta:**\n\n- **12 SKUs críticos** están bajo su punto de reorden (stock total < punto de reorden).\n\n**Política de cuándo reordenar** [fuente: politica_reorden.md]:\n\n> El punto de reorden se calcula como: *demanda diaria promedio × tiempo de entrega del proveedor × factor de seguridad*.\n> - SKUs críticos usan **factor de seguridad 1.5**.\n> - Cuando el stock total cae por debajo del punto de reorden, se genera una propuesta de orden de compra.\n> - Para SKUs críticos, la cantidad a pedir debe cubrir **45 días** de demanda más el stock de seguridad.\n> - El punto de reorden se evalúa sobre el **stock total** (suma de los tres CEDIS).",
+      "llm_calls": 3,
+      "input_tokens": 15774,
+      "output_tokens": 174,
+      "latency_ms": 9430.5,
+      "models": {
+        "minimax-m2.1": 3
+      }
+    },
+    {
+      "id": "a12",
+      "question": "¿Qué tiempo de tránsito hay entre Ciudad de México y Monterrey para una transferencia?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El tiempo de tránsito entre Ciudad de México y Monterrey para una transferencia es **2 días** [fuente: transferencias_cedis.md].",
+      "llm_calls": 2,
+      "input_tokens": 9986,
+      "output_tokens": 33,
+      "latency_ms": 2443.2,
+      "models": {
+        "minimax-m2.1": 2
+      }
+    }
+  ]
+}

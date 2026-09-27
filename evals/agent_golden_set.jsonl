@@ -1,0 +1,12 @@
+{"id": "a01", "question": "¿Cómo está el SKU-0042?", "expected_tools": ["get_sku_status"]}
+{"id": "a02", "question": "¿Cuántos días de cobertura le quedan al SKU-0152?", "expected_tools": ["get_sku_status"]}
+{"id": "a03", "question": "¿Quién es el proveedor del SKU-0101 y cuál es su tiempo de entrega?", "expected_tools": ["get_sku_status"]}
+{"id": "a04", "question": "¿Cuántos productos hay en la categoría Rodamientos?", "expected_tools": ["query_inventory"]}
+{"id": "a05", "question": "¿Cuáles son los 3 SKUs más vendidos de septiembre de 2026?", "expected_tools": ["query_inventory"]}
+{"id": "a06", "question": "¿Qué almacén tiene el mayor valor de inventario?", "expected_tools": ["query_inventory"]}
+{"id": "a07", "question": "¿Cuál es la política de devoluciones de equipo de protección personal?", "expected_tools": ["search_documents"]}
+{"id": "a08", "question": "¿Quién aprueba una orden de compra de 300 mil pesos?", "expected_tools": ["search_documents"]}
+{"id": "a09", "question": "¿Cómo se calcula el punto de reorden?", "expected_tools": ["search_documents"]}
+{"id": "a10", "question": "El SKU-0009 está bajo su punto de reorden; ¿a qué nivel se debe escalar según la política de SKUs críticos?", "expected_tools": ["get_sku_status", "search_documents"]}
+{"id": "a11", "question": "¿Cuántos SKUs críticos están bajo su punto de reorden y qué dice la política sobre cuándo reordenar?", "expected_tools": ["query_inventory", "search_documents"]}
+{"id": "a12", "question": "¿Qué tiempo de tránsito hay entre Ciudad de México y Monterrey para una transferencia?", "expected_tools": ["search_documents"]}

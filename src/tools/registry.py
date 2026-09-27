@@ -1,0 +1,97 @@
+"""Registro de tools compartido por el agente y el MCP server (una sola implementacion).
+
+Cada tool declara su contrato en formato neutro (nombre, descripcion, JSON Schema) y una
+funcion que recibe los argumentos y devuelve un dict serializable. Las dependencias (LLM,
+ejecutores de DB, embedder) se inyectan para poder probar sin servicios.
+"""
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from datetime import date, datetime
+from decimal import Decimal
+from typing import Any, Callable
+
+MAX_ROWS_TO_MODEL = 50       # filas que ve el LLM; el conteo real se reporta aparte
+MAX_TOOL_OUTPUT_CHARS = 8000
+
+
+@dataclass
+class Tool:
+    name: str
+    description: str
+    parameters: dict
+    fn: Callable[[dict], dict]
+
+    def spec(self) -> dict:
+        return {"name": self.name, "description": self.description, "parameters": self.parameters}
+
+
+def _default(o: Any):
+    if isinstance(o, Decimal):
+        return float(o)
+    if isinstance(o, (date, datetime)):
+        return o.isoformat()
+    return str(o)
+
+
+def to_json(result: dict, max_chars: int = MAX_TOOL_OUTPUT_CHARS) -> str:
+    text = json.dumps(result, ensure_ascii=False, default=_default)
+    if len(text) > max_chars:
+        text = text[:max_chars] + ' ... [salida truncada]'
+    return text
+
+
+def build_tools(llm=None, sql_executor=None, param_executor=None, embedder=None) -> dict[str, Tool]:
+    """Construye las tools. Los argumentos None usan la configuracion del entorno."""
+    from src.rag.store import search
+    from src.tools.sku_status import get_sku_status
+    from src.tools.sql_tool import run_sql_tool
+
+    def query_inventory(args: dict) -> dict:
+        r = run_sql_tool(args["question"], llm=llm, executor=sql_executor)
+        out = {"sql": r.sql, "columns": r.columns, "rows": r.rows[:MAX_ROWS_TO_MODEL],
+               "row_count": len(r.rows), "error": r.error}
+        if len(r.rows) > MAX_ROWS_TO_MODEL:
+            out["note"] = f"se muestran {MAX_ROWS_TO_MODEL} de {len(r.rows)} filas"
+        if r.escalations:
+            out["escalations"] = r.escalations
+        return out
+
+    def sku_status(args: dict) -> dict:
+        return get_sku_status(args["sku"], executor=param_executor)
+
+    def search_documents(args: dict) -> dict:
+        hits = search(args["query"], k=int(args.get("k", 4)), embedder=embedder, executor=param_executor)
+        return {"results": [{"source": h["source"], "section": h["section"],
+                             "score": h["score"], "content": h["content"]} for h in hits]}
+
+    tools = [
+        Tool("query_inventory",
+             "Responde preguntas analiticas sobre el inventario generando y ejecutando SQL de solo "
+             "lectura: conteos, rankings, agregaciones, ventas por periodo, listas de SKUs que "
+             "cumplen una condicion (p. ej. bajo punto de reorden). Recibe la pregunta en lenguaje natural.",
+             {"type": "object",
+              "properties": {"question": {"type": "string", "description": "Pregunta en lenguaje natural"}},
+              "required": ["question"]},
+             query_inventory),
+        Tool("get_sku_status",
+             "Ficha completa de UN SKU especifico: producto, proveedor y lead time, existencias por "
+             "CEDIS, stock total, punto de reorden, ventas de los ultimos 30 dias y dias de cobertura. "
+             "Preferir sobre query_inventory cuando la pregunta es sobre un SKU concreto.",
+             {"type": "object",
+              "properties": {"sku": {"type": "string", "description": "SKU, p. ej. SKU-0042"}},
+              "required": ["sku"]},
+             sku_status),
+        Tool("search_documents",
+             "Busca en las politicas y procedimientos internos (reorden, SKUs criticos, ordenes de "
+             "compra y aprobaciones, proveedores, recepcion, devoluciones, inventario ciclico, "
+             "transferencias entre CEDIS, uso del copiloto). Devuelve fragmentos con su fuente.",
+             {"type": "object",
+              "properties": {"query": {"type": "string", "description": "Que buscar"},
+                             "k": {"type": "integer", "description": "Numero de fragmentos (1-10)",
+                                   "default": 4}},
+              "required": ["query"]},
+             search_documents),
+    ]
+    return {t.name: t for t in tools}
