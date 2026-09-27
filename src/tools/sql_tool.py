@@ -26,6 +26,8 @@ sales_daily(sku TEXT FK -> products, day DATE, units INT) -- PK (sku, day), unid
 Categorias: Tornilleria, Electrico, Hidraulico, Neumatico, Rodamientos, Seguridad, Herramientas, Empaque.
 Ciudades: Ciudad de Mexico, Guadalajara, Monterrey.
 La fecha de referencia ("hoy") es {anchor}; usa fechas literales, no now() ni current_date.
+"Los ultimos N dias" incluye hoy y abarca exactamente N dias:
+day > DATE '{anchor}' - N AND day <= DATE '{anchor}'.
 
 Reglas:
 - Solo SELECT (se permiten CTE con WITH). Nunca modifiques datos.

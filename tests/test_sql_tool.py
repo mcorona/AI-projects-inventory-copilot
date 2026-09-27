@@ -65,7 +65,9 @@ def test_happy_path_validates_executes_and_reports_metrics():
     assert r.provider == "fake" and r.model == "fake-1"
     assert r.total_latency_ms >= r.db_latency_ms
     # el prompt de sistema lleva el esquema y la fecha ancla
-    assert "sales_daily" in llm.calls[0]["system"] and "2026-09-26" in llm.calls[0]["system"]
+    system = llm.calls[0]["system"]
+    assert "sales_daily" in system and "2026-09-26" in system
+    assert "{anchor}" not in system  # todas las plantillas se resolvieron
 
 
 @pytest.mark.parametrize("sql", [

@@ -1,0 +1,651 @@
+{
+  "summary": {
+    "n": 30,
+    "execution_accuracy": 0.9,
+    "execution_accuracy_strict": 0.8,
+    "guard_rejected_rate": 0.0333,
+    "truncated_rate": 0.0,
+    "error_rate": 0.0333,
+    "latency_p50_ms": 2140.8,
+    "latency_p95_ms": 6066.4,
+    "input_tokens": 133723,
+    "output_tokens": 1471,
+    "provider": "omniroute",
+    "model": "minimax-m2.1",
+    "models": {
+      "minimax-m2.1": 30
+    }
+  },
+  "items": [
+    {
+      "id": "q01",
+      "question": "¿Cuántos productos hay en total?",
+      "tags": [
+        "simple",
+        "count"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM products",
+      "pred_sql": "SELECT COUNT(*) AS total_productos FROM products LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4294,
+      "output_tokens": 15,
+      "llm_latency_ms": 43.1,
+      "total_latency_ms": 51.8,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q02",
+      "question": "¿Cuántos productos críticos hay?",
+      "tags": [
+        "simple",
+        "count"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM products WHERE critical",
+      "pred_sql": "SELECT COUNT(*) AS productos_criticos FROM products WHERE critical = TRUE LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4285,
+      "output_tokens": 21,
+      "llm_latency_ms": 1263.9,
+      "total_latency_ms": 1282.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q03",
+      "question": "Lista el nombre y la ciudad de cada almacén.",
+      "tags": [
+        "simple"
+      ],
+      "gold_sql": "SELECT name, city FROM warehouses",
+      "pred_sql": "SELECT name, city FROM warehouses ORDER BY name LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 3,
+      "pred_rows": 3,
+      "input_tokens": 4269,
+      "output_tokens": 15,
+      "llm_latency_ms": 973.8,
+      "total_latency_ms": 987.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q04",
+      "question": "¿Qué proveedores son de China? Devuelve solo su nombre.",
+      "tags": [
+        "simple",
+        "filter"
+      ],
+      "gold_sql": "SELECT name FROM suppliers WHERE country = 'CN'",
+      "pred_sql": "SELECT name FROM suppliers WHERE country = 'CN' LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 2,
+      "pred_rows": 2,
+      "input_tokens": 4327,
+      "output_tokens": 15,
+      "llm_latency_ms": 1402.2,
+      "total_latency_ms": 1414.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q05",
+      "question": "¿Qué proveedor tiene el mayor tiempo de entrega? Devuelve nombre y días de entrega.",
+      "tags": [
+        "simple",
+        "top-n"
+      ],
+      "gold_sql": "SELECT name, lead_time_days FROM suppliers ORDER BY lead_time_days DESC LIMIT 1",
+      "pred_sql": "SELECT name, lead_time_days FROM suppliers ORDER BY lead_time_days DESC LIMIT 1",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4315,
+      "output_tokens": 23,
+      "llm_latency_ms": 1488.9,
+      "total_latency_ms": 1498.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q06",
+      "question": "¿Cuántos productos hay en cada categoría?",
+      "tags": [
+        "aggregation"
+      ],
+      "gold_sql": "SELECT category, COUNT(*) FROM products GROUP BY category",
+      "pred_sql": "SELECT category, COUNT(*) AS productos FROM products GROUP BY category ORDER BY category LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 8,
+      "pred_rows": 8,
+      "input_tokens": 4336,
+      "output_tokens": 25,
+      "llm_latency_ms": 1596.6,
+      "total_latency_ms": 1610.8,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q07",
+      "question": "¿Cuál es el costo unitario promedio de los productos hidráulicos, redondeado a 2 decimales?",
+      "tags": [
+        "aggregation",
+        "entity-mapping"
+      ],
+      "gold_sql": "SELECT ROUND(AVG(unit_cost), 2) FROM products WHERE category = 'Hidraulico'",
+      "pred_sql": "SELECT ROUND(CAST(AVG(unit_cost) AS DECIMAL), 2) AS costo_promedio FROM products WHERE category = 'Hidraulico' LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4441,
+      "output_tokens": 26,
+      "llm_latency_ms": 2225.9,
+      "total_latency_ms": 2240.0,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q08",
+      "question": "¿Cuál es el producto más caro? Devuelve SKU, nombre y costo unitario.",
+      "tags": [
+        "top-n"
+      ],
+      "gold_sql": "SELECT sku, name, unit_cost FROM products ORDER BY unit_cost DESC LIMIT 1",
+      "pred_sql": "SELECT sku, name, unit_cost FROM products ORDER BY unit_cost DESC LIMIT 1",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4311,
+      "output_tokens": 21,
+      "llm_latency_ms": 1433.5,
+      "total_latency_ms": 1447.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q09",
+      "question": "¿Qué SKUs tienen un stock total (sumando todos los almacenes) por debajo de su punto de reorden?",
+      "tags": [
+        "join",
+        "reorder"
+      ],
+      "gold_sql": "SELECT p.sku FROM products p JOIN stock s ON s.sku = p.sku GROUP BY p.sku, p.reorder_point HAVING SUM(s.on_hand) < p.reorder_point",
+      "pred_sql": "WITH total_stock AS (SELECT sku, SUM(on_hand) AS stock_total FROM stock GROUP BY sku) SELECT p.sku, p.name, p.reorder_point, ts.stock_total FROM products AS p JOIN total_stock AS ts ON ts.sku = p.sku WHERE ts.stock_total < p.reorder_point ORDER BY p.sku LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": false,
+      "gold_rows": 25,
+      "pred_rows": 25,
+      "input_tokens": 4375,
+      "output_tokens": 68,
+      "llm_latency_ms": 1840.2,
+      "total_latency_ms": 1856.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q10",
+      "question": "¿Cuántos productos críticos están por debajo de su punto de reorden (stock total)?",
+      "tags": [
+        "join",
+        "reorder",
+        "subquery"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM (SELECT p.sku FROM products p JOIN stock s ON s.sku = p.sku WHERE p.critical GROUP BY p.sku, p.reorder_point HAVING SUM(s.on_hand) < p.reorder_point) t",
+      "pred_sql": "WITH stock_total AS (SELECT sku, SUM(on_hand) AS total_stock FROM stock GROUP BY sku) SELECT COUNT(*) AS productos_criticos_bajo_reorden FROM products AS p JOIN stock_total AS s ON p.sku = s.sku WHERE p.critical = TRUE AND s.total_stock < p.reorder_point LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4425,
+      "output_tokens": 69,
+      "llm_latency_ms": 2834.8,
+      "total_latency_ms": 2850.0,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q11",
+      "question": "¿Cuál es el stock total del SKU-0042 sumando todos los almacenes?",
+      "tags": [
+        "aggregation"
+      ],
+      "gold_sql": "SELECT SUM(on_hand) FROM stock WHERE sku = 'SKU-0042'",
+      "pred_sql": "SELECT SUM(s.on_hand) AS stock_total FROM stock AS s WHERE s.sku = 'SKU-0042' LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4371,
+      "output_tokens": 22,
+      "llm_latency_ms": 1612.5,
+      "total_latency_ms": 1624.7,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q12",
+      "question": "¿Cuántas unidades en existencia hay en total en el almacén de Monterrey?",
+      "tags": [
+        "join",
+        "entity-mapping"
+      ],
+      "gold_sql": "SELECT SUM(s.on_hand) FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Monterrey'",
+      "pred_sql": "SELECT SUM(s.on_hand) AS total_existencia FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Monterrey' LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4319,
+      "output_tokens": 37,
+      "llm_latency_ms": 1530.7,
+      "total_latency_ms": 1541.1,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q13",
+      "question": "¿Cuál es el valor del inventario (existencias por costo unitario) de cada almacén? Devuelve nombre del almacén y valor.",
+      "tags": [
+        "join",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT w.name, SUM(s.on_hand * p.unit_cost) FROM stock s JOIN products p ON p.sku = s.sku JOIN warehouses w ON w.warehouse_id = s.warehouse_id GROUP BY w.name",
+      "pred_sql": "SELECT w.name AS almacen, COALESCE(SUM(s.on_hand * p.unit_cost), 0) AS valor_inventario FROM warehouses AS w LEFT JOIN stock AS s ON w.warehouse_id = s.warehouse_id LEFT JOIN products AS p ON s.sku = p.sku GROUP BY w.name ORDER BY w.name LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 3,
+      "pred_rows": 3,
+      "input_tokens": 4397,
+      "output_tokens": 60,
+      "llm_latency_ms": 2040.2,
+      "total_latency_ms": 2051.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q14",
+      "question": "¿Qué almacén tiene más unidades en existencia? Devuelve solo su nombre.",
+      "tags": [
+        "join",
+        "top-n"
+      ],
+      "gold_sql": "SELECT w.name FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id GROUP BY w.name ORDER BY SUM(s.on_hand) DESC LIMIT 1",
+      "pred_sql": "SELECT w.name FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id GROUP BY w.name ORDER BY SUM(s.on_hand) DESC LIMIT 1",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4352,
+      "output_tokens": 36,
+      "llm_latency_ms": 1608.4,
+      "total_latency_ms": 1623.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q15",
+      "question": "¿Qué SKUs tienen cero existencias en el almacén de Guadalajara?",
+      "tags": [
+        "join",
+        "filter"
+      ],
+      "gold_sql": "SELECT s.sku FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Guadalajara' AND s.on_hand = 0",
+      "pred_sql": "SELECT p.sku, p.name FROM products AS p WHERE NOT p.sku IN (SELECT s.sku FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Guadalajara' AND s.on_hand > 0) LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": false,
+      "gold_rows": 4,
+      "pred_rows": 4,
+      "input_tokens": 4469,
+      "output_tokens": 53,
+      "llm_latency_ms": 2677.6,
+      "total_latency_ms": 2694.7,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q16",
+      "question": "¿Cuántas unidades se vendieron en total en los últimos 30 días?",
+      "tags": [
+        "dates"
+      ],
+      "gold_sql": "SELECT SUM(units) FROM sales_daily WHERE day BETWEEN '2026-08-28' AND '2026-09-26'",
+      "pred_sql": "SELECT SUM(units) AS total_vendido FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4433,
+      "output_tokens": 32,
+      "llm_latency_ms": 13194.6,
+      "total_latency_ms": 13211.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q17",
+      "question": "¿Cuáles son los 5 SKUs con más unidades vendidas en todo el periodo? Devuelve SKU y total, de mayor a menor.",
+      "tags": [
+        "aggregation",
+        "top-n"
+      ],
+      "gold_sql": "SELECT sku, SUM(units) AS total FROM sales_daily GROUP BY sku ORDER BY total DESC LIMIT 5",
+      "pred_sql": "SELECT s.sku, SUM(s.units) AS total_vendido FROM sales_daily AS s GROUP BY s.sku ORDER BY total_vendido DESC LIMIT 5",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 5,
+      "pred_rows": 5,
+      "input_tokens": 4403,
+      "output_tokens": 31,
+      "llm_latency_ms": 1767.0,
+      "total_latency_ms": 1785.7,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q18",
+      "question": "¿Cuántas unidades se vendieron por mes? Devuelve el mes en formato YYYY-MM y el total, en orden cronológico.",
+      "tags": [
+        "dates",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT to_char(day, 'YYYY-MM') AS mes, SUM(units) FROM sales_daily GROUP BY mes ORDER BY mes",
+      "pred_sql": "SELECT TO_CHAR(DATE_TRUNC('MONTH', day), 'YYYY-MM') AS mes, SUM(units) AS total FROM sales_daily GROUP BY DATE_TRUNC('MONTH', day) ORDER BY DATE_TRUNC('MONTH', day) LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 7,
+      "pred_rows": 7,
+      "input_tokens": 4714,
+      "output_tokens": 44,
+      "llm_latency_ms": 4516.9,
+      "total_latency_ms": 4539.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q19",
+      "question": "¿Qué categoría vendió más unidades en septiembre de 2026?",
+      "tags": [
+        "join",
+        "dates",
+        "top-n"
+      ],
+      "gold_sql": "SELECT p.category FROM sales_daily sd JOIN products p ON p.sku = sd.sku WHERE sd.day BETWEEN '2026-09-01' AND '2026-09-30' GROUP BY p.category ORDER BY SUM(sd.units) DESC LIMIT 1",
+      "pred_sql": "SELECT p.category, SUM(sd.units) AS total_unidades FROM sales_daily AS sd JOIN products AS p ON p.sku = sd.sku WHERE sd.day > CAST('2026-08-31' AS DATE) AND sd.day <= CAST('2026-09-30' AS DATE) GROUP BY p.category ORDER BY total_unidades DESC LIMIT 1",
+      "error": null,
+      "match": true,
+      "match_strict": false,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4656,
+      "output_tokens": 60,
+      "llm_latency_ms": 4195.7,
+      "total_latency_ms": 4207.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q20",
+      "question": "¿Cuál fue el promedio diario de unidades vendidas del SKU-0007 en los últimos 7 días, redondeado a 2 decimales?",
+      "tags": [
+        "dates",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT ROUND(AVG(units), 2) FROM sales_daily WHERE sku = 'SKU-0007' AND day BETWEEN '2026-09-20' AND '2026-09-26'",
+      "pred_sql": "SELECT ROUND(CAST(AVG(units) AS DECIMAL), 2) AS promedio_diario FROM sales_daily WHERE sku = 'SKU-0007' AND day > CAST('2026-09-26' AS DATE) - 7 AND day <= CAST('2026-09-26' AS DATE) LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4631,
+      "output_tokens": 43,
+      "llm_latency_ms": 3711.6,
+      "total_latency_ms": 3726.0,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q21",
+      "question": "¿En cuántos días el SKU-0096 no tuvo ventas?",
+      "tags": [
+        "filter",
+        "count"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM sales_daily WHERE sku = 'SKU-0096' AND units = 0",
+      "pred_sql": "SELECT COUNT(*) AS dias_sin_ventas\nFROM generate_series(\n    DATE '2026-09-26' - INTERVAL '29 days',\n    DATE '2026-09-26',\n    '1 day'::interval\n)::date AS fecha\nWHERE NOT EXISTS (\n    SELECT 1 FROM sales_daily s\n    WHERE s.sku = 'SKU-0096' AND s.day = fecha\n)",
+      "error": "guard_rejected: SQL invalido: Invalid expression / Unexpected token. Line 6, Col: 3.\n  e_series(\n    DATE '2026-09-26' - INTERVAL '29 days',\n    DATE '2026-09-26',\n    '1 day'::interval\n)\u001b[4m::\u001b[0mdate AS fecha\nWHERE NOT EXISTS (\n    SELECT 1 FROM sales_daily s\n    WHERE s.sku = 'SKU-0096' AND s.",
+      "match": false,
+      "match_strict": false,
+      "gold_rows": 1,
+      "pred_rows": 0,
+      "input_tokens": 4831,
+      "output_tokens": 69,
+      "llm_latency_ms": 5614.1,
+      "total_latency_ms": 5615.0,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q22",
+      "question": "¿Cuál fue el monto vendido (unidades por costo unitario) por categoría en los últimos 90 días?",
+      "tags": [
+        "join",
+        "dates",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT p.category, SUM(sd.units * p.unit_cost) FROM sales_daily sd JOIN products p ON p.sku = sd.sku WHERE sd.day BETWEEN '2026-06-29' AND '2026-09-26' GROUP BY p.category",
+      "pred_sql": "SELECT p.category, SUM(sd.units * p.unit_cost) AS monto_vendido FROM sales_daily AS sd JOIN products AS p ON p.sku = sd.sku WHERE sd.day > CAST('2026-09-26' AS DATE) - 90 AND sd.day <= CAST('2026-09-26' AS DATE) GROUP BY p.category ORDER BY p.category LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 8,
+      "pred_rows": 8,
+      "input_tokens": 4819,
+      "output_tokens": 63,
+      "llm_latency_ms": 5261.8,
+      "total_latency_ms": 5282.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q23",
+      "question": "Para cada producto crítico, calcula los días de cobertura: stock total dividido entre el promedio diario de ventas de los últimos 30 días, redondeado a 1 decimal. Devuelve SKU y días de cobertura.",
+      "tags": [
+        "cte",
+        "dates",
+        "hard"
+      ],
+      "gold_sql": "WITH st AS (SELECT sku, SUM(on_hand) AS total FROM stock GROUP BY sku), dem AS (SELECT sku, AVG(units) AS avg_units FROM sales_daily WHERE day BETWEEN '2026-08-28' AND '2026-09-26' GROUP BY sku) SELECT p.sku, ROUND(st.total / dem.avg_units, 1) FROM products p JOIN st ON st.sku = p.sku JOIN dem ON dem.sku = p.sku WHERE p.critical",
+      "pred_sql": "WITH stock_total AS (SELECT sku, SUM(on_hand) AS total_stock FROM stock GROUP BY sku), ventas_promedio AS (SELECT sku, CAST(AVG(units) AS DECIMAL(12, 2)) AS promedio_diario FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) GROUP BY sku) SELECT p.sku, ROUND(st.total_stock / NULLIF(v.promedio_diario, 0), 1) AS dias_cobertura FROM products AS p JOIN stock_total AS st ON p.sku = st.sku LEFT JOIN ventas_promedio AS v ON p.sku = v.sku WHERE p.critical = TRUE AND st.total_stock > 0 ORDER BY p.sku LIMIT 200",
+      "error": null,
+      "match": false,
+      "match_strict": false,
+      "gold_rows": 30,
+      "pred_rows": 30,
+      "input_tokens": 4891,
+      "output_tokens": 141,
+      "llm_latency_ms": 6416.3,
+      "total_latency_ms": 6435.8,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q24",
+      "question": "¿Qué productos críticos tienen un proveedor con tiempo de entrega mayor a 20 días? Devuelve SKU y nombre del proveedor.",
+      "tags": [
+        "join",
+        "filter"
+      ],
+      "gold_sql": "SELECT p.sku, s.name FROM products p JOIN suppliers s ON s.supplier_id = p.supplier_id WHERE p.critical AND s.lead_time_days > 20",
+      "pred_sql": "SELECT p.sku, s.name AS proveedor FROM products AS p JOIN suppliers AS s ON s.supplier_id = p.supplier_id WHERE p.critical = TRUE AND s.lead_time_days > 20 ORDER BY p.sku LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 12,
+      "pred_rows": 12,
+      "input_tokens": 4351,
+      "output_tokens": 44,
+      "llm_latency_ms": 1637.4,
+      "total_latency_ms": 1652.1,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q25",
+      "question": "¿Cuántos productos surte cada país (según el país del proveedor)?",
+      "tags": [
+        "join",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT s.country, COUNT(*) FROM products p JOIN suppliers s ON s.supplier_id = p.supplier_id GROUP BY s.country",
+      "pred_sql": "SELECT s.country, COUNT(p.sku) AS productos FROM products AS p JOIN suppliers AS s ON s.supplier_id = p.supplier_id GROUP BY s.country ORDER BY s.country LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 7,
+      "pred_rows": 7,
+      "input_tokens": 4367,
+      "output_tokens": 40,
+      "llm_latency_ms": 1680.9,
+      "total_latency_ms": 1695.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q26",
+      "question": "¿Qué proveedores surten al menos un producto que está por debajo de su punto de reorden? Devuelve nombres sin repetir.",
+      "tags": [
+        "join",
+        "reorder",
+        "subquery"
+      ],
+      "gold_sql": "SELECT DISTINCT su.name FROM suppliers su JOIN products p ON p.supplier_id = su.supplier_id WHERE p.sku IN (SELECT st.sku FROM stock st GROUP BY st.sku HAVING SUM(st.on_hand) < p.reorder_point)",
+      "pred_sql": "WITH total_stock AS (SELECT p.supplier_id, p.sku, COALESCE(SUM(s.on_hand), 0) AS stock_total FROM products AS p LEFT JOIN stock AS s ON s.sku = p.sku GROUP BY p.supplier_id, p.sku) SELECT DISTINCT sup.name AS proveedor FROM suppliers AS sup JOIN total_stock AS ts ON ts.supplier_id = sup.supplier_id JOIN products AS p ON p.sku = ts.sku AND p.supplier_id = sup.supplier_id WHERE ts.stock_total < p.reorder_point ORDER BY sup.name LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 10,
+      "pred_rows": 10,
+      "input_tokens": 4451,
+      "output_tokens": 111,
+      "llm_latency_ms": 2812.3,
+      "total_latency_ms": 2827.8,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q27",
+      "question": "¿Cuánto costaría reponer todos los SKUs que están bajo su punto de reorden hasta exactamente ese punto? Suma de (punto de reorden menos stock total) por costo unitario.",
+      "tags": [
+        "cte",
+        "reorder",
+        "hard"
+      ],
+      "gold_sql": "WITH st AS (SELECT sku, SUM(on_hand) AS total FROM stock GROUP BY sku) SELECT SUM((p.reorder_point - st.total) * p.unit_cost) FROM products p JOIN st ON st.sku = p.sku WHERE st.total < p.reorder_point",
+      "pred_sql": "WITH stock_total AS (SELECT p.sku, p.reorder_point, COALESCE(SUM(s.on_hand), 0) AS total_stock, p.unit_cost FROM products AS p LEFT JOIN stock AS s ON p.sku = s.sku GROUP BY p.sku, p.reorder_point, p.unit_cost) SELECT SUM((reorder_point - total_stock) * unit_cost) AS costo_reposicion FROM stock_total WHERE total_stock < reorder_point LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4448,
+      "output_tokens": 103,
+      "llm_latency_ms": 2701.5,
+      "total_latency_ms": 2716.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q28",
+      "question": "¿Cuál fue la mayor venta de un SKU en un solo día? Devuelve SKU, fecha y unidades.",
+      "tags": [
+        "top-n"
+      ],
+      "gold_sql": "SELECT sku, day, units FROM sales_daily ORDER BY units DESC LIMIT 1",
+      "pred_sql": "WITH daily_sales AS (SELECT sku, day, SUM(units) AS total_units FROM sales_daily GROUP BY sku, day) SELECT sku, day AS fecha, total_units AS unidades FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY sku ORDER BY total_units DESC) AS rn FROM daily_sales) AS ranked WHERE rn = 1 LIMIT 200",
+      "error": null,
+      "match": false,
+      "match_strict": false,
+      "gold_rows": 1,
+      "pred_rows": 200,
+      "input_tokens": 4397,
+      "output_tokens": 80,
+      "llm_latency_ms": 2180.0,
+      "total_latency_ms": 2229.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q29",
+      "question": "¿Cuántas unidades se vendieron en agosto de 2026 y cuántas en septiembre de 2026? Devuelve ambas cifras en una sola fila (agosto primero).",
+      "tags": [
+        "dates",
+        "hard"
+      ],
+      "gold_sql": "SELECT SUM(units) FILTER (WHERE day BETWEEN '2026-08-01' AND '2026-08-31'), SUM(units) FILTER (WHERE day BETWEEN '2026-09-01' AND '2026-09-30') FROM sales_daily",
+      "pred_sql": "SELECT SUM(CASE WHEN day BETWEEN CAST('2026-08-01' AS DATE) AND CAST('2026-08-31' AS DATE) THEN units ELSE 0 END) AS agosto, SUM(CASE WHEN day BETWEEN CAST('2026-09-01' AS DATE) AND CAST('2026-09-30' AS DATE) THEN units ELSE 0 END) AS septiembre FROM sales_daily LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 4575,
+      "output_tokens": 62,
+      "llm_latency_ms": 3377.6,
+      "total_latency_ms": 3394.4,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    },
+    {
+      "id": "q30",
+      "question": "¿Qué SKUs vendieron menos de 5 unidades en total en los últimos 7 días?",
+      "tags": [
+        "dates",
+        "filter"
+      ],
+      "gold_sql": "SELECT sku FROM sales_daily WHERE day BETWEEN '2026-09-20' AND '2026-09-26' GROUP BY sku HAVING SUM(units) < 5",
+      "pred_sql": "SELECT s.sku FROM sales_daily AS s WHERE s.day > CAST('2026-09-26' AS DATE) - 7 AND s.day <= CAST('2026-09-26' AS DATE) GROUP BY s.sku HAVING SUM(s.units) < 5 ORDER BY s.sku LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 3,
+      "pred_rows": 3,
+      "input_tokens": 4470,
+      "output_tokens": 42,
+      "llm_latency_ms": 2553.7,
+      "total_latency_ms": 2570.7,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
+    }
+  ]
+}

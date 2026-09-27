@@ -118,6 +118,8 @@ def summarize(items: list[dict]) -> dict:
         "output_tokens": sum(i["output_tokens"] for i in items),
         "provider": items[0]["provider"] if items else "",
         "model": items[0]["model"] if items else "",
+        # los routers (p. ej. OmniRoute auto/*) pueden responder con modelos distintos
+        "models": dict(Counter(i["model"] for i in items if i["model"])),
     }
 
 
@@ -144,7 +146,8 @@ def main() -> None:
         mark = "OK " if i["match"] else "XX "
         print(f"{mark}{i['id']}  {i['total_latency_ms']:>8.0f} ms  {i['error'] or ''}")
     s = report["summary"]
-    print(f"\n[{s['provider']}] {s['model']}  n={s['n']}")
+    models = ", ".join(f"{m} x{c}" for m, c in s["models"].items())
+    print(f"\n[{s['provider']}] {models}  n={s['n']}")
     print(f"  execution accuracy : {s['execution_accuracy']:.1%} "
           f"(estricta {s['execution_accuracy_strict']:.1%})")
     print(f"  errores            : {s['error_rate']:.1%} (guard {s['guard_rejected_rate']:.1%})")

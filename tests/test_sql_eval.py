@@ -82,4 +82,5 @@ def test_evaluate_end_to_end_with_mocks():
     assert s["execution_accuracy_strict"] == 0.0
     assert s["guard_rejected_rate"] == 0.5
     assert s["input_tokens"] == 20 and s["output_tokens"] == 10
+    assert s["models"] == {"m": 2}
     assert [i["match"] for i in report["items"]] == [True, False]
