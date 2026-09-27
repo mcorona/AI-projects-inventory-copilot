@@ -10,6 +10,8 @@ from typing import Callable
 
 from src.guardrails.sql_guard import SQLRejected, validate_sql
 from src.llm import LLMProvider, get_provider
+from src.llm.router import CascadeRouter
+from src.llm.text import is_truncated_think, strip_think  # noqa: F401  (strip_think se re-exporta)
 
 SCHEMA_PROMPT = """Eres un experto en PostgreSQL 16. Traduce la pregunta del usuario a UNA sola
 consulta SELECT sobre este esquema de inventario (todas las fechas estan en sales_daily.day):
@@ -57,10 +59,8 @@ ORDER BY w.name;
 # fecha "hoy" de los datos sinteticos; scripts/generate_data.py la usa como fin de sales_daily
 ANCHOR_DATE = date(2026, 9, 26)
 
-_THINK_RE = re.compile(r"<think>.*?(</think>|$)", re.DOTALL | re.IGNORECASE)
 _FENCE_RE = re.compile(r"```(?:sql|postgresql)?\s*(.*?)```", re.DOTALL | re.IGNORECASE)
 _START_RE = re.compile(r"\b(WITH|SELECT)\b", re.IGNORECASE)
-_UNCLOSED_THINK_RE = re.compile(r"<think>(?!.*</think>)", re.DOTALL | re.IGNORECASE)
 
 
 @dataclass
@@ -78,15 +78,12 @@ class SQLToolResult:
     llm_latency_ms: float = 0.0
     db_latency_ms: float = 0.0
     total_latency_ms: float = 0.0
+    escalations: int = 0  # >0 si el router en cascada tuvo que subir de nivel
+    attempts: list[dict] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
         return self.error is None
-
-
-def strip_think(text: str) -> str:
-    """Elimina bloques <think>...</think> (incluido uno sin cerrar por truncamiento)."""
-    return _THINK_RE.sub("", text).strip()
 
 
 def extract_sql(text: str) -> str | None:
@@ -107,7 +104,8 @@ def extract_sql(text: str) -> str | None:
     return candidate.strip() or None
 
 
-def execute_readonly(sql: str, dsn: str, timeout_ms: int = 5000) -> tuple[list[str], list[tuple]]:
+def execute_readonly(sql: str, dsn: str, params: dict | None = None,
+                     timeout_ms: int = 5000) -> tuple[list[str], list[tuple]]:
     """Ejecuta con el rol de solo lectura en una transaccion READ ONLY con timeout."""
     import psycopg
 
@@ -115,7 +113,7 @@ def execute_readonly(sql: str, dsn: str, timeout_ms: int = 5000) -> tuple[list[s
         conn.read_only = True
         with conn.cursor() as cur:
             cur.execute(f"SET LOCAL statement_timeout = {int(timeout_ms)}")
-            cur.execute(sql)
+            cur.execute(sql, params)
             columns = [d.name for d in cur.description] if cur.description else []
             return columns, cur.fetchall()
 
@@ -128,15 +126,43 @@ def run_sql_tool(question: str, llm: LLMProvider | None = None,
     """Pregunta -> LLM -> strip_think -> extract_sql -> validate_sql -> ejecucion.
 
     Nunca lanza por errores del modelo, del guard o de la DB: los reporta en `error`.
-    `llm` y `executor` son inyectables para pruebas.
+    `llm` y `executor` son inyectables para pruebas. Si `llm` es un CascadeRouter, se
+    escala de nivel cuando el resultado no es aceptable (ver `sql_result_acceptable`).
     """
-    t0 = time.perf_counter()
-    res = SQLToolResult(question=question)
     llm = llm or get_provider()
     if executor is None:
         dsn = os.environ["PG_DSN"]
         executor = lambda sql: execute_readonly(sql, dsn)  # noqa: E731
+    if isinstance(llm, CascadeRouter):
+        return _run_cascade(question, llm, executor, max_tokens)
+    return _run_once(question, llm, executor, max_tokens)
 
+
+def sql_result_acceptable(res: SQLToolResult) -> bool:
+    """Criterio de escalamiento: sin error y con filas. Una respuesta vacia puede ser
+    correcta, pero es la senal mas barata de SQL mal filtrado; el costo es solo latencia."""
+    return res.ok and len(res.rows) > 0
+
+
+def _run_cascade(question: str, router: CascadeRouter, executor: Executor,
+                 max_tokens: int) -> SQLToolResult:
+    final, tries = router.run(lambda tier: _run_once(question, tier, executor, max_tokens),
+                              accept=sql_result_acceptable)
+    final.escalations = len(tries) - 1
+    final.attempts = [{"provider": r.provider, "model": r.model, "error": r.error,
+                       "rows": len(r.rows)} for r in tries]
+    # costo real: se suman tokens y latencia de todos los intentos
+    final.input_tokens = sum(r.input_tokens for r in tries)
+    final.output_tokens = sum(r.output_tokens for r in tries)
+    final.llm_latency_ms = sum(r.llm_latency_ms for r in tries)
+    final.db_latency_ms = sum(r.db_latency_ms for r in tries)
+    final.total_latency_ms = sum(r.total_latency_ms for r in tries)
+    return final
+
+
+def _run_once(question: str, llm: LLMProvider, executor: Executor, max_tokens: int) -> SQLToolResult:
+    t0 = time.perf_counter()
+    res = SQLToolResult(question=question)
     try:
         chat = llm.chat([{"role": "user", "content": question}],
                         system=SCHEMA_PROMPT.format(anchor=ANCHOR_DATE.isoformat()),
@@ -151,7 +177,7 @@ def run_sql_tool(question: str, llm: LLMProvider | None = None,
     res.llm_latency_ms = chat.latency_ms
 
     res.raw_sql = extract_sql(chat.text)
-    if _UNCLOSED_THINK_RE.search(chat.text):
+    if is_truncated_think(chat.text):
         # modelos de razonamiento: si se agota max_tokens pensando, no hay respuesta
         res.error = f"truncated: <think> sin cerrar tras {chat.output_tokens} tokens (sube max_tokens)"
         res.raw_sql = None

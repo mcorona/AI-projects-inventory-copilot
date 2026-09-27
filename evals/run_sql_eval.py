@@ -97,8 +97,12 @@ def evaluate(golden: list[dict], llm, executor, max_tokens: int = 8192) -> dict:
             "llm_latency_ms": round(r.llm_latency_ms, 1),
             "total_latency_ms": round(r.total_latency_ms, 1),
             "provider": r.provider, "model": r.model,
+            "escalations": r.escalations, "attempts": r.attempts,
         })
-    return {"summary": summarize(items), "items": items}
+    summary = summarize(items)
+    # con el router, cada item puede venir de un proveedor distinto: se reporta el router
+    summary["provider"] = getattr(llm, "name", summary["provider"])
+    return {"summary": summary, "items": items}
 
 
 def summarize(items: list[dict]) -> dict:
@@ -111,6 +115,7 @@ def summarize(items: list[dict]) -> dict:
         "execution_accuracy_strict": round(sum(i["match_strict"] for i in items) / n, 4),
         "guard_rejected_rate": round(sum(e.startswith("guard_rejected") for e in errors) / n, 4),
         "truncated_rate": round(sum(e.startswith("truncated") for e in errors) / n, 4),
+        "escalation_rate": round(sum(i.get("escalations", 0) > 0 for i in items) / n, 4),
         "error_rate": round(sum(bool(e) for e in errors) / n, 4),
         "latency_p50_ms": round(_percentile(lat, 50), 1),
         "latency_p95_ms": round(_percentile(lat, 95), 1),
@@ -153,6 +158,8 @@ def main() -> None:
     print(f"  errores            : {s['error_rate']:.1%} (guard {s['guard_rejected_rate']:.1%})")
     print(f"  latencia p50/p95   : {s['latency_p50_ms']:.0f} / {s['latency_p95_ms']:.0f} ms")
     print(f"  tokens in/out      : {s['input_tokens']} / {s['output_tokens']}")
+    if s["escalation_rate"]:
+        print(f"  escaladas (router) : {s['escalation_rate']:.1%}")
 
     REPORTS_DIR.mkdir(exist_ok=True)
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
