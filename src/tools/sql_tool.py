@@ -22,9 +22,13 @@ products(sku TEXT PK -- formato 'SKU-0001', name TEXT, category TEXT, unit_cost 
 warehouses(warehouse_id INT PK, name TEXT, city TEXT)
 stock(sku TEXT FK -> products, warehouse_id INT FK -> warehouses, on_hand INT) -- PK (sku, warehouse_id)
 sales_daily(sku TEXT FK -> products, day DATE, units INT) -- PK (sku, day), unidades vendidas por dia
+  -- hay UNA fila por cada SKU y cada dia del periodo; un dia sin ventas tiene units = 0
+  -- (no hay huecos: nunca generes series de fechas para buscar dias faltantes)
 
 Categorias: Tornilleria, Electrico, Hidraulico, Neumatico, Rodamientos, Seguridad, Herramientas, Empaque.
 Ciudades: Ciudad de Mexico, Guadalajara, Monterrey.
+Los valores de texto (categorias, ciudades, paises) se guardan SIN acentos y exactamente como
+aparecen arriba: si la pregunta dice "neumáticos" o "Neumático", usa category = 'Neumatico'.
 La fecha de referencia ("hoy") es {anchor}; usa fechas literales, no now() ni current_date.
 "Los ultimos N dias" incluye hoy y abarca exactamente N dias:
 day > DATE '{anchor}' - N AND day <= DATE '{anchor}'.

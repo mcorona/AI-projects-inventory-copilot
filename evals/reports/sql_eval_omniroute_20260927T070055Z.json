@@ -1,19 +1,19 @@
 {
   "summary": {
     "n": 30,
-    "execution_accuracy": 0.9667,
-    "execution_accuracy_strict": 0.9,
+    "execution_accuracy": 0.9333,
+    "execution_accuracy_strict": 0.8333,
     "guard_rejected_rate": 0.0,
     "truncated_rate": 0.0,
     "error_rate": 0.0,
-    "latency_p50_ms": 14386.3,
-    "latency_p95_ms": 34145.3,
-    "input_tokens": 16470,
-    "output_tokens": 50030,
-    "provider": "lmstudio",
-    "model": "qwen/qwen3.6-35b-a3b",
+    "latency_p50_ms": 1705.2,
+    "latency_p95_ms": 4268.9,
+    "input_tokens": 136003,
+    "output_tokens": 1253,
+    "provider": "omniroute",
+    "model": "minimax-m2.1",
     "models": {
-      "qwen/qwen3.6-35b-a3b": 30
+      "minimax-m2.1": 30
     }
   },
   "items": [
@@ -31,12 +31,12 @@
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 536,
-      "output_tokens": 345,
-      "llm_latency_ms": 3889.9,
-      "total_latency_ms": 3902.4,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4370,
+      "output_tokens": 15,
+      "llm_latency_ms": 1215.3,
+      "total_latency_ms": 1222.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q02",
@@ -46,18 +46,18 @@
         "count"
       ],
       "gold_sql": "SELECT COUNT(*) FROM products WHERE critical",
-      "pred_sql": "SELECT COUNT(*) AS productos_criticos FROM products WHERE critical LIMIT 200",
+      "pred_sql": "SELECT COUNT(*) AS productos_criticos FROM products WHERE critical = TRUE LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 535,
-      "output_tokens": 1181,
-      "llm_latency_ms": 9921.2,
-      "total_latency_ms": 9934.9,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4374,
+      "output_tokens": 21,
+      "llm_latency_ms": 1078.0,
+      "total_latency_ms": 1091.1,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q03",
@@ -66,18 +66,18 @@
         "simple"
       ],
       "gold_sql": "SELECT name, city FROM warehouses",
-      "pred_sql": "SELECT name, city FROM warehouses LIMIT 200",
+      "pred_sql": "SELECT name, city FROM warehouses ORDER BY name LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 3,
       "pred_rows": 3,
-      "input_tokens": 538,
-      "output_tokens": 805,
-      "llm_latency_ms": 6701.9,
-      "total_latency_ms": 6715.2,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4361,
+      "output_tokens": 15,
+      "llm_latency_ms": 852.2,
+      "total_latency_ms": 865.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q04",
@@ -93,12 +93,12 @@
       "match_strict": true,
       "gold_rows": 2,
       "pred_rows": 2,
-      "input_tokens": 540,
-      "output_tokens": 1022,
-      "llm_latency_ms": 8559.2,
-      "total_latency_ms": 8572.4,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4446,
+      "output_tokens": 15,
+      "llm_latency_ms": 1336.3,
+      "total_latency_ms": 1349.2,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q05",
@@ -114,12 +114,12 @@
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 545,
-      "output_tokens": 1127,
-      "llm_latency_ms": 9491.8,
-      "total_latency_ms": 9501.1,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4424,
+      "output_tokens": 23,
+      "llm_latency_ms": 1311.0,
+      "total_latency_ms": 1325.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q06",
@@ -134,12 +134,12 @@
       "match_strict": true,
       "gold_rows": 8,
       "pred_rows": 8,
-      "input_tokens": 537,
-      "output_tokens": 723,
-      "llm_latency_ms": 6071.9,
-      "total_latency_ms": 6085.3,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4394,
+      "output_tokens": 25,
+      "llm_latency_ms": 1183.3,
+      "total_latency_ms": 1199.1,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q07",
@@ -155,12 +155,12 @@
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 551,
-      "output_tokens": 1276,
-      "llm_latency_ms": 10726.3,
-      "total_latency_ms": 10740.2,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4442,
+      "output_tokens": 26,
+      "llm_latency_ms": 1444.4,
+      "total_latency_ms": 1458.2,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q08",
@@ -175,12 +175,12 @@
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 545,
-      "output_tokens": 1068,
-      "llm_latency_ms": 8960.4,
-      "total_latency_ms": 8973.1,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4424,
+      "output_tokens": 21,
+      "llm_latency_ms": 1261.5,
+      "total_latency_ms": 1275.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q09",
@@ -190,18 +190,18 @@
         "reorder"
       ],
       "gold_sql": "SELECT p.sku FROM products p JOIN stock s ON s.sku = p.sku GROUP BY p.sku, p.reorder_point HAVING SUM(s.on_hand) < p.reorder_point",
-      "pred_sql": "WITH sku_totals AS (SELECT sku, SUM(on_hand) AS total_stock FROM stock GROUP BY sku) SELECT p.sku, p.name, st.total_stock, p.reorder_point FROM products AS p JOIN sku_totals AS st ON p.sku = st.sku WHERE st.total_stock < p.reorder_point ORDER BY p.sku LIMIT 200",
+      "pred_sql": "SELECT p.sku, p.name, SUM(s.on_hand) AS stock_total, p.reorder_point FROM products AS p JOIN stock AS s ON s.sku = p.sku GROUP BY p.sku, p.name, p.reorder_point HAVING SUM(s.on_hand) < p.reorder_point ORDER BY p.sku LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": false,
       "gold_rows": 25,
       "pred_rows": 25,
-      "input_tokens": 552,
-      "output_tokens": 2258,
-      "llm_latency_ms": 19063.7,
-      "total_latency_ms": 19079.7,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4450,
+      "output_tokens": 55,
+      "llm_latency_ms": 1658.3,
+      "total_latency_ms": 1674.0,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q10",
@@ -212,18 +212,18 @@
         "subquery"
       ],
       "gold_sql": "SELECT COUNT(*) FROM (SELECT p.sku FROM products p JOIN stock s ON s.sku = p.sku WHERE p.critical GROUP BY p.sku, p.reorder_point HAVING SUM(s.on_hand) < p.reorder_point) t",
-      "pred_sql": "SELECT COUNT(*) AS productos_criticos_bajo_reorden FROM products AS p JOIN (SELECT sku, SUM(on_hand) AS total_stock FROM stock GROUP BY sku) AS s ON p.sku = s.sku WHERE p.critical = TRUE AND s.total_stock < p.reorder_point LIMIT 200",
+      "pred_sql": "SELECT COUNT(*) AS productos_bajo_reorden FROM products AS p JOIN (SELECT sku, SUM(on_hand) AS stock_total FROM stock GROUP BY sku) AS s ON s.sku = p.sku WHERE p.critical = TRUE AND s.stock_total < p.reorder_point LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 546,
-      "output_tokens": 1723,
-      "llm_latency_ms": 14846.0,
-      "total_latency_ms": 14861.8,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4478,
+      "output_tokens": 58,
+      "llm_latency_ms": 1974.1,
+      "total_latency_ms": 1989.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q11",
@@ -238,12 +238,12 @@
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 547,
-      "output_tokens": 865,
-      "llm_latency_ms": 7357.0,
-      "total_latency_ms": 7370.9,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4434,
+      "output_tokens": 20,
+      "llm_latency_ms": 1334.5,
+      "total_latency_ms": 1348.2,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q12",
@@ -253,18 +253,18 @@
         "entity-mapping"
       ],
       "gold_sql": "SELECT SUM(s.on_hand) FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Monterrey'",
-      "pred_sql": "SELECT SUM(s.on_hand) AS total_unidades FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Monterrey' LIMIT 200",
+      "pred_sql": "SELECT COALESCE(SUM(s.on_hand), 0) AS total_stock FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Monterrey' LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 545,
-      "output_tokens": 1167,
-      "llm_latency_ms": 9833.1,
-      "total_latency_ms": 9847.2,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4542,
+      "output_tokens": 39,
+      "llm_latency_ms": 2327.7,
+      "total_latency_ms": 2342.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q13",
@@ -274,18 +274,18 @@
         "aggregation"
       ],
       "gold_sql": "SELECT w.name, SUM(s.on_hand * p.unit_cost) FROM stock s JOIN products p ON p.sku = s.sku JOIN warehouses w ON w.warehouse_id = s.warehouse_id GROUP BY w.name",
-      "pred_sql": "SELECT w.name, SUM(s.on_hand * p.unit_cost) AS valor FROM warehouses AS w JOIN stock AS s ON s.warehouse_id = w.warehouse_id JOIN products AS p ON p.sku = s.sku GROUP BY w.name ORDER BY w.name LIMIT 200",
+      "pred_sql": "SELECT w.name AS almacen, SUM(s.on_hand * p.unit_cost) AS valor_inventario FROM stock AS s JOIN products AS p ON p.sku = s.sku JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id GROUP BY w.name ORDER BY w.name LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 3,
       "pred_rows": 3,
-      "input_tokens": 557,
-      "output_tokens": 1904,
-      "llm_latency_ms": 16583.5,
-      "total_latency_ms": 16598.6,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4437,
+      "output_tokens": 56,
+      "llm_latency_ms": 1476.9,
+      "total_latency_ms": 1491.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q14",
@@ -295,18 +295,18 @@
         "top-n"
       ],
       "gold_sql": "SELECT w.name FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id GROUP BY w.name ORDER BY SUM(s.on_hand) DESC LIMIT 1",
-      "pred_sql": "SELECT w.name FROM warehouses AS w JOIN stock AS s ON s.warehouse_id = w.warehouse_id GROUP BY w.warehouse_id, w.name ORDER BY SUM(s.on_hand) DESC LIMIT 1",
+      "pred_sql": "SELECT w.name FROM warehouses AS w JOIN stock AS s ON s.warehouse_id = w.warehouse_id GROUP BY w.name ORDER BY SUM(s.on_hand) DESC LIMIT 1",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 543,
-      "output_tokens": 1339,
-      "llm_latency_ms": 11998.8,
-      "total_latency_ms": 12012.8,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4442,
+      "output_tokens": 36,
+      "llm_latency_ms": 1523.8,
+      "total_latency_ms": 1538.0,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q15",
@@ -316,18 +316,18 @@
         "filter"
       ],
       "gold_sql": "SELECT s.sku FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Guadalajara' AND s.on_hand = 0",
-      "pred_sql": "SELECT s.sku FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Guadalajara' AND s.on_hand = 0 ORDER BY s.sku LIMIT 200",
+      "pred_sql": "SELECT p.sku, p.name FROM products AS p LEFT JOIN stock AS s ON p.sku = s.sku LEFT JOIN warehouses AS w ON s.warehouse_id = w.warehouse_id AND w.city = 'Guadalajara' WHERE w.name IS NULL OR s.on_hand = 0 ORDER BY p.sku LIMIT 200",
       "error": null,
-      "match": true,
-      "match_strict": true,
+      "match": false,
+      "match_strict": false,
       "gold_rows": 4,
-      "pred_rows": 4,
-      "input_tokens": 542,
-      "output_tokens": 1533,
-      "llm_latency_ms": 14061.6,
-      "total_latency_ms": 14076.3,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "pred_rows": 200,
+      "input_tokens": 4825,
+      "output_tokens": 55,
+      "llm_latency_ms": 4299.0,
+      "total_latency_ms": 4315.1,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q16",
@@ -336,18 +336,18 @@
         "dates"
       ],
       "gold_sql": "SELECT SUM(units) FROM sales_daily WHERE day BETWEEN '2026-08-28' AND '2026-09-26'",
-      "pred_sql": "SELECT SUM(units) AS total_unidades FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) LIMIT 200",
+      "pred_sql": "SELECT SUM(units) AS total_vendido FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 545,
-      "output_tokens": 1112,
-      "llm_latency_ms": 10317.2,
-      "total_latency_ms": 10336.7,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4512,
+      "output_tokens": 33,
+      "llm_latency_ms": 2053.9,
+      "total_latency_ms": 2070.4,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q17",
@@ -363,12 +363,12 @@
       "match_strict": true,
       "gold_rows": 5,
       "pred_rows": 5,
-      "input_tokens": 556,
-      "output_tokens": 1077,
-      "llm_latency_ms": 10238.5,
-      "total_latency_ms": 10257.7,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4482,
+      "output_tokens": 25,
+      "llm_latency_ms": 1617.9,
+      "total_latency_ms": 1637.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q18",
@@ -378,18 +378,18 @@
         "aggregation"
       ],
       "gold_sql": "SELECT to_char(day, 'YYYY-MM') AS mes, SUM(units) FROM sales_daily GROUP BY mes ORDER BY mes",
-      "pred_sql": "SELECT TO_CHAR(day, 'YYYY-MM') AS mes, SUM(units) AS total FROM sales_daily GROUP BY 1 ORDER BY 1 LIMIT 200",
+      "pred_sql": "SELECT TO_CHAR(day, 'YYYY-MM') AS mes, SUM(units) AS total_vendido FROM sales_daily GROUP BY TO_CHAR(day, 'YYYY-MM'), DATE_TRUNC('MONTH', day) ORDER BY DATE_TRUNC('MONTH', day) LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 7,
       "pred_rows": 7,
-      "input_tokens": 555,
-      "output_tokens": 1764,
-      "llm_latency_ms": 16921.6,
-      "total_latency_ms": 16949.9,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4484,
+      "output_tokens": 47,
+      "llm_latency_ms": 1720.8,
+      "total_latency_ms": 1746.1,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q19",
@@ -400,18 +400,18 @@
         "top-n"
       ],
       "gold_sql": "SELECT p.category FROM sales_daily sd JOIN products p ON p.sku = sd.sku WHERE sd.day BETWEEN '2026-09-01' AND '2026-09-30' GROUP BY p.category ORDER BY SUM(sd.units) DESC LIMIT 1",
-      "pred_sql": "SELECT p.category, SUM(sd.units) AS total_unidades FROM sales_daily AS sd JOIN products AS p ON sd.sku = p.sku WHERE sd.day >= CAST('2026-09-01' AS DATE) AND sd.day <= CAST('2026-09-30' AS DATE) GROUP BY p.category ORDER BY total_unidades DESC LIMIT 1",
+      "pred_sql": "SELECT p.category, SUM(s.units) AS total_vendido FROM sales_daily AS s JOIN products AS p ON p.sku = s.sku WHERE s.day >= CAST('2026-09-01' AS DATE) AND s.day <= CAST('2026-09-30' AS DATE) GROUP BY p.category ORDER BY total_vendido DESC LIMIT 1",
       "error": null,
       "match": true,
       "match_strict": false,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 543,
-      "output_tokens": 1884,
-      "llm_latency_ms": 17999.3,
-      "total_latency_ms": 18017.1,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4792,
+      "output_tokens": 58,
+      "llm_latency_ms": 4194.9,
+      "total_latency_ms": 4212.4,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q20",
@@ -427,12 +427,12 @@
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 561,
-      "output_tokens": 1889,
-      "llm_latency_ms": 18035.3,
-      "total_latency_ms": 18049.7,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4743,
+      "output_tokens": 41,
+      "llm_latency_ms": 3503.6,
+      "total_latency_ms": 3517.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q21",
@@ -442,18 +442,18 @@
         "count"
       ],
       "gold_sql": "SELECT COUNT(*) FROM sales_daily WHERE sku = 'SKU-0096' AND units = 0",
-      "pred_sql": "WITH sku_range AS (SELECT MIN(day) AS min_d, MAX(day) AS max_d FROM sales_daily WHERE sku = 'SKU-0096'), all_days AS (SELECT CAST(GENERATE_SERIES(min_d, max_d, CAST('1 day' AS INTERVAL)) AS DATE) AS day FROM sku_range), sold_days AS (SELECT day FROM sales_daily WHERE sku = 'SKU-0096') SELECT COUNT(*) AS dias_sin_ventas FROM all_days AS a LEFT JOIN sold_days AS s ON a.day = s.day WHERE s.day IS NULL LIMIT 200",
+      "pred_sql": "SELECT COUNT(*) AS dias_sin_ventas FROM sales_daily WHERE sku = 'SKU-0096' AND units = 0 LIMIT 200",
       "error": null,
-      "match": false,
-      "match_strict": false,
+      "match": true,
+      "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 543,
-      "output_tokens": 4523,
-      "llm_latency_ms": 45821.6,
-      "total_latency_ms": 45843.6,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4516,
+      "output_tokens": 25,
+      "llm_latency_ms": 2059.5,
+      "total_latency_ms": 2073.7,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q22",
@@ -464,18 +464,18 @@
         "aggregation"
       ],
       "gold_sql": "SELECT p.category, SUM(sd.units * p.unit_cost) FROM sales_daily sd JOIN products p ON p.sku = sd.sku WHERE sd.day BETWEEN '2026-06-29' AND '2026-09-26' GROUP BY p.category",
-      "pred_sql": "SELECT p.category, SUM(sd.units * p.unit_cost) AS monto_vendido FROM sales_daily AS sd JOIN products AS p ON sd.sku = p.sku WHERE sd.day > CAST('2026-09-26' AS DATE) - 90 AND sd.day <= CAST('2026-09-26' AS DATE) GROUP BY p.category ORDER BY p.category LIMIT 200",
+      "pred_sql": "SELECT p.category, SUM(sd.units * p.unit_cost) AS monto_vendido FROM sales_daily AS sd JOIN products AS p ON p.sku = sd.sku WHERE sd.day > CAST('2026-09-26' AS DATE) - 90 AND sd.day <= CAST('2026-09-26' AS DATE) GROUP BY p.category ORDER BY p.category LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 8,
       "pred_rows": 8,
-      "input_tokens": 551,
-      "output_tokens": 1898,
-      "llm_latency_ms": 19284.8,
-      "total_latency_ms": 19304.4,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 5420,
+      "output_tokens": 62,
+      "llm_latency_ms": 8306.6,
+      "total_latency_ms": 8326.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q23",
@@ -486,18 +486,18 @@
         "hard"
       ],
       "gold_sql": "WITH st AS (SELECT sku, SUM(on_hand) AS total FROM stock GROUP BY sku), dem AS (SELECT sku, AVG(units) AS avg_units FROM sales_daily WHERE day BETWEEN '2026-08-28' AND '2026-09-26' GROUP BY sku) SELECT p.sku, ROUND(st.total / dem.avg_units, 1) FROM products p JOIN st ON st.sku = p.sku JOIN dem ON dem.sku = p.sku WHERE p.critical",
-      "pred_sql": "WITH total_stock AS (SELECT sku, SUM(on_hand) AS total FROM stock GROUP BY sku), avg_sales AS (SELECT sku, SUM(units) / 30.0 AS avg_daily FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) GROUP BY sku) SELECT p.sku, ROUND(CAST(ts.total AS DECIMAL) / NULLIF(a.avg_daily, 0), 1) AS dias_cobertura FROM products AS p JOIN total_stock AS ts ON ts.sku = p.sku LEFT JOIN avg_sales AS a ON a.sku = p.sku WHERE p.critical = TRUE ORDER BY p.sku LIMIT 200",
+      "pred_sql": "WITH total_stock AS (SELECT s.sku, SUM(s.on_hand) AS stock_total FROM stock AS s JOIN products AS p ON p.sku = s.sku WHERE p.critical = TRUE GROUP BY s.sku), avg_sales AS (SELECT sku, CAST(AVG(units) AS DECIMAL(12, 2)) AS avg_daily_sales FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) GROUP BY sku) SELECT ts.sku, ROUND(CAST((ts.stock_total / av.avg_daily_sales) AS DECIMAL), 1) AS dias_cobertura FROM total_stock AS ts JOIN avg_sales AS av ON av.sku = ts.sku WHERE av.avg_daily_sales > 0 ORDER BY ts.sku LIMIT 200",
       "error": null,
-      "match": true,
-      "match_strict": true,
+      "match": false,
+      "match_strict": false,
       "gold_rows": 30,
       "pred_rows": 30,
-      "input_tokens": 572,
-      "output_tokens": 3741,
-      "llm_latency_ms": 41176.0,
-      "total_latency_ms": 41194.5,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4652,
+      "output_tokens": 140,
+      "llm_latency_ms": 3550.5,
+      "total_latency_ms": 3570.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q24",
@@ -507,18 +507,18 @@
         "filter"
       ],
       "gold_sql": "SELECT p.sku, s.name FROM products p JOIN suppliers s ON s.supplier_id = p.supplier_id WHERE p.critical AND s.lead_time_days > 20",
-      "pred_sql": "SELECT p.sku, s.name AS nombre_proveedor FROM products AS p JOIN suppliers AS s ON p.supplier_id = s.supplier_id WHERE p.critical = TRUE AND s.lead_time_days > 20 LIMIT 200",
+      "pred_sql": "SELECT p.sku, s.name AS proveedor FROM products AS p JOIN suppliers AS s ON s.supplier_id = p.supplier_id WHERE p.critical = TRUE AND s.lead_time_days > 20 ORDER BY p.sku LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 12,
       "pred_rows": 12,
-      "input_tokens": 553,
-      "output_tokens": 1352,
-      "llm_latency_ms": 14685.3,
-      "total_latency_ms": 14696.3,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4470,
+      "output_tokens": 44,
+      "llm_latency_ms": 1721.4,
+      "total_latency_ms": 1736.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q25",
@@ -528,18 +528,18 @@
         "aggregation"
       ],
       "gold_sql": "SELECT s.country, COUNT(*) FROM products p JOIN suppliers s ON s.supplier_id = p.supplier_id GROUP BY s.country",
-      "pred_sql": "SELECT s.country, COUNT(p.sku) AS productos FROM products AS p JOIN suppliers AS s ON p.supplier_id = s.supplier_id GROUP BY s.country ORDER BY s.country LIMIT 200",
+      "pred_sql": "SELECT s.country, COUNT(p.sku) AS productos FROM suppliers AS s LEFT JOIN products AS p ON p.supplier_id = s.supplier_id GROUP BY s.country ORDER BY s.country LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 7,
       "pred_rows": 7,
-      "input_tokens": 544,
-      "output_tokens": 1118,
-      "llm_latency_ms": 11167.3,
-      "total_latency_ms": 11182.3,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4414,
+      "output_tokens": 41,
+      "llm_latency_ms": 1345.3,
+      "total_latency_ms": 1360.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q26",
@@ -550,18 +550,18 @@
         "subquery"
       ],
       "gold_sql": "SELECT DISTINCT su.name FROM suppliers su JOIN products p ON p.supplier_id = su.supplier_id WHERE p.sku IN (SELECT st.sku FROM stock st GROUP BY st.sku HAVING SUM(st.on_hand) < p.reorder_point)",
-      "pred_sql": "WITH sku_totals AS (SELECT sku, SUM(on_hand) AS total_stock FROM stock GROUP BY sku) SELECT DISTINCT s.name FROM suppliers AS s JOIN products AS p ON p.supplier_id = s.supplier_id JOIN sku_totals AS st ON st.sku = p.sku WHERE st.total_stock < p.reorder_point LIMIT 200",
+      "pred_sql": "SELECT DISTINCT s.name FROM suppliers AS s JOIN products AS p ON p.supplier_id = s.supplier_id WHERE p.sku IN (SELECT sku FROM stock GROUP BY sku HAVING SUM(on_hand) < p.reorder_point) ORDER BY s.name LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 10,
       "pred_rows": 10,
-      "input_tokens": 553,
-      "output_tokens": 2608,
-      "llm_latency_ms": 24859.8,
-      "total_latency_ms": 24876.6,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4553,
+      "output_tokens": 56,
+      "llm_latency_ms": 2350.7,
+      "total_latency_ms": 2368.8,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q27",
@@ -572,18 +572,18 @@
         "hard"
       ],
       "gold_sql": "WITH st AS (SELECT sku, SUM(on_hand) AS total FROM stock GROUP BY sku) SELECT SUM((p.reorder_point - st.total) * p.unit_cost) FROM products p JOIN st ON st.sku = p.sku WHERE st.total < p.reorder_point",
-      "pred_sql": "WITH stock_totals AS (SELECT sku, SUM(on_hand) AS total_stock FROM stock GROUP BY sku) SELECT SUM((p.reorder_point - COALESCE(st.total_stock, 0)) * p.unit_cost) AS costo_total FROM products AS p LEFT JOIN stock_totals AS st ON p.sku = st.sku WHERE COALESCE(st.total_stock, 0) < p.reorder_point LIMIT 200",
+      "pred_sql": "WITH stock_total AS (SELECT sku, SUM(on_hand) AS total_stock FROM stock GROUP BY sku) SELECT SUM((p.reorder_point - st.total_stock) * p.unit_cost) AS costo_reposicion FROM products AS p JOIN stock_total AS st ON st.sku = p.sku WHERE st.total_stock < p.reorder_point LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 571,
-      "output_tokens": 2611,
-      "llm_latency_ms": 25510.9,
-      "total_latency_ms": 25529.6,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4533,
+      "output_tokens": 71,
+      "llm_latency_ms": 2222.5,
+      "total_latency_ms": 2236.8,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q28",
@@ -598,12 +598,12 @@
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 549,
-      "output_tokens": 1454,
-      "llm_latency_ms": 15146.6,
-      "total_latency_ms": 15165.5,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4457,
+      "output_tokens": 20,
+      "llm_latency_ms": 1500.4,
+      "total_latency_ms": 1515.0,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q29",
@@ -613,18 +613,18 @@
         "hard"
       ],
       "gold_sql": "SELECT SUM(units) FILTER (WHERE day BETWEEN '2026-08-01' AND '2026-08-31'), SUM(units) FILTER (WHERE day BETWEEN '2026-09-01' AND '2026-09-30') FROM sales_daily",
-      "pred_sql": "SELECT SUM(units) FILTER(WHERE day >= CAST('2026-08-01' AS DATE) AND day <= CAST('2026-08-31' AS DATE)) AS unidades_agosto, SUM(units) FILTER(WHERE day >= CAST('2026-09-01' AS DATE) AND day <= CAST('2026-09-26' AS DATE)) AS unidades_septiembre FROM sales_daily LIMIT 200",
+      "pred_sql": "SELECT COALESCE(SUM(CASE WHEN day BETWEEN '2026-08-01' AND '2026-08-31' THEN units END), 0) AS agosto_2026, COALESCE(SUM(CASE WHEN day BETWEEN '2026-09-01' AND '2026-09-26' THEN units END), 0) AS septiembre_2026 FROM sales_daily LIMIT 200",
       "error": null,
       "match": true,
       "match_strict": true,
       "gold_rows": 1,
       "pred_rows": 1,
-      "input_tokens": 568,
-      "output_tokens": 2621,
-      "llm_latency_ms": 25330.9,
-      "total_latency_ms": 25347.5,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4584,
+      "output_tokens": 62,
+      "llm_latency_ms": 2814.4,
+      "total_latency_ms": 2832.2,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     },
     {
       "id": "q30",
@@ -634,18 +634,18 @@
         "filter"
       ],
       "gold_sql": "SELECT sku FROM sales_daily WHERE day BETWEEN '2026-09-20' AND '2026-09-26' GROUP BY sku HAVING SUM(units) < 5",
-      "pred_sql": "SELECT sku FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 7 AND day <= CAST('2026-09-26' AS DATE) GROUP BY sku HAVING SUM(units) < 5 ORDER BY sku LIMIT 200",
+      "pred_sql": "SELECT sku, SUM(units) AS total_vendido FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 7 AND day <= CAST('2026-09-26' AS DATE) GROUP BY sku HAVING SUM(units) < 5 ORDER BY total_vendido LIMIT 200",
       "error": null,
       "match": true,
-      "match_strict": true,
+      "match_strict": false,
       "gold_rows": 3,
       "pred_rows": 3,
-      "input_tokens": 547,
-      "output_tokens": 2042,
-      "llm_latency_ms": 19725.6,
-      "total_latency_ms": 19741.9,
-      "provider": "lmstudio",
-      "model": "qwen/qwen3.6-35b-a3b"
+      "input_tokens": 4548,
+      "output_tokens": 48,
+      "llm_latency_ms": 2241.8,
+      "total_latency_ms": 2258.4,
+      "provider": "omniroute",
+      "model": "minimax-m2.1"
     }
   ]
 }

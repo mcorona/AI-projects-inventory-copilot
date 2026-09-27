@@ -68,6 +68,8 @@ def test_happy_path_validates_executes_and_reports_metrics():
     system = llm.calls[0]["system"]
     assert "sales_daily" in system and "2026-09-26" in system
     assert "{anchor}" not in system  # todas las plantillas se resolvieron
+    assert "units = 0" in system  # sales_daily es densa: sin ventas = fila con 0
+    assert "SIN acentos" in system
 
 
 @pytest.mark.parametrize("sql", [
