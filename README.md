@@ -35,7 +35,7 @@ Usuario ─► API ─► Agente ─► Capa LLM ─┬─► LM Studio  (local)
 ## Arranque rápido (5 min)
 
 ```bash
-git clone https://github.com/mcoronap/AI-projects-inventory-copilot.git
+git clone https://github.com/mcorona/AI-projects-inventory-copilot.git
 cd AI-projects-inventory-copilot
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
