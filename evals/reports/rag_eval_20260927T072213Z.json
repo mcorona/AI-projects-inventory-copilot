@@ -1,0 +1,463 @@
+{
+  "summary": {
+    "n": 15,
+    "k": 4,
+    "hit_at_1": 1.0,
+    "hit_at_4": 1.0,
+    "mrr": 1.0,
+    "embed_model": "lmstudio:text-embedding-bge-m3"
+  },
+  "items": [
+    {
+      "id": "r01",
+      "question": "¿Quién aprueba una orden de compra de 180 mil pesos?",
+      "expected": [
+        "ordenes_de_compra.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "ordenes_de_compra.md",
+          "Niveles de aprobación por monto",
+          0.6427
+        ],
+        [
+          "politica_reorden.md",
+          "Responsables",
+          0.633
+        ],
+        [
+          "ordenes_de_compra.md",
+          "Uso de asistentes de IA",
+          0.6081
+        ],
+        [
+          "ordenes_de_compra.md",
+          "Cotizaciones",
+          0.5625
+        ]
+      ]
+    },
+    {
+      "id": "r02",
+      "question": "¿Cuántas cotizaciones necesito para una compra grande?",
+      "expected": [
+        "ordenes_de_compra.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "ordenes_de_compra.md",
+          "Cotizaciones",
+          0.6357
+        ],
+        [
+          "inventario_ciclico.md",
+          "Ajustes de inventario",
+          0.5221
+        ],
+        [
+          "ordenes_de_compra.md",
+          "Niveles de aprobación por monto",
+          0.506
+        ],
+        [
+          "politica_reorden.md",
+          "Cantidad a pedir",
+          0.4835
+        ]
+      ]
+    },
+    {
+      "id": "r03",
+      "question": "¿Qué factor de seguridad se usa para calcular el punto de reorden de un SKU crítico?",
+      "expected": [
+        "politica_reorden.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "politica_reorden.md",
+          "Cálculo del punto de reorden",
+          0.7663
+        ],
+        [
+          "politica_reorden.md",
+          "Cantidad a pedir",
+          0.6316
+        ],
+        [
+          "skus_criticos.md",
+          "Escalamiento",
+          0.611
+        ],
+        [
+          "skus_criticos.md",
+          "Definición",
+          0.6021
+        ]
+      ]
+    },
+    {
+      "id": "r04",
+      "question": "¿Cada cuánto se revisa la categoría Empaque contra su punto de reorden?",
+      "expected": [
+        "politica_reorden.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "politica_reorden.md",
+          "Frecuencia de revisión",
+          0.753
+        ],
+        [
+          "politica_reorden.md",
+          "Cálculo del punto de reorden",
+          0.6188
+        ],
+        [
+          "politica_reorden.md",
+          "Alcance",
+          0.5714
+        ],
+        [
+          "politica_reorden.md",
+          "Responsables",
+          0.5588
+        ]
+      ]
+    },
+    {
+      "id": "r05",
+      "question": "¿Para cuántos días de demanda se pide cuando un SKU normal cae bajo el punto de reorden?",
+      "expected": [
+        "politica_reorden.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "politica_reorden.md",
+          "Cantidad a pedir",
+          0.7937
+        ],
+        [
+          "politica_reorden.md",
+          "Cálculo del punto de reorden",
+          0.7197
+        ],
+        [
+          "skus_criticos.md",
+          "Indicador principal: días de cobertura",
+          0.6483
+        ],
+        [
+          "proveedores.md",
+          "Cambio de proveedor",
+          0.6436
+        ]
+      ]
+    },
+    {
+      "id": "r06",
+      "question": "¿Cuándo se escala al gerente de compras un producto crítico?",
+      "expected": [
+        "skus_criticos.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "skus_criticos.md",
+          "Escalamiento",
+          0.622
+        ],
+        [
+          "skus_criticos.md",
+          "Definición",
+          0.5802
+        ],
+        [
+          "politica_reorden.md",
+          "Cantidad a pedir",
+          0.553
+        ],
+        [
+          "skus_criticos.md",
+          "Compra urgente",
+          0.5332
+        ]
+      ]
+    },
+    {
+      "id": "r07",
+      "question": "¿Qué requisito hay de proveedor alterno?",
+      "expected": [
+        "skus_criticos.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "skus_criticos.md",
+          "Proveedor alterno",
+          0.7152
+        ],
+        [
+          "proveedores.md",
+          "Cambio de proveedor",
+          0.5859
+        ],
+        [
+          "devoluciones.md",
+          "Devoluciones a proveedores",
+          0.5105
+        ],
+        [
+          "proveedores.md",
+          "Indicadores",
+          0.4939
+        ]
+      ]
+    },
+    {
+      "id": "r08",
+      "question": "¿Qué meta de OTIF deben cumplir los proveedores?",
+      "expected": [
+        "proveedores.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "proveedores.md",
+          "Indicadores",
+          0.6671
+        ],
+        [
+          "proveedores.md",
+          "Clasificación",
+          0.4493
+        ],
+        [
+          "skus_criticos.md",
+          "Proveedor alterno",
+          0.44
+        ],
+        [
+          "ordenes_de_compra.md",
+          "Cotizaciones",
+          0.4341
+        ]
+      ]
+    },
+    {
+      "id": "r09",
+      "question": "¿Qué tiempo de entrega tienen normalmente los proveedores chinos?",
+      "expected": [
+        "proveedores.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "proveedores.md",
+          "Tiempos de entrega de referencia",
+          0.68
+        ],
+        [
+          "skus_criticos.md",
+          "Proveedor alterno",
+          0.6185
+        ],
+        [
+          "proveedores.md",
+          "Indicadores",
+          0.57
+        ],
+        [
+          "devoluciones.md",
+          "Devoluciones a proveedores",
+          0.5562
+        ]
+      ]
+    },
+    {
+      "id": "r10",
+      "question": "¿Qué pasa si llega 5% menos mercancía de la pedida?",
+      "expected": [
+        "recepcion_almacen.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "recepcion_almacen.md",
+          "Discrepancias",
+          0.6058
+        ],
+        [
+          "politica_reorden.md",
+          "Cantidad a pedir",
+          0.5967
+        ],
+        [
+          "devoluciones.md",
+          "Devoluciones a proveedores",
+          0.5349
+        ],
+        [
+          "transferencias_cedis.md",
+          "Reglas",
+          0.5177
+        ]
+      ]
+    },
+    {
+      "id": "r11",
+      "question": "¿En qué horario recibe mercancía el almacén de Guadalajara?",
+      "expected": [
+        "recepcion_almacen.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "recepcion_almacen.md",
+          "Horarios de recepción",
+          0.6325
+        ],
+        [
+          "devoluciones.md",
+          "Devoluciones de clientes",
+          0.4707
+        ],
+        [
+          "politica_reorden.md",
+          "Frecuencia de revisión",
+          0.4689
+        ],
+        [
+          "proveedores.md",
+          "Tiempos de entrega de referencia",
+          0.468
+        ]
+      ]
+    },
+    {
+      "id": "r12",
+      "question": "¿Puede un cliente regresar un casco si ya abrió la caja?",
+      "expected": [
+        "devoluciones.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "devoluciones.md",
+          "Devoluciones de clientes",
+          0.5536
+        ],
+        [
+          "devoluciones.md",
+          "Reingreso a inventario",
+          0.5445
+        ],
+        [
+          "devoluciones.md",
+          "Devoluciones a proveedores",
+          0.4786
+        ],
+        [
+          "politica_reorden.md",
+          "Alcance",
+          0.453
+        ]
+      ]
+    },
+    {
+      "id": "r13",
+      "question": "¿Quién autoriza un ajuste de inventario de 15 mil pesos?",
+      "expected": [
+        "inventario_ciclico.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "inventario_ciclico.md",
+          "Ajustes de inventario",
+          0.6908
+        ],
+        [
+          "politica_reorden.md",
+          "Responsables",
+          0.5276
+        ],
+        [
+          "ordenes_de_compra.md",
+          "Niveles de aprobación por monto",
+          0.5235
+        ],
+        [
+          "uso_copiloto.md",
+          "Qué no puede hacer",
+          0.5019
+        ]
+      ]
+    },
+    {
+      "id": "r14",
+      "question": "¿Cuánto tarda en llegar una transferencia de Monterrey a Guadalajara?",
+      "expected": [
+        "transferencias_cedis.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "transferencias_cedis.md",
+          "Tiempos de tránsito",
+          0.7045
+        ],
+        [
+          "recepcion_almacen.md",
+          "Horarios de recepción",
+          0.5518
+        ],
+        [
+          "proveedores.md",
+          "Tiempos de entrega de referencia",
+          0.5313
+        ],
+        [
+          "transferencias_cedis.md",
+          "Reglas",
+          0.5119
+        ]
+      ]
+    },
+    {
+      "id": "r15",
+      "question": "¿El asistente de IA puede aprobar órdenes de compra?",
+      "expected": [
+        "uso_copiloto.md",
+        "ordenes_de_compra.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "ordenes_de_compra.md",
+          "Uso de asistentes de IA",
+          0.804
+        ],
+        [
+          "uso_copiloto.md",
+          "Qué puede hacer",
+          0.5716
+        ],
+        [
+          "uso_copiloto.md",
+          "Qué no puede hacer",
+          0.5699
+        ],
+        [
+          "politica_reorden.md",
+          "Responsables",
+          0.5413
+        ]
+      ]
+    }
+  ]
+}

@@ -14,8 +14,13 @@ class SQLRejected(ValueError):
     pass
 
 
-def validate_sql(sql: str, max_rows: int = MAX_ROWS) -> str:
-    """Devuelve el SQL normalizado y seguro, o lanza SQLRejected con el motivo."""
+def validate_sql(sql: str, max_rows: int = MAX_ROWS,
+                 allowed_tables: set[str] | frozenset[str] = frozenset(ALLOWED_TABLES)) -> str:
+    """Devuelve el SQL normalizado y seguro, o lanza SQLRejected con el motivo.
+
+    `allowed_tables` solo se amplia para consultas FIJAS del codigo (p. ej. la busqueda RAG
+    sobre doc_chunks); el SQL generado por el LLM usa siempre ALLOWED_TABLES.
+    """
     try:
         statements = sqlglot.parse(sql, read="postgres")
     except sqlglot.errors.ParseError as e:
@@ -39,7 +44,7 @@ def validate_sql(sql: str, max_rows: int = MAX_ROWS) -> str:
             continue
         if table.db and table.db.lower() not in ("public",):
             raise SQLRejected(f"Esquema no permitido: {table.db}")
-        if name not in ALLOWED_TABLES:
+        if name not in allowed_tables:
             raise SQLRejected(f"Tabla no permitida: {name}")
 
     limit = tree.args.get("limit")

@@ -1,0 +1,15 @@
+{"id": "r01", "question": "¿Quién aprueba una orden de compra de 180 mil pesos?", "expected_sources": ["ordenes_de_compra.md"]}
+{"id": "r02", "question": "¿Cuántas cotizaciones necesito para una compra grande?", "expected_sources": ["ordenes_de_compra.md"]}
+{"id": "r03", "question": "¿Qué factor de seguridad se usa para calcular el punto de reorden de un SKU crítico?", "expected_sources": ["politica_reorden.md"]}
+{"id": "r04", "question": "¿Cada cuánto se revisa la categoría Empaque contra su punto de reorden?", "expected_sources": ["politica_reorden.md"]}
+{"id": "r05", "question": "¿Para cuántos días de demanda se pide cuando un SKU normal cae bajo el punto de reorden?", "expected_sources": ["politica_reorden.md"]}
+{"id": "r06", "question": "¿Cuándo se escala al gerente de compras un producto crítico?", "expected_sources": ["skus_criticos.md"]}
+{"id": "r07", "question": "¿Qué requisito hay de proveedor alterno?", "expected_sources": ["skus_criticos.md"]}
+{"id": "r08", "question": "¿Qué meta de OTIF deben cumplir los proveedores?", "expected_sources": ["proveedores.md"]}
+{"id": "r09", "question": "¿Qué tiempo de entrega tienen normalmente los proveedores chinos?", "expected_sources": ["proveedores.md"]}
+{"id": "r10", "question": "¿Qué pasa si llega 5% menos mercancía de la pedida?", "expected_sources": ["recepcion_almacen.md"]}
+{"id": "r11", "question": "¿En qué horario recibe mercancía el almacén de Guadalajara?", "expected_sources": ["recepcion_almacen.md"]}
+{"id": "r12", "question": "¿Puede un cliente regresar un casco si ya abrió la caja?", "expected_sources": ["devoluciones.md"]}
+{"id": "r13", "question": "¿Quién autoriza un ajuste de inventario de 15 mil pesos?", "expected_sources": ["inventario_ciclico.md"]}
+{"id": "r14", "question": "¿Cuánto tarda en llegar una transferencia de Monterrey a Guadalajara?", "expected_sources": ["transferencias_cedis.md"]}
+{"id": "r15", "question": "¿El asistente de IA puede aprobar órdenes de compra?", "expected_sources": ["uso_copiloto.md", "ordenes_de_compra.md"]}
