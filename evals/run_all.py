@@ -3,6 +3,7 @@
 Uso:
     python -m evals.run_all                                   # lmstudio + omniroute, 3 repeticiones
     python -m evals.run_all --providers omniroute --repeats 2 --suites sql,agent
+    python -m evals.run_all --providers "bedrock-haiku=bedrock:us.anthropic.claude-haiku-4-5-20251001-v1:0"
 
 Por proveedor y repeticion: text-to-SQL (split test), agente (split test) + faithfulness con
 juez Qwen, e inyeccion indirecta (1 repeticion). Una sola vez: recuperacion RAG, guardrails
@@ -43,6 +44,13 @@ def agg(values: list[float | None]) -> dict:
         return {"mean": None, "min": None, "max": None, "n": 0}
     return {"mean": round(statistics.fmean(vals), 4), "min": round(min(vals), 4),
             "max": round(max(vals), 4), "n": len(vals)}
+
+
+def parse_provider_spec(spec: str) -> tuple[str, str, str]:
+    """'lmstudio' | 'etiqueta=proveedor:modelo' -> (etiqueta, proveedor, modelo)."""
+    label, _, target = spec.partition("=") if "=" in spec else (spec, "", spec)
+    provider, _, model = target.partition(":")
+    return label.strip(), provider.strip(), (model.strip() or PROVIDER_MODELS.get(provider.strip(), ""))
 
 
 def cost_of_calls(calls: list[dict]) -> tuple[float, float | None]:
@@ -110,6 +118,10 @@ def main() -> None:
     p.add_argument("--suites", default="sql,agent,rag,guardrails,injection,judge")
     p.add_argument("--limit", type=int, default=None, help="solo las primeras N preguntas (prueba rapida)")
     p.add_argument("--out", default=None, help="carpeta de salida (por defecto evals/results/<ts>)")
+    p.add_argument("--resume", type=Path, default=None,
+                   help="reutiliza los reportes crudos existentes en esa carpeta y corre solo lo que falta")
+    p.add_argument("--repeats-for", default="",
+                   help="repeticiones por etiqueta, p. ej. 'bedrock-haiku=1,bedrock-qwen3=1'")
     p.add_argument("--rescore", type=Path, default=None,
                    help="recalcula metricas desde <carpeta>/raw sin volver a llamar modelos "
                         "(para corregir la forma de calificar, nunca las respuestas)")
@@ -121,10 +133,17 @@ def main() -> None:
 
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out_dir = Path(args.out) if args.out else RESULTS_DIR / run_id
+    if args.resume:
+        out_dir, run_id = args.resume, args.resume.name
+    repeats_for = {k: int(v) for k, v in (x.split("=") for x in args.repeats_for.split(",") if x)}
     raw_dir = out_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
     dsn = os.environ["PG_DSN"]
     executor = lambda sql: execute_readonly(sql, dsn)  # noqa: E731
+
+    def cached(name: str) -> dict | None:
+        path = raw_dir / f"{name}.json"
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
     def save(name: str, report: dict) -> None:
         (raw_dir / f"{name}.json").write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str),
@@ -132,39 +151,46 @@ def main() -> None:
 
     judge_provider, _, judge_model = JUDGE.partition(":")
     judge = LLMJudge(get_provider(judge_provider, judge_model))
-    summary: dict = {"run_id": run_id, "split": args.split, "repeats": args.repeats,
+    summary: dict = {"run_id": run_id, "split": args.split, "repeats": args.repeats, "repeats_for": repeats_for,
                      "fingerprints": fingerprints(), "judge": JUDGE, "providers": {}}
 
-    for name in args.providers.split(","):
-        model = PROVIDER_MODELS.get(name)
+    for spec in args.providers.split(","):
+        name, provider_name, model = parse_provider_spec(spec)
         runs: dict[str, list[dict]] = {"sql": [], "agent": []}
-        for rep in range(args.repeats):
-            llm = get_provider(name, model)
+        repeats = repeats_for.get(name, args.repeats)
+        for rep in range(repeats):
+            llm = get_provider(provider_name, model)
             llm.system_suffix = f"\n(corrida {run_id}-{rep} {uuid.uuid4().hex[:6]})"  # anti-cache
-            print(f"[{name}] repeticion {rep + 1}/{args.repeats}", flush=True)
+            print(f"[{name}] repeticion {rep + 1}/{repeats}", flush=True)
             if "sql" in suites:
-                r = run_sql_eval.evaluate(run_sql_eval.load_golden(args.split)[: args.limit], llm, executor)
-                save(f"sql_{name}_{rep}", r)
+                r = cached(f"sql_{name}_{rep}")
+                if r is None:
+                    r = run_sql_eval.evaluate(run_sql_eval.load_golden(args.split)[: args.limit], llm, executor)
+                    save(f"sql_{name}_{rep}", r)
                 runs["sql"].append(sql_run_metrics(r))
                 print(f"  sql   exec_acc={r['summary']['execution_accuracy']:.1%}", flush=True)
             if "agent" in suites:
-                r = run_agent_eval.evaluate(run_agent_eval.load_golden(args.split)[: args.limit], Agent(llm))
-                save(f"agent_{name}_{rep}", r)
-                faith = judge_report(judge, r)
-                save(f"faithfulness_{name}_{rep}", faith)
+                r, faith = cached(f"agent_{name}_{rep}"), cached(f"faithfulness_{name}_{rep}")
+                if r is None or faith is None:
+                    r = run_agent_eval.evaluate(run_agent_eval.load_golden(args.split)[: args.limit], Agent(llm))
+                    save(f"agent_{name}_{rep}", r)
+                    faith = judge_report(judge, r)
+                    save(f"faithfulness_{name}_{rep}", faith)
                 runs["agent"].append(agent_run_metrics(r, faith))
                 print(f"  agent tools={r['summary']['tool_selection_accuracy']:.1%} "
                       f"answer={r['summary']['answer_accuracy']:.1%} "
                       f"faithful={faith['summary']['faithfulness_rate']:.1%}", flush=True)
-        prov = {"model": model}
+        prov = {"model": model, "provider": provider_name, "repeats": repeats}
         for suite, rows in runs.items():
             if rows:
                 prov[f"{suite}_{args.split}"] = {k: agg([row[k] for row in rows]) for k in rows[0]}
         if "injection" in suites:
-            llm = get_provider(name, model)
+            llm = get_provider(provider_name, model)
             llm.system_suffix = f"\n(corrida {run_id}-inj {uuid.uuid4().hex[:6]})"
-            inj = run_injection_eval.run(llm)
-            save(f"injection_{name}", inj)
+            inj = cached(f"injection_{name}")
+            if inj is None:
+                inj = run_injection_eval.run(llm)
+                save(f"injection_{name}", inj)
             prov["injection"] = inj["summary"]
             print(f"  injection {json.dumps({k: v['attack_success_rate'] for k, v in inj['summary'].items() if isinstance(v, dict)})}", flush=True)
         summary["providers"][name] = prov
@@ -253,7 +279,8 @@ def to_markdown(s: dict) -> str:
         lines += [f"> Recalificado el {s['rescored_at'][:10]} desde las respuestas guardadas (se corrigio el "
                   "evaluador, no las respuestas de los modelos).", ""]
     names = list(s["providers"])
-    lines += ["| Metrica | " + " | ".join(f"{n} · `{s['providers'][n]['model']}`" for n in names) + " |",
+    lines += ["| Metrica | " + " | ".join(f"{n} · `{s['providers'][n]['model']}` ({s['providers'][n].get('repeats', s['repeats'])}x)"
+                                          for n in names) + " |",
               "|---|" + "---|" * len(names)]
 
     def row(label, suite, key, pct=True, digits=1, scale=1.0):

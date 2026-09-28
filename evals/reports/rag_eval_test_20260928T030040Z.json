@@ -1,0 +1,253 @@
+{
+  "summary": {
+    "n": 8,
+    "k": 4,
+    "hit_at_1": 1.0,
+    "hit_at_4": 1.0,
+    "mrr": 1.0,
+    "embed_model": "bedrock:amazon.titan-embed-text-v2:0",
+    "split": "test"
+  },
+  "items": [
+    {
+      "id": "rt01",
+      "question": "¿Cuál es la meta de calidad de piezas rechazadas para un proveedor?",
+      "expected": [
+        "proveedores.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "proveedores.md",
+          "Indicadores",
+          0.5375
+        ],
+        [
+          "proveedores.md",
+          "Clasificación",
+          0.4394
+        ],
+        [
+          "recepcion_almacen.md",
+          "Discrepancias",
+          0.3858
+        ],
+        [
+          "skus_criticos.md",
+          "Definición",
+          0.3772
+        ]
+      ]
+    },
+    {
+      "id": "rt02",
+      "question": "¿Qué cantidad mínima se puede mandar en una transferencia entre almacenes?",
+      "expected": [
+        "transferencias_cedis.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "transferencias_cedis.md",
+          "Reglas",
+          0.5367
+        ],
+        [
+          "transferencias_cedis.md",
+          "Cuándo transferir",
+          0.3816
+        ],
+        [
+          "skus_criticos.md",
+          "Antes de comprar: transferencias",
+          0.3759
+        ],
+        [
+          "inventario_ciclico.md",
+          "Ajustes de inventario",
+          0.3489
+        ]
+      ]
+    },
+    {
+      "id": "rt03",
+      "question": "¿En cuánto tiempo se emite la nota de crédito de una devolución?",
+      "expected": [
+        "devoluciones.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "devoluciones.md",
+          "Devoluciones de clientes",
+          0.4639
+        ],
+        [
+          "devoluciones.md",
+          "Devoluciones a proveedores",
+          0.426
+        ],
+        [
+          "devoluciones.md",
+          "Reingreso a inventario",
+          0.2649
+        ],
+        [
+          "proveedores.md",
+          "Tiempos de entrega de referencia",
+          0.2518
+        ]
+      ]
+    },
+    {
+      "id": "rt04",
+      "question": "¿Qué se hace si una ubicación tiene diferencia de más de 5 unidades en el conteo?",
+      "expected": [
+        "inventario_ciclico.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "inventario_ciclico.md",
+          "Durante el conteo",
+          0.5257
+        ],
+        [
+          "recepcion_almacen.md",
+          "Discrepancias",
+          0.406
+        ],
+        [
+          "inventario_ciclico.md",
+          "Exactitud de inventario",
+          0.3444
+        ],
+        [
+          "ordenes_de_compra.md",
+          "Cotizaciones",
+          0.3117
+        ]
+      ]
+    },
+    {
+      "id": "rt05",
+      "question": "¿Qué datos debe llevar obligatoriamente una orden de compra?",
+      "expected": [
+        "ordenes_de_compra.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "ordenes_de_compra.md",
+          "Datos obligatorios de una orden",
+          0.7716
+        ],
+        [
+          "ordenes_de_compra.md",
+          "Cotizaciones",
+          0.337
+        ],
+        [
+          "ordenes_de_compra.md",
+          "Uso de asistentes de IA",
+          0.3325
+        ],
+        [
+          "skus_criticos.md",
+          "Compra urgente",
+          0.3311
+        ]
+      ]
+    },
+    {
+      "id": "rt06",
+      "question": "¿Cuándo se considera que un SKU crítico está en riesgo?",
+      "expected": [
+        "skus_criticos.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "skus_criticos.md",
+          "Definición",
+          0.736
+        ],
+        [
+          "skus_criticos.md",
+          "Escalamiento",
+          0.6236
+        ],
+        [
+          "recepcion_almacen.md",
+          "SKUs críticos",
+          0.4874
+        ],
+        [
+          "skus_criticos.md",
+          "Indicador principal: días de cobertura",
+          0.4393
+        ]
+      ]
+    },
+    {
+      "id": "rt07",
+      "question": "¿En cuánto tiempo se debe registrar una entrada de mercancía en el sistema?",
+      "expected": [
+        "recepcion_almacen.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "recepcion_almacen.md",
+          "Proceso de recepción",
+          0.4359
+        ],
+        [
+          "recepcion_almacen.md",
+          "SKUs críticos",
+          0.3512
+        ],
+        [
+          "politica_reorden.md",
+          "Cantidad a pedir",
+          0.3246
+        ],
+        [
+          "recepcion_almacen.md",
+          "Discrepancias",
+          0.307
+        ]
+      ]
+    },
+    {
+      "id": "rt08",
+      "question": "¿Qué información no puede consultar el asistente de IA?",
+      "expected": [
+        "uso_copiloto.md"
+      ],
+      "rank": 1,
+      "retrieved": [
+        [
+          "uso_copiloto.md",
+          "Qué no puede hacer",
+          0.5394
+        ],
+        [
+          "ordenes_de_compra.md",
+          "Uso de asistentes de IA",
+          0.3883
+        ],
+        [
+          "uso_copiloto.md",
+          "Qué puede hacer",
+          0.3673
+        ],
+        [
+          "uso_copiloto.md",
+          "Datos",
+          0.3145
+        ]
+      ]
+    }
+  ]
+}

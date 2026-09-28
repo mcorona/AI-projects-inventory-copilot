@@ -11,8 +11,8 @@ GOLDEN = load_golden()
 
 
 def test_golden_set_shape():
-    assert len(GOLDEN) == 30
-    assert len({g["id"] for g in GOLDEN}) == 30
+    assert len(GOLDEN) == 31
+    assert len({g["id"] for g in GOLDEN}) == 31
     for g in GOLDEN:
         assert g["question"].strip() and g["sql"].strip()
         assert isinstance(g["order_matters"], bool)

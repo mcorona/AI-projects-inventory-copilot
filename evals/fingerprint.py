@@ -29,7 +29,7 @@ def _files(*paths: Path) -> list[bytes]:
 
 def fingerprints() -> dict[str, str]:
     from src.agent.core import PROMPT_DEFENSE_RULE, SYSTEM_PROMPT
-    from src.guardrails import injection, pii
+    from src.guardrails import injection, pii, pipeline, secrets
     from src.rag import chunking
     from src.tools.registry import build_tools
     from src.tools.sql_tool import SCHEMA_PROMPT
@@ -44,6 +44,7 @@ def fingerprints() -> dict[str, str]:
         "rag": _h(inspect.getsource(chunking), *_files(*(ROOT / "data" / "docs").glob("*.md")),
                   *_files(*DATASETS.glob("rag_*.jsonl"))),
         "guardrails": _h(inspect.getsource(injection), inspect.getsource(pii),
+                         inspect.getsource(secrets), inspect.getsource(pipeline),
                          *_files(DATASETS / "guardrails_attacks.jsonl")),
         "judge": _h(JUDGE_PROMPT, *_files(DATASETS / "judge_calibration.jsonl")),
     }

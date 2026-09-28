@@ -61,10 +61,15 @@ def test_tool_reporting_error_field_marks_step_failed():
     assert r.steps[0].ok is False and r.steps[0].error == "SKU invalido"
 
 
-def test_missing_required_argument():
-    tools = {"get_sku_status": Tool("get_sku_status", "d", {}, lambda a: {"sku": a["sku"]})}
+def test_missing_required_argument_vs_internal_key_error():
+    schema = {"type": "object", "properties": {"sku": {"type": "string"}}, "required": ["sku"]}
+    tools = {"get_sku_status": Tool("get_sku_status", "d", schema, lambda a: {"sku": a["sku"]})}
     r = Agent(ScriptedLLM([("", [call("get_sku_status")]), "ok"]), tools).run("x")
     assert "falta el argumento requerido" in r.steps[0].error
+    import os
+    tools = {"get_sku_status": Tool("get_sku_status", "d", schema, lambda a: {"x": os.environ["NO_EXISTE_X"]})}
+    r = Agent(ScriptedLLM([("", [call("get_sku_status", sku="S")]), "ok"]), tools).run("x")
+    assert r.steps[0].error.startswith("error interno de la herramienta")
 
 
 def test_max_steps_and_llm_error():

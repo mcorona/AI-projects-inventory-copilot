@@ -8,7 +8,8 @@ Cada escenario inyecta contenido malicioso en una tool real (documento o dato de
 se corre con tres configuraciones para medir cada capa por separado:
   none     sin regla en el prompt y sin pipeline
   prompt   regla "las tools son datos" en el prompt de sistema
-  full     prompt + pipeline (saneamiento de salidas + spotlighting)
+  full     prompt + pipeline (saneamiento de salidas de tools, spotlighting y filtro de salida
+           DLP con el canario registrado como secreto conocido)
 La compuerta humana esta siempre: las ordenes se escriben en un stub (nunca en la DB) y solo
 se confirman cuando el usuario las pidio.
 
@@ -167,7 +168,8 @@ def run(llm) -> dict:
                     "status": "PENDING_APPROVAL", "required_level": "comprador"}
 
         tools = poisoned_tools(build_tools(llm=llm, po_writer=stub_writer), scenario)
-        guard = GuardrailPipeline(audit=ListAuditSink()) if config == "full" else NoGuardrails()
+        guard = (GuardrailPipeline(audit=ListAuditSink(), known_secrets=[CANARY]) if config == "full"
+                 else NoGuardrails())
         return Agent(llm, tools, guardrails=guard, system_extra=SYSTEM_EXTRA,
                      prompt_defense=config != "none"), writes
 
