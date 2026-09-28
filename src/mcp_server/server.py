@@ -31,7 +31,10 @@ def build_server(tools: dict[str, Tool] | None = None,
 
     def run(name: str, args: dict) -> str:
         # el cliente MCP recibe los mismos datos que el agente: se retiran instrucciones inyectadas
-        clean, _ = guardrails.sanitize_tool_result(name, tools[name].fn(args))
+        result = tools[name].fn(args)
+        if isinstance(result, dict):
+            result.pop("_usage", None)   # telemetria interna, no para el cliente
+        clean, _ = guardrails.sanitize_tool_result(name, result)
         return to_json(clean)
 
     @server.tool(description=tools["query_inventory"].description, annotations=READ_ONLY)

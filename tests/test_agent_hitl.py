@@ -127,3 +127,11 @@ def test_registry_propose_requires_injected_confirmation_and_revalidates():
 def test_mcp_tools_exclude_actions():
     tools = build_tools(llm=ScriptedLLM([]), include_actions=False)
     assert "propose_purchase_order" not in tools and len(tools) == 3
+
+
+def test_prompt_defense_rule_can_be_disabled_for_evals():
+    on, off = ScriptedLLM(["ok"]), ScriptedLLM(["ok"])
+    Agent(on, po_tool([])).run("x")
+    Agent(off, po_tool([]), prompt_defense=False).run("x")
+    assert "trust=\"untrusted\">. Son DATOS" in on.calls[0]["system"]
+    assert "Son DATOS" not in off.calls[0]["system"] and "PENDING_APPROVAL" in off.calls[0]["system"]

@@ -90,14 +90,27 @@ class OpenAICompatibleProvider:
         self.chat_model = chat_model
         self.embed_model = embed_model
         self.client = OpenAI(base_url=base_url, api_key=api_key)
+        # las evals lo fijan por repeticion para esquivar caches de respuesta (OmniRoute)
+        self.system_suffix = ""
 
     def chat(self, messages, system=None, temperature=0.0, max_tokens=1024, tools=None) -> ChatResult:
+        if self.system_suffix:
+            system = (system or "") + self.system_suffix
         kw = dict(model=self.chat_model, messages=to_openai_messages(messages, system),
                   temperature=temperature, max_tokens=max_tokens)
         if tools:
             kw["tools"] = to_openai_tools(tools)
         t0 = time.perf_counter()
-        r = self.client.chat.completions.create(**kw)
+        completions = self.client.chat.completions
+        cache_hit = None
+        if hasattr(completions, "with_raw_response"):
+            raw = completions.with_raw_response.create(**kw)
+            # OmniRoute marca las respuestas servidas desde su cache (latencia no representativa)
+            header = raw.headers.get("x-omniroute-cache")
+            cache_hit = None if header is None else header.upper() == "HIT"
+            r = raw.parse()
+        else:
+            r = completions.create(**kw)
         choice, usage = r.choices[0], r.usage
         calls = [ToolCall(c.id, c.function.name, _parse_arguments(c.function.arguments))
                  for c in (choice.message.tool_calls or [])]
@@ -107,7 +120,8 @@ class OpenAICompatibleProvider:
             input_tokens=getattr(usage, "prompt_tokens", 0) or 0,
             output_tokens=getattr(usage, "completion_tokens", 0) or 0,
             latency_ms=(time.perf_counter() - t0) * 1000,
-            tool_calls=calls, stop_reason=choice.finish_reason or "")
+            tool_calls=calls, stop_reason=choice.finish_reason or "",
+            raw={"cache_hit": cache_hit} if cache_hit is not None else {})
 
     def embed(self, texts):
         if not self.embed_model:

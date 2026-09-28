@@ -54,7 +54,7 @@ FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id
 WHERE s.sku = 'SKU-0001'
 ORDER BY w.name;
 ```"""
-# Los ejemplos few-shot NO deben coincidir con preguntas de evals/golden_set.jsonl.
+# Los ejemplos few-shot NO deben coincidir con preguntas de evals/datasets/sql_*.jsonl.
 
 # fecha "hoy" de los datos sinteticos; scripts/generate_data.py la usa como fin de sales_daily
 ANCHOR_DATE = date(2026, 9, 26)
@@ -79,6 +79,7 @@ class SQLToolResult:
     db_latency_ms: float = 0.0
     total_latency_ms: float = 0.0
     escalations: int = 0  # >0 si el router en cascada tuvo que subir de nivel
+    cache_hit: bool | None = None  # respuesta servida desde cache del gateway (latencia no valida)
     attempts: list[dict] = field(default_factory=list)
 
     @property
@@ -122,19 +123,21 @@ Executor = Callable[[str], tuple[list[str], list[tuple]]]
 
 
 def run_sql_tool(question: str, llm: LLMProvider | None = None,
-                 executor: Executor | None = None, max_tokens: int = 8192) -> SQLToolResult:
+                 executor: Executor | None = None, max_tokens: int = 8192,
+                 verifier=None) -> SQLToolResult:
     """Pregunta -> LLM -> strip_think -> extract_sql -> validate_sql -> ejecucion.
 
     Nunca lanza por errores del modelo, del guard o de la DB: los reporta en `error`.
     `llm` y `executor` son inyectables para pruebas. Si `llm` es un CascadeRouter, se
-    escala de nivel cuando el resultado no es aceptable (ver `sql_result_acceptable`).
+    escala de nivel cuando el resultado no es aceptable (ver `sql_result_acceptable`) o,
+    con `verifier` (SQLVerifier), cuando el verificador juzga que no responde la pregunta.
     """
     llm = llm or get_provider()
     if executor is None:
         dsn = os.environ["PG_DSN"]
         executor = lambda sql: execute_readonly(sql, dsn)  # noqa: E731
     if isinstance(llm, CascadeRouter):
-        return _run_cascade(question, llm, executor, max_tokens)
+        return _run_cascade(question, llm, executor, max_tokens, verifier)
     return _run_once(question, llm, executor, max_tokens)
 
 
@@ -145,18 +148,35 @@ def sql_result_acceptable(res: SQLToolResult) -> bool:
 
 
 def _run_cascade(question: str, router: CascadeRouter, executor: Executor,
-                 max_tokens: int) -> SQLToolResult:
-    final, tries = router.run(lambda tier: _run_once(question, tier, executor, max_tokens),
-                              accept=sql_result_acceptable)
+                 max_tokens: int, verifier=None) -> SQLToolResult:
+    verdicts: dict[int, object] = {}
+
+    def accept(res: SQLToolResult) -> bool:
+        if not sql_result_acceptable(res):
+            return False
+        if verifier is None:
+            return True
+        v = verifier.verify(question, res.sql, res.columns, res.rows)
+        verdicts[id(res)] = v
+        return v.ok
+
+    final, tries = router.run(lambda tier: _run_once(question, tier, executor, max_tokens), accept=accept)
     final.escalations = len(tries) - 1
-    final.attempts = [{"provider": r.provider, "model": r.model, "error": r.error,
-                       "rows": len(r.rows)} for r in tries]
+    final.attempts = []
+    for r in tries:
+        v = verdicts.get(id(r))
+        final.attempts.append({"provider": r.provider, "model": r.model, "error": r.error, "rows": len(r.rows),
+                               "verifier_ok": getattr(v, "ok", None), "verifier_reason": getattr(v, "reason", None)})
+    # el costo del verificador tambien cuenta
+    v_in = sum(v.input_tokens for v in verdicts.values())
+    v_out = sum(v.output_tokens for v in verdicts.values())
+    v_ms = sum(v.latency_ms for v in verdicts.values())
     # costo real: se suman tokens y latencia de todos los intentos
-    final.input_tokens = sum(r.input_tokens for r in tries)
-    final.output_tokens = sum(r.output_tokens for r in tries)
-    final.llm_latency_ms = sum(r.llm_latency_ms for r in tries)
+    final.input_tokens = sum(r.input_tokens for r in tries) + v_in
+    final.output_tokens = sum(r.output_tokens for r in tries) + v_out
+    final.llm_latency_ms = sum(r.llm_latency_ms for r in tries) + v_ms
     final.db_latency_ms = sum(r.db_latency_ms for r in tries)
-    final.total_latency_ms = sum(r.total_latency_ms for r in tries)
+    final.total_latency_ms = sum(r.total_latency_ms for r in tries) + v_ms
     return final
 
 
@@ -175,6 +195,7 @@ def _run_once(question: str, llm: LLMProvider, executor: Executor, max_tokens: i
     res.provider, res.model = chat.provider, chat.model
     res.input_tokens, res.output_tokens = chat.input_tokens, chat.output_tokens
     res.llm_latency_ms = chat.latency_ms
+    res.cache_hit = (chat.raw or {}).get("cache_hit")
 
     res.raw_sql = extract_sql(chat.text)
     if is_truncated_think(chat.text):

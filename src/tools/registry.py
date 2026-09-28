@@ -65,6 +65,10 @@ def build_tools(llm=None, sql_executor=None, param_executor=None, embedder=None,
             out["note"] = f"se muestran {MAX_ROWS_TO_MODEL} de {len(r.rows)} filas"
         if r.escalations:
             out["escalations"] = r.escalations
+        # canal interno (el agente lo retira antes de mostrarlo al modelo): consumo del LLM de SQL
+        out["_usage"] = [{"provider": r.provider, "model": r.model, "input_tokens": r.input_tokens,
+                          "output_tokens": r.output_tokens, "latency_ms": r.llm_latency_ms,
+                          "cache_hit": r.cache_hit}]
         return out
 
     def sku_status(args: dict) -> dict:

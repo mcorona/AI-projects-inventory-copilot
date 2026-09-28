@@ -1,0 +1,29 @@
+{
+  "_doc": "Precios on-demand de Amazon Bedrock (USD por 1M tokens) para estimar cuanto costaria cada corrida en Bedrock. LM Studio y OmniRoute (modelos gratuitos) cuestan $0 real.",
+  "source": {
+    "catalogs": [
+      "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonBedrock/current/us-east-1/index.json",
+      "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonBedrockFoundationModels/current/us-east-1/index.json"
+    ],
+    "publication_dates": ["2026-09-26T00:49:40Z", "2026-09-25T09:39:35Z"],
+    "region": "us-east-1",
+    "retrieved": "2026-09-28"
+  },
+  "models": {
+    "bedrock:minimax-m2.1": {"input_per_1m": 0.30, "output_per_1m": 1.20, "label": "Minimax M2.1 (Bedrock on-demand)"},
+    "bedrock:qwen3-32b": {"input_per_1m": 0.15, "output_per_1m": 0.60, "label": "Qwen3 32B (Bedrock on-demand)"},
+    "bedrock:claude-haiku-4.5-regional": {"input_per_1m": 1.10, "output_per_1m": 5.50, "label": "Claude Haiku 4.5 (Bedrock, regional)"},
+    "bedrock:claude-haiku-4.5-global": {"input_per_1m": 1.00, "output_per_1m": 5.00, "label": "Claude Haiku 4.5 (Bedrock, global)"},
+    "bedrock:titan-embed-text-v2": {"input_per_1m": 0.02, "output_per_1m": 0.0, "label": "Titan Text Embeddings V2"}
+  },
+  "equivalents": {
+    "minimax-m2.1": {"price": "bedrock:minimax-m2.1", "exact": true},
+    "kr/minimax-m2.1": {"price": "bedrock:minimax-m2.1", "exact": true},
+    "qwen/qwen3.6-35b-a3b": {"price": "bedrock:qwen3-32b", "exact": false,
+                             "note": "Qwen3.6-35B-A3B no esta en Bedrock; Qwen3 32B es el Qwen denso mas cercano"},
+    "us.anthropic.claude-haiku-4-5-20251001-v1:0": {"price": "bedrock:claude-haiku-4.5-regional", "exact": true,
+                                                     "note": "perfil us.* se estima con precio regional (conservador)"},
+    "global.anthropic.claude-haiku-4-5-20251001-v1:0": {"price": "bedrock:claude-haiku-4.5-global", "exact": true}
+  },
+  "zero_cost_providers": ["lmstudio", "omniroute"]
+}
