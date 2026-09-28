@@ -49,3 +49,26 @@ jobs:
           python -m scripts.generate_data
       - name: Integration tests (roles, triggers, pgvector, SQL de referencia)
         run: python -m pytest -q tests/integration
+
+  infra:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: infra/package-lock.json
+      - run: pip install -r requirements.txt
+      - run: npm ci
+      - name: Infra tests (propiedades de seguridad + cero hallazgos de cdk-nag)
+        run: python -m pytest -q tests
+      - name: cdk synth (falla si cdk-nag reporta errores)
+        run: npx cdk synth --quiet --app "python app.py"

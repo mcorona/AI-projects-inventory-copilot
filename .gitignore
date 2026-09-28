@@ -8,3 +8,5 @@ cdk.out/
 
 # resultados crudos por corrida (el resumen summary.{json,md} y latest.json si se versionan)
 evals/results/*/raw/
+node_modules/
+infra/cdk.context.json
