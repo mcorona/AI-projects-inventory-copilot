@@ -124,6 +124,11 @@ BEDROCK_GUARDRAIL_ID=... python -m evals.run_bedrock_guardrail_eval
 despliegan con `npx cdk deploy --all -c budgetEmail=...` y se destruyen con
 `-c allowDestroy=true`; **Aurora, los VPC endpoints y la Lambda cobran mientras existen**.
 
+`InventoryGuardrail` se desplegó en una cuenta real para la evaluación en vivo (versiones 1 a 3,
+ver [ADR-010](docs/adr/010-bedrock-comparison.md)) y **se eliminó al cerrar el proyecto** con
+`npx cdk destroy InventoryGuardrail`. No queda ningún recurso del proyecto en AWS; se vuelve a
+crear con el `deploy` de arriba.
+
 **Costo real de la Semana 6 en Bedrock:** corrida comparativa de 3 modelos + Guardrails + Titan,
 menos de US$5 estimado con `config/pricing.json`.
 

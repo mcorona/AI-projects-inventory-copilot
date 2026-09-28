@@ -46,6 +46,9 @@ por las de Secrets Manager, carga los datos sintéticos e indexa el corpus con T
   con permisos de administrador en la cuenta.
 - `InventoryData` e `InventoryApp` se sintetizan y se verifican en CI, pero no se despliegan.
   Aurora, los endpoints y la Lambda generan costo mientras existen.
+- Al cerrar el proyecto (2026-09-28) también se eliminó `InventoryGuardrail`
+  (`npx cdk destroy InventoryGuardrail`): no queda ningún recurso del proyecto en la cuenta.
+  Sus resultados quedaron en `evals/reports/bedrock_guardrail_eval_*.json`.
 
 ## Verificación
 - **cdk-nag:** 0 hallazgos sin justificar en los 3 stacks. La única excepción, además de los

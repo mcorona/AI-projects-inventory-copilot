@@ -37,7 +37,7 @@ Entrada: 30 ataques y 110 preguntas legítimas. Grounding: 16 casos etiquetados.
 | Heurísticas locales | 80.0% | 0% | ~0 ms |
 | Bedrock CLASSIC + temas denegados (v1) | 36.7% | 5.5% | 320 ms |
 | Bedrock STANDARD + temas denegados (v2) | 76.7% | 13.6% | 596 ms |
-| **Bedrock STANDARD sin temas (v3, desplegada)** | 70.0% | 0.9% | 593 ms |
+| **Bedrock STANDARD sin temas (v3, la recomendada)** | 70.0% | 0.9% | 593 ms |
 | **Local + Bedrock v3 combinados** | **96.7%** | **0.9%** | ~0.6 s |
 
 | Faithfulness sobre 16 casos etiquetados | Acuerdo | Detecta respuestas infieles |

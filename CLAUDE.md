@@ -41,7 +41,8 @@ agente GenAI gobernado sobre un sistema de inventario. Costo objetivo: $0 en loc
 
 ## AWS (Semana 6)
 - Infra en `infra/` (CDK Python + cdk-nag): `cd infra && npx cdk synth`. Pruebas: `../.venv/bin/python -m pytest -q tests`.
-- Solo `InventoryGuardrail` esta desplegado (LegacyStackSynthesizer: sin `cdk bootstrap`). Data/App: solo synth.
+- Nada desplegado en AWS: `InventoryGuardrail` se uso para la evaluacion en vivo y se destruyo al cerrar
+  (v1.0). Se despliega sin `cdk bootstrap` (LegacyStackSynthesizer). Data/App: solo synth.
 - El motor de regex de Bedrock Guardrails NO admite lookbehind. `ANONYMIZE` de PII solo aplica a la salida.
 - Temas denegados del guardrail desactivados por falsos positivos (context `guardrailTopics=true` para activarlos).
 - Evals de Bedrock: `run_all --providers "etiqueta=bedrock:<modelo>"`; `--resume <dir>` reutiliza reportes crudos.
