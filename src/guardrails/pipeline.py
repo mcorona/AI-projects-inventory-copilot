@@ -4,7 +4,7 @@
                               Bedrock opcional)
     sanitize_tool_result(r)   inyeccion indirecta: retira strings con instrucciones de salidas de tools
     wrap_tool_output(name, s) spotlighting: delimita la salida como datos no confiables
-    check_output(text)        PII en la respuesta
+    check_output(text)        PII y fuga de secretos (DLP) en la respuesta
 
 Cada intervencion se registra en la bitacora de auditoria.
 """
@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from src.audit import AuditSink, NullAuditSink
 from src.guardrails.injection import LLMInjectionClassifier, detect_injection
 from src.guardrails.pii import DEFAULT_INPUT_ACTIONS, DEFAULT_OUTPUT_ACTIONS, apply_pii_policy
+from src.guardrails.secrets import redact_secrets
 
 ALLOW, ANONYMIZE, BLOCK = "ALLOW", "ANONYMIZE", "BLOCK"
 REMOVED = "[contenido retirado por guardrail: posible instruccion inyectada]"
@@ -40,7 +41,8 @@ class GuardrailPipeline:
     def __init__(self, pii_input_actions: dict | None = None, pii_output_actions: dict | None = None,
                  detect_injection_input: bool = True, sanitize_tools: bool = True, spotlight: bool = True,
                  classifier: LLMInjectionClassifier | None = None, bedrock=None,
-                 audit: AuditSink | None = None, actor: str = "copilot"):
+                 audit: AuditSink | None = None, actor: str = "copilot",
+                 known_secrets: list[str] | None = None):
         self.pii_input_actions = pii_input_actions or DEFAULT_INPUT_ACTIONS
         self.pii_output_actions = pii_output_actions or DEFAULT_OUTPUT_ACTIONS
         self.detect_injection_input = detect_injection_input
@@ -50,6 +52,8 @@ class GuardrailPipeline:
         self.bedrock = bedrock
         self.audit = audit or NullAuditSink()
         self.actor = actor
+        # valores que nunca deben salir en una respuesta (identificadores internos, etc.)
+        self.known_secrets = list(known_secrets or [])
 
     @classmethod
     def from_env(cls, audit: AuditSink | None = None) -> "GuardrailPipeline":
@@ -124,10 +128,14 @@ class GuardrailPipeline:
 
     # ------------------------------------------------------------ respuesta
     def check_output(self, text: str) -> Decision:
-        pii = apply_pii_policy(text, self.pii_output_actions)
+        leak = redact_secrets(text, self.known_secrets)
+        pii = apply_pii_policy(leak.text, self.pii_output_actions)
+        findings = [f"secret:{f}" for f in leak.findings] + [f"pii:{m.kind}" for m in pii.matches]
+        if leak.findings:
+            self.audit.log(self.actor, "guardrail_output_secret_redacted", {"findings": leak.findings})
         if pii.matches:
-            findings = [f"pii:{m.kind}" for m in pii.matches]
             self.audit.log(self.actor, "guardrail_output_anonymized", {"findings": findings})
+        if findings:
             return Decision(ANONYMIZE, pii.text, findings)
         return Decision(ALLOW, text)
 
