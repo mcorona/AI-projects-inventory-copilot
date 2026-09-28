@@ -271,7 +271,11 @@ class Agent:
             try:
                 result = tool.fn({**_model_args(call.arguments), **extra_args})
             except KeyError as e:
-                error = f"falta el argumento requerido {e}"
+                # solo es "argumento faltante" si la clave es un parametro de la tool; si no, es un
+                # error interno (p. ej. configuracion) y no debe atribuirse al modelo
+                required = set(tool.parameters.get("properties", {})) | set(tool.parameters.get("required", []))
+                error = (f"falta el argumento requerido {e}" if e.args and e.args[0] in required
+                         else f"error interno de la herramienta: KeyError {e}")
             except Exception as e:
                 error = f"{type(e).__name__}: {e}"
             else:
