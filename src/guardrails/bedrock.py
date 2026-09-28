@@ -39,6 +39,23 @@ class BedrockGuardrail:
         return BedrockGuardrailResult(intervened, out_text, _findings(r.get("assessments") or []), r)
 
 
+    def check_grounding(self, context: str, query: str, answer: str) -> dict:
+        """Contextual grounding check: la respuesta debe estar anclada al contexto (fuente) y ser
+        relevante a la pregunta. Contraparte administrada del juez de faithfulness."""
+        r = self.client.apply_guardrail(
+            guardrailIdentifier=self.guardrail_id, guardrailVersion=self.version, source="OUTPUT",
+            content=[{"text": {"text": context, "qualifiers": ["grounding_source"]}},
+                     {"text": {"text": query, "qualifiers": ["query"]}},
+                     {"text": {"text": answer, "qualifiers": ["guard_content"]}}])
+        scores = {}
+        for a in r.get("assessments") or []:
+            for f in a.get("contextualGroundingPolicy", {}).get("filters", []):
+                scores[f["type"].lower()] = {"score": f.get("score"), "threshold": f.get("threshold"),
+                                             "action": f.get("action")}
+        return {"intervened": r.get("action") == "GUARDRAIL_INTERVENED", "scores": scores,
+                "findings": _findings(r.get("assessments") or []), "usage": r.get("usage", {})}
+
+
 def _findings(assessments: list[dict]) -> list[str]:
     """Aplana las evaluaciones de Bedrock a etiquetas legibles (p. ej. 'PROMPT_ATTACK', 'PII:EMAIL')."""
     out = []

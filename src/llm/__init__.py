@@ -181,8 +181,11 @@ class BedrockProvider:
         self.embed_model = embed_model
         cfg = Config(retries={"max_attempts": 5, "mode": "adaptive"})
         self.client = boto3.client("bedrock-runtime", region_name=region, config=cfg)
+        self.system_suffix = ""   # misma interfaz que el adaptador OpenAI (Bedrock no cachea respuestas)
 
     def chat(self, messages, system=None, temperature=0.0, max_tokens=1024, tools=None) -> ChatResult:
+        if self.system_suffix:
+            system = (system or "") + self.system_suffix
         kw = dict(modelId=self.chat_model, messages=to_converse_messages(messages),
                   inferenceConfig={"temperature": temperature, "maxTokens": max_tokens})
         if system:

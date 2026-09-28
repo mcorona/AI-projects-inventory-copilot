@@ -77,4 +77,14 @@ def test_run_all_aggregation_and_markdown():
     summary = {"run_id": "r", "split": "test", "repeats": 2, "judge": "j", "fingerprints": {"sql": "x"},
                "providers": {"p": {"model": "m", "sql_test": {"execution_accuracy": a}}}}
     md = to_markdown(summary)
-    assert "95.0% (90.0%–100.0%)" in md and "| p · `m` |" in md
+    assert "95.0% (90.0%–100.0%)" in md and "| p · `m` (2x) |" in md
+
+
+def test_parse_provider_spec_and_bedrock_prices():
+    from evals.run_all import parse_provider_spec
+    assert parse_provider_spec("lmstudio") == ("lmstudio", "lmstudio", "qwen/qwen3.6-35b-a3b")
+    assert parse_provider_spec("haiku=bedrock:us.anthropic.claude-haiku-4-5-20251001-v1:0") == (
+        "haiku", "bedrock", "us.anthropic.claude-haiku-4-5-20251001-v1:0")
+    c = estimate_cost("bedrock", "minimax.minimax-m2.1", 1_000_000, 0)
+    assert math.isclose(c.actual_usd, 0.30) and c.exact_equivalent
+    assert math.isclose(estimate_cost("bedrock", "qwen.qwen3-32b-v1:0", 0, 1_000_000).actual_usd, 0.60)
