@@ -22,3 +22,11 @@ class ScriptedLLM:
 
 def call(name, cid="c1", **arguments):
     return ToolCall(cid, name, arguments)
+
+
+def unwrap(content: str):
+    """Extrae el JSON de una salida de tool envuelta en <tool_output ...> (spotlighting)."""
+    import json
+    import re
+    m = re.fullmatch(r'<tool_output tool="[^"]+" trust="untrusted">\n(.*)\n</tool_output>', content, re.DOTALL)
+    return json.loads(m.group(1) if m else content)

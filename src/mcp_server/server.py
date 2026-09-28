@@ -9,6 +9,7 @@ from __future__ import annotations
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
+from src.guardrails.pipeline import GuardrailPipeline
 from src.tools.registry import Tool, build_tools, to_json
 from src.tools.sql_tool import ANCHOR_DATE, SCHEMA_PROMPT
 
@@ -20,21 +21,30 @@ INSTRUCTIONS = (
 READ_ONLY = ToolAnnotations(read_only_hint=True, destructive_hint=False, open_world_hint=False)
 
 
-def build_server(tools: dict[str, Tool] | None = None) -> MCPServer:
-    tools = tools if tools is not None else build_tools()
+def build_server(tools: dict[str, Tool] | None = None,
+                 guardrails: GuardrailPipeline | None = None) -> MCPServer:
+    # solo lectura: un cliente MCP arbitrario no garantiza la confirmacion humana que exige
+    # propose_purchase_order, asi que las acciones no se exponen por MCP
+    tools = tools if tools is not None else build_tools(include_actions=False)
+    guardrails = guardrails or GuardrailPipeline(actor="mcp")
     server = MCPServer(name="inventory-copilot", instructions=INSTRUCTIONS)
+
+    def run(name: str, args: dict) -> str:
+        # el cliente MCP recibe los mismos datos que el agente: se retiran instrucciones inyectadas
+        clean, _ = guardrails.sanitize_tool_result(name, tools[name].fn(args))
+        return to_json(clean)
 
     @server.tool(description=tools["query_inventory"].description, annotations=READ_ONLY)
     def query_inventory(question: str) -> str:
-        return to_json(tools["query_inventory"].fn({"question": question}))
+        return run("query_inventory", {"question": question})
 
     @server.tool(description=tools["get_sku_status"].description, annotations=READ_ONLY)
     def get_sku_status(sku: str) -> str:
-        return to_json(tools["get_sku_status"].fn({"sku": sku}))
+        return run("get_sku_status", {"sku": sku})
 
     @server.tool(description=tools["search_documents"].description, annotations=READ_ONLY)
     def search_documents(query: str, k: int = 4) -> str:
-        return to_json(tools["search_documents"].fn({"query": query, "k": k}))
+        return run("search_documents", {"query": query, "k": k})
 
     @server.resource("inventory://schema", name="schema", mime_type="text/plain",
                      description="Esquema de tablas consultables y convenciones de datos")

@@ -1,9 +1,7 @@
-import json
-
 from src.agent import Agent
 from src.llm import ChatResult
 from src.tools.registry import MAX_ROWS_TO_MODEL, Tool, build_tools, to_json
-from tests.fakes import ScriptedLLM, call
+from tests.fakes import ScriptedLLM, call, unwrap
 
 
 def fake_tools(record):
@@ -36,8 +34,10 @@ def test_loop_calls_tools_then_answers():
     msgs = llm.calls[1]["messages"]
     assert [m["role"] for m in msgs] == ["user", "assistant", "tool", "tool"]
     assert msgs[1]["content"] == "" and msgs[2]["tool_call_id"] == "a"
-    assert json.loads(msgs[2]["content"])["total_on_hand"] == 84
+    assert msgs[2]["content"].startswith('<tool_output tool="get_sku_status" trust="untrusted">')
+    assert unwrap(msgs[2]["content"])["total_on_hand"] == 84
     assert {t["name"] for t in llm.calls[0]["tools"]} == {"get_sku_status", "search_documents", "query_inventory"}
+    assert all(m["tool_calls"] for m in msgs if m["role"] == "assistant")  # la cola no vacia el historial
     assert "2026-09-26" in llm.calls[0]["system"]
 
 
@@ -52,7 +52,7 @@ def test_tool_errors_are_returned_to_model_not_raised():
     assert "RuntimeError: DB caida" in r.steps[0].error
     assert "herramienta desconocida" in r.steps[1].error
     assert "JSON valido" in r.steps[2].error
-    assert all("error" in json.loads(m["content"]) for m in llm.calls[1]["messages"] if m["role"] == "tool")
+    assert all("error" in unwrap(m["content"]) for m in llm.calls[1]["messages"] if m["role"] == "tool")
 
 
 def test_tool_reporting_error_field_marks_step_failed():
