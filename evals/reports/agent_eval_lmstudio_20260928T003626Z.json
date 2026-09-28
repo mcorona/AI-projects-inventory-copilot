@@ -1,0 +1,397 @@
+{
+  "summary": {
+    "n": 16,
+    "tool_selection_accuracy": 1.0,
+    "answered_rate": 1.0,
+    "avg_tool_calls": 1.25,
+    "latency_p50_ms": 7116.8,
+    "input_tokens": 44807,
+    "output_tokens": 7745,
+    "provider": "lmstudio",
+    "models": {
+      "qwen/qwen3.6-35b-a3b": 32
+    }
+  },
+  "items": [
+    {
+      "id": "a01",
+      "question": "¿Cómo está el SKU-0042?",
+      "expected": [
+        "get_sku_status"
+      ],
+      "used": [
+        "get_sku_status"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El **SKU-0042 (Cable THHN Pro)** se encuentra en un estado estable:\n\n*   **Stock Total:** 853 unidades.\n    *   CEDIS Centro (CDMX): 299 u.\n    *   CEDIS Norte (Monterrey): 131 u.\n    *   CEDIS Occidente (Guadalajara): 423 u.\n*   **Punto de Reorden:** 469 u. (Actualmente **no** está por debajo del punto de reorden).\n*   **Ventas (últimos 30 días):** 525 u. (Promedio diario: 17.5 u.).\n*   **Días de Cobertura:** 48.7 días.\n*   **Proveedor:** Andes Distribuciones (CO) con un *lead time* de 18 días.\n*   **Estado Crítico:** No.\n\nEn resumen, el inventario actual cubre casi 49 días de venta, lo cual es suficiente considerando el tiempo de entrega del proveedor (18 días).",
+      "llm_calls": 2,
+      "input_tokens": 2625,
+      "output_tokens": 592,
+      "latency_ms": 6331.6,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a02",
+      "question": "¿Cuántos días de cobertura le quedan al SKU-0152?",
+      "expected": [
+        "get_sku_status"
+      ],
+      "used": [
+        "get_sku_status"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El SKU-0152 (Cinta canela XL) tiene **82.5 días de cobertura** al 2026-09-26.",
+      "llm_calls": 2,
+      "input_tokens": 2643,
+      "output_tokens": 290,
+      "latency_ms": 3534.3,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a03",
+      "question": "¿Quién es el proveedor del SKU-0101 y cuál es su tiempo de entrega?",
+      "expected": [
+        "get_sku_status"
+      ],
+      "used": [
+        "get_sku_status"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El proveedor del SKU-0101 (Buje de bronce 1\") es **Electronica Pacifico** y su tiempo de entrega (lead time) es de **10 días**.",
+      "llm_calls": 2,
+      "input_tokens": 2644,
+      "output_tokens": 322,
+      "latency_ms": 3789.3,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a04",
+      "question": "¿Cuántos productos hay en la categoría Rodamientos?",
+      "expected": [
+        "query_inventory"
+      ],
+      "used": [
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Hay **25** productos en la categoría Rodamientos.",
+      "llm_calls": 2,
+      "input_tokens": 2440,
+      "output_tokens": 147,
+      "latency_ms": 7962.3,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a05",
+      "question": "¿Cuáles son los 3 SKUs más vendidos de septiembre de 2026?",
+      "expected": [
+        "query_inventory"
+      ],
+      "used": [
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Los 3 SKUs más vendidos en septiembre de 2026 son:\n\n1. **SKU-0144**: 1,168 unidades\n2. **SKU-0152**: 1,018 unidades\n3. **SKU-0056**: 984 unidades",
+      "llm_calls": 2,
+      "input_tokens": 2549,
+      "output_tokens": 219,
+      "latency_ms": 22996.4,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a06",
+      "question": "¿Qué almacén tiene el mayor valor de inventario?",
+      "expected": [
+        "query_inventory"
+      ],
+      "used": [
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El almacén con el mayor valor de inventario es **CEDIS Norte**.",
+      "llm_calls": 2,
+      "input_tokens": 2480,
+      "output_tokens": 156,
+      "latency_ms": 22541.3,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a07",
+      "question": "¿Cuál es la política de devoluciones de equipo de protección personal?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Según la política de devoluciones de clientes [fuente: devoluciones.md]:\n\n*   **Productos de Seguridad (EPP):** No se aceptan devoluciones si el empaque fue abierto, por razones de higiene. Esto incluye guantes, cascos, lentes y arneses.\n*   **Condiciones generales:** El plazo es de 30 días naturales desde la entrega y el producto debe estar en su empaque original y sin uso.\n*   **Procesamiento:** La nota de crédito se emite en un máximo de 10 días hábiles tras recibir la devolución.",
+      "llm_calls": 2,
+      "input_tokens": 2861,
+      "output_tokens": 417,
+      "latency_ms": 4907.2,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a08",
+      "question": "¿Quién aprueba una orden de compra de 300 mil pesos?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Una orden de compra por 300,000 MXN es aprobada por el **Director de operaciones**, ya que supera el umbral de $250,000 MXN [fuente: ordenes_de_compra.md].",
+      "llm_calls": 2,
+      "input_tokens": 2881,
+      "output_tokens": 401,
+      "latency_ms": 4808.5,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a09",
+      "question": "¿Cómo se calcula el punto de reorden?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El punto de reorden se calcula con la siguiente fórmula:\n\n**punto de reorden = demanda diaria promedio × tiempo de entrega del proveedor (días) × factor de seguridad**\n\nDetalles clave:\n- **Demanda diaria promedio:** Se toma de los últimos 90 días de ventas.\n- **Factor de seguridad:** Es 1.2 para SKUs normales y 1.5 para SKUs críticos.\n- **Recálculo:** Se actualiza cada trimestre o si el proveedor cambia su tiempo de entrega.\n\n[fuente: politica_reorden.md]",
+      "llm_calls": 2,
+      "input_tokens": 2920,
+      "output_tokens": 622,
+      "latency_ms": 6863.8,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a10",
+      "question": "El SKU-0009 está bajo su punto de reorden; ¿a qué nivel se debe escalar según la política de SKUs críticos?",
+      "expected": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "used": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El **SKU-0009** (Perno de anclaje 3/4\") es un **SKU crítico** con una existencia total de 84 unidades y una cobertura actual de **3.8 días**.\n\nSegún la política de *Manejo de SKUs críticos* [fuente: skus_criticos.md], al tener menos de 7 días de cobertura, debe escalar al **Nivel 2 (Gerente de Compras)**.\n\nEn este nivel se debe evaluar una **compra urgente** y una posible **transferencia entre CEDIS** para mitigar el riesgo de paro de línea.",
+      "llm_calls": 2,
+      "input_tokens": 3339,
+      "output_tokens": 619,
+      "latency_ms": 7116.8,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a11",
+      "question": "¿Cuántos SKUs críticos están bajo su punto de reorden y qué dice la política sobre cuándo reordenar?",
+      "expected": [
+        "query_inventory",
+        "search_documents"
+      ],
+      "used": [
+        "query_inventory",
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Hay **12 SKUs críticos** actualmente por debajo de su punto de reorden.\n\nSegún la **Política de reorden de inventario**, se debe reordenar cuando el stock total cae por debajo del punto de reorden. Para los **SKUs críticos**, la política especifica que se debe pedir lo necesario para cubrir **45 días de demanda** más el stock de seguridad (redondeando al múltiplo de empaque del proveedor). \n\nAdemás, se realiza una **revisión diaria** de todos los SKUs contra su punto de reorden.",
+      "llm_calls": 2,
+      "input_tokens": 3101,
+      "output_tokens": 516,
+      "latency_ms": 24309.0,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a12",
+      "question": "¿Qué tiempo de tránsito hay entre Ciudad de México y Monterrey para una transferencia?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El tiempo de tránsito entre Ciudad de México y Monterrey es de **2 días** [fuente: transferencias_cedis.md].",
+      "llm_calls": 2,
+      "input_tokens": 2932,
+      "output_tokens": 246,
+      "latency_ms": 3300.6,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a13",
+      "question": "Propón una orden de compra de 1500 unidades del SKU-0009 para reponer stock.",
+      "expected": [
+        "propose_purchase_order"
+      ],
+      "used": [
+        "propose_purchase_order"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [
+        "El usuario rechazo la accion: evaluacion: no se crean ordenes"
+      ],
+      "stop_reason": "answer",
+      "answer": "La orden de compra para el SKU-0009 no se ha creado. El sistema indica que \"no se crean ordenes\" en este momento, posiblemente debido a restricciones de autoridad o políticas vigentes. ¿Deseas revisar la política de aprobaciones o consultar el estado actual del inventario de este SKU?",
+      "llm_calls": 2,
+      "input_tokens": 2476,
+      "output_tokens": 319,
+      "latency_ms": 3635.2,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a14",
+      "question": "Crea una orden de compra de 200 unidades del SKU-0152.",
+      "expected": [
+        "propose_purchase_order"
+      ],
+      "used": [
+        "propose_purchase_order"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [
+        "El usuario rechazo la accion: evaluacion: no se crean ordenes"
+      ],
+      "stop_reason": "answer",
+      "answer": "No se pudo crear la orden de compra para el SKU-0152. El sistema indica que actualmente no se permiten la creación de órdenes.",
+      "llm_calls": 2,
+      "input_tokens": 2464,
+      "output_tokens": 794,
+      "latency_ms": 8350.2,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a15",
+      "question": "¿Cuántas unidades debería pedir del SKU-0009 según la política de reorden?",
+      "expected": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "used": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Según la política de reorden para **SKUs críticos** [fuente: politica_reorden.md], se debe pedir lo necesario para cubrir **45 días** de demanda más el stock de seguridad.\n\nPara el **SKU-0009** (Perno de anclaje 3/4\"):\n*   **Estado:** Crítico.\n*   **Stock actual total:** 84 unidades.\n*   **Demanda diaria promedio:** 22.3 unidades.\n\n**Cálculo:**\n1.  Demanda objetivo (45 días): $22.3 \\times 45 = 1003.5$ unidades.\n2.  Cantidad a pedir: $1003.5 - 84 = 919.5$ unidades.\n\nDeberías proponer una orden por **920 unidades** (redondeado al múltiplo de empaque del proveedor, si aplica).\n\n*Nota: La política indica no generar una nueva propuesta si ya existe una orden abierta (pendiente o aprobada) para este SKU.*",
+      "llm_calls": 2,
+      "input_tokens": 3256,
+      "output_tokens": 1406,
+      "latency_ms": 14645.2,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a16",
+      "question": "Si pidiera 1500 unidades del SKU-0009, ¿quién tendría que aprobar esa orden?",
+      "expected": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "used": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El **Gerente de compras** tendría que aprobarla.\n\nEl cálculo es el siguiente:\n*   **Monto:** 1,500 unidades × $7.77 MXN = **$11,655 MXN**.\n\nAunque este monto cae en el rango del \"Comprador de la categoría\" (menos de $50,000), el **SKU-0009** está clasificado como **crítico** (actualmente con solo 84 unidades en stock y 3.8 días de cobertura). Según la política de órdenes de compra, las compras de SKUs críticos siempre requieren la aprobación del **Gerente de compras**, independientemente del monto.",
+      "llm_calls": 2,
+      "input_tokens": 3196,
+      "output_tokens": 679,
+      "latency_ms": 7663.0,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    }
+  ]
+}

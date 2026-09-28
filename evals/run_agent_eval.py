@@ -4,8 +4,9 @@ Uso:
     python -m evals.run_agent_eval
     python -m evals.run_agent_eval --provider omniroute
 
-Una tarea es correcta si el conjunto de tools llamadas es exactamente el esperado (sin
-importar orden ni repeticiones). Tambien se reportan tools faltantes y sobrantes.
+Una tarea es correcta si llama todas las tools esperadas y ninguna fuera de
+esperadas + opcionales (sin importar orden ni repeticiones). Las acciones que requieren
+confirmacion (ordenes de compra) se RECHAZAN automaticamente: la eval nunca escribe en la DB.
 """
 from __future__ import annotations
 
@@ -24,17 +25,20 @@ def load_golden(path: Path = GOLDEN_PATH) -> list[dict]:
         return [json.loads(line) for line in f if line.strip()]
 
 
-def score_tools(expected: list[str], used: list[str]) -> dict:
-    exp, got = set(expected), set(used)
-    return {"match": exp == got, "missing": sorted(exp - got), "extra": sorted(got - exp)}
+def score_tools(expected: list[str], used: list[str], optional: list[str] | None = None) -> dict:
+    exp, got, allowed = set(expected), set(used), set(expected) | set(optional or [])
+    return {"match": exp <= got <= allowed, "missing": sorted(exp - got), "extra": sorted(got - allowed)}
 
 
 def evaluate(golden: list[dict], agent) -> dict:
     items = []
     for g in golden:
         r = agent.run(g["question"])
+        while r.stop_reason == "confirmation_required":
+            r = agent.resume(r, approve=False, note="evaluacion: no se crean ordenes")
+        used = r.tools_used  # incluye las acciones rechazadas (quedan como pasos fallidos)
         items.append({"id": g["id"], "question": g["question"], "expected": g["expected_tools"],
-                      "used": r.tools_used, **score_tools(g["expected_tools"], r.tools_used),
+                      "used": used, **score_tools(g["expected_tools"], used, g.get("optional_tools")),
                       "tool_errors": [s.error for s in r.steps if s.error],
                       "stop_reason": r.stop_reason, "answer": r.answer,
                       "llm_calls": r.llm_calls, "input_tokens": r.input_tokens,
