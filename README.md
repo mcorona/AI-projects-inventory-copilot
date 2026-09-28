@@ -1,39 +1,88 @@
 # Inventory Copilot
 
-Agente de IA generativa para consultar y operar un sistema de inventario con lenguaje natural,
-de forma **segura, auditable y agnóstica de proveedor**: corre a $0 en local (LM Studio / OmniRoute)
-y en **Amazon Bedrock** cambiando una variable.
+Agente de IA generativa para consultar y operar un sistema de inventario en lenguaje natural, de forma
+**segura, auditable, evaluada y agnóstica de proveedor**. Corre a $0 en local (LM Studio, OmniRoute) y
+en **Amazon Bedrock** cambiando una variable, con la infraestructura en **AWS CDK revisada con cdk-nag**.
 
-> Estado: 🚧 v0.5 — evaluaciones con sets dev/test, repeticiones, juez validado, costo por consulta y gate en CI.
+> **v1.0** · 6 semanas · 320+ pruebas · evaluaciones con sets dev/test, repeticiones y juez validado ·
+> gate de evaluación en CI · todos los datos son **sintéticos**.
+
+![Demo: respuesta con cita de política](docs/demo/politica-con-cita.jpg)
+![Demo: orden de compra con confirmación humana](docs/demo/confirmacion-orden.jpg)
 
 ## Qué demuestra
 
-| Capacidad | Implementación | Estado |
-|---|---|---|
-| Capa LLM multiproveedor | LM Studio · OmniRoute · Bedrock Converse | ✅ |
-| Text-to-SQL seguro | Validador `sqlglot`: solo SELECT, allowlist de tablas, LIMIT forzado, rol read-only | ✅ |
-| RAG | PostgreSQL + pgvector (equivalente a Aurora pgvector), chunks por sección | ✅ |
-| Agente con herramientas + MCP | Tool calling nativo · SQL, ficha de SKU, RAG · MCP server (stdio) | ✅ |
-| Órdenes de compra | Propuesta por el agente → confirmación del usuario → aprobación por nivel de autoridad; roles de DB de mínimo privilegio y bitácora append-only | ✅ |
-| Guardrails | PII (formatos MX), prompt injection directa e indirecta (heurísticas + clasificador LLM opcional), spotlighting · adaptador Bedrock ApplyGuardrail | ✅ |
-| Router de modelos (cascada) | Modelo rápido por defecto, escala a uno más capaz ante fallos detectables | ✅ |
-| Evaluación | Sets dev/test, 3 repeticiones, execution accuracy, exactitud de respuestas, faithfulness con juez LLM validado, inyección indirecta por capas · gate en CI | ✅ |
-| Observabilidad | Telemetría por turno: latencia por etapa, tokens por llamada y costo real vs. equivalente en Bedrock (AWS Price List) | ✅ |
-| IaC | AWS CDK + cdk-nag (`cdk synth` en CI) | ⏳ |
+| Capacidad | Implementación |
+|---|---|
+| Capa LLM multiproveedor | Tool calling neutro sobre LM Studio, OmniRoute y Bedrock Converse ([ADR-001](docs/adr/001-provider-agnostic-llm.md), [ADR-003](docs/adr/003-agent-tool-calling.md)) |
+| Text-to-SQL seguro | `sqlglot` (solo SELECT, lista de tablas permitidas, LIMIT) + rol de solo lectura + transacción READ ONLY ([ADR-002](docs/adr/002-text-to-sql-execution-accuracy.md)) |
+| RAG | pgvector (≈ Aurora pgvector), chunks por sección, índice etiquetado por modelo de embeddings ([ADR-004](docs/adr/004-rag-pgvector.md)) |
+| Agente + MCP | Loop explícito con traza; tools de SQL, ficha de SKU, RAG y órdenes de compra; MCP server de solo lectura |
+| Human-in-the-loop | Propuesta → confirmación del usuario → aprobación según nivel de autoridad; la DB impone las reglas ([ADR-006](docs/adr/006-hitl-purchase-orders.md)) |
+| Guardrails | PII MX, inyección directa e indirecta, spotlighting, filtro de salida DLP y Bedrock Guardrails ([ADR-007](docs/adr/007-layered-guardrails.md)) |
+| Router de modelos | Cascada con verificador: modelo rápido primero, escala si falla ([ADR-005](docs/adr/005-model-router-cascade.md)) |
+| Evaluación | Sets dev/test, 3 repeticiones, juez de faithfulness validado, inyección por capas, gate en CI ([ADR-008](docs/adr/008-evaluation-strategy-and-ci-gate.md)) |
+| Observabilidad y costo | Telemetría por turno, costo equivalente en Bedrock (AWS Price List), métricas EMF en CloudWatch |
+| IaC en AWS | CDK: Guardrail, Aurora Serverless v2 en VPC aislada, Lambda + API con IAM; 0 hallazgos de cdk-nag ([ADR-009](docs/adr/009-aws-architecture.md)) |
 
 ## Arquitectura
 
-```
-Usuario ─► API ─► Agente ─► Capa LLM ─┬─► LM Studio  (local)
-                    │                  ├─► OmniRoute  (modelos gratuitos, fallback)
-                    │                  └─► Amazon Bedrock (Converse)
-                    ├─ Tool SQL ─► SQL guard ─► PostgreSQL (rol read-only)
-                    ├─ Tool RAG ─► pgvector
-                    ├─ MCP server de inventario
-                    └─ Tool orden de compra ─► aprobación humana
+```mermaid
+flowchart LR
+    U[Usuario] -->|IAM / local| API[API FastAPI<br/>Lambda + API Gateway]
+    API --> G1[Guardrails de entrada<br/>PII · inyección · Bedrock Guardrail]
+    G1 --> AG[Agente<br/>loop con traza]
+    AG <--> LLM{Capa LLM}
+    LLM --> LMS[LM Studio<br/>Qwen3.6 local]
+    LLM --> OMR[OmniRoute<br/>modelos gratuitos]
+    LLM --> BR[Amazon Bedrock<br/>MiniMax · Haiku · Qwen3]
+    AG --> T1[query_inventory<br/>text-to-SQL + guard]
+    AG --> T2[get_sku_status]
+    AG --> T3[search_documents<br/>RAG pgvector]
+    AG -->|pausa y confirmación| T4[propose_purchase_order]
+    T1 & T2 --> RO[(Postgres / Aurora<br/>rol copilot_ro)]
+    T3 --> VEC[(pgvector)]
+    T4 --> PO[(rol copilot_po<br/>solo INSERT)]
+    PO -.->|aprobación humana| APR[po_review<br/>rol copilot_approver]
+    AG --> G2[Guardrails de salida<br/>saneamiento de tools · DLP · PII]
+    AG --> AUD[(audit_log<br/>append-only)]
+    MCP[MCP server<br/>solo lectura] --> T1 & T2 & T3
 ```
 
-## Arranque rápido (5 min)
+## Mapeo al examen AWS Certified Generative AI Developer – Professional (AIP-C01)
+
+Dominios según la [guía oficial del examen](https://docs.aws.amazon.com/aws-certification/latest/ai-professional-01/ai-professional-01.html):
+
+| Dominio (peso) | Dónde se demuestra |
+|---|---|
+| **1. Foundation Model Integration, Data Management, and Compliance (31%)** | Selección y comparación de FMs con datos ([ADR-010](docs/adr/010-bedrock-comparison.md)); vector store y recuperación (pgvector, Titan vs bge-m3); prompts versionados con huella; datos sintéticos |
+| **2. Implementation and Integration (26%)** | Tool calling sobre Converse; agente con human-in-the-loop (≈ `requireConfirmation` de Bedrock Agents); MCP server; router en cascada; API en Lambda |
+| **3. AI Safety, Security, and Governance (20%)** | Bedrock Guardrails (PROMPT_ATTACK, PII, grounding); guardrails locales en capas; IAM de mínimo privilegio; roles de DB; bitácora append-only; cdk-nag |
+| **4. Operational Efficiency and Optimization (12%)** | Costo por consulta con precios de la AWS Price List; latencia por etapa; métricas EMF, alarmas y tablero; Aurora con auto-pause; detección de la caché del gateway |
+| **5. Testing, Validation, and Troubleshooting (11%)** | Sets dev/test, repeticiones, juez LLM calibrado, execution accuracy, inyección por capas, pruebas de integración y gate de CI |
+
+## Resultados
+
+Set **test** (nunca usado para ajustar). Los modelos locales tienen 3 repeticiones; los de Bedrock, 1.
+Detalle en [`evals/results/`](evals/results/20260928T023236Z/summary.md) y [ADR-010](docs/adr/010-bedrock-comparison.md).
+
+| Métrica | Qwen3.6-35B local | minimax OmniRoute | Haiku 4.5 Bedrock | **MiniMax M2.1 Bedrock** | Qwen3 32B Bedrock |
+|---|---|---|---|---|---|
+| Text-to-SQL, execution accuracy | **96.7%** | 93.3% | 83.3% | 93.3% | 83.3% |
+| Agente: tools · exactitud · faithfulness | 100 · 100 · 100% | 97 · 100 · 100% | 90 · 89 · 100% | **100 · 100 · 100%** | 70 · 67 · 80% |
+| Agente: latencia p50 | 6.8 s | 3.9 s | 2.8 s | 2.8 s | 1.7 s |
+| Agente: costo por consulta en Bedrock | $0.0009* | $0.0041** | $0.0056 | **$0.0012** | $0.0005 |
+| Inyección indirecta con defensas · OC no pedidas | 0% · 0 | 14% · 0 | 14% · 0 | 14% · 0 | 14% · 0 |
+
+\* Estimado con el Qwen más cercano en Bedrock. \** Tokens inflados por el contexto propio de OmniRoute.
+
+- **Guardrails de entrada:** heurísticas 80%; Bedrock Guardrail STANDARD 70%; **combinados 96.7% con 0.9% de falsos positivos**.
+- **RAG:** hit@1 de 100% con Titan Embeddings V2 y 87.5% con bge-m3 (test).
+- **Juez de faithfulness:** 100% de acuerdo con 16 casos etiquetados; el grounding de Bedrock, 68.8%.
+- **Exfiltración:** el filtro de salida DLP la detuvo en los 5 modelos. Solo sobrevive la desinformación en los datos.
+- **Recomendación para AWS:** MiniMax M2.1 + Titan V2 + guardrails locales y de Bedrock ([ADR-010](docs/adr/010-bedrock-comparison.md)).
+
+## Arranque rápido (local, $0)
 
 ```bash
 git clone https://github.com/mcorona/AI-projects-inventory-copilot.git
@@ -41,134 +90,61 @@ cd AI-projects-inventory-copilot
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-docker compose up -d
-python -m pytest -q
-python -m scripts.smoke_test
-python -m scripts.generate_data      # datos sinteticos reproducibles (seed 42)
-python -m scripts.migrate            # roles y tablas de la Semana 4 (si tu DB ya existia)
-python -m scripts.ingest_docs        # indexa data/docs en pgvector (embeddings bge-m3)
-python -m evals.run_sql_eval         # execution accuracy del text-to-SQL
-python -m evals.run_rag_eval         # hit@k y MRR de la recuperacion
-python -m evals.run_agent_eval       # seleccion de herramientas del agente
-python -m src.agent --trace "¿Cómo está el SKU-0009 y qué dice la política de SKUs críticos?"
+docker compose up -d                  # Postgres 16 + pgvector con esquema y roles
+python -m scripts.generate_data       # datos sintéticos (seed 42)
+python -m scripts.ingest_docs         # indexa las políticas en pgvector
+python -m pytest -q                   # sin LLM ni DB
+uvicorn src.api.app:app               # http://localhost:8000
 ```
 
-En LM Studio: carga el modelo de chat y el de embeddings, y activa el servidor local
-(pestaña **Developer → Start Server**, puerto 1234).
+En LM Studio: carga `qwen/qwen3.6-35b-a3b` y `text-embedding-bge-m3`, y activa el servidor local
+(puerto 1234). También puedes usar `LLM_PROVIDER=omniroute` o `LLM_PROVIDER=bedrock`.
 
-### Modelos recomendados (MacBook M5 Pro, 35 GB RAM unificada)
+| Tarea | Comando |
+|---|---|
+| Agente en terminal | `python -m src.agent --trace --user Ana "¿Cómo está el SKU-0009?"` |
+| Aprobar órdenes | `python -m scripts.po_review list` · `approve 1 --as comprador --by "Luis"` |
+| MCP server (incluye `.mcp.json` para Claude Code) | `python -m src.mcp_server` |
+| Evaluación completa (~2 h con juez local) | `python -m evals.run_all` |
+| Gate de CI (huellas + umbrales) | `python -m evals.gate` |
+| Pruebas de integración (DB desechable) | `INTEGRATION_ADMIN_DSN=... pytest tests/integration` |
 
-| Rol | Modelo | Memoria aprox. (Q4) |
-|---|---|---|
-| Chat / SQL (principal) | Qwen3.6-35B-A3B (MoE) | ~20 GB |
-| Chat (alternativa) | gpt-oss-20b | ~12 GB |
-| Embeddings | bge-m3 (multilingüe, 1024 dim) | ~1 GB |
-
-## Cambiar de proveedor
+## AWS
 
 ```bash
-LLM_PROVIDER=omniroute python -m scripts.smoke_test --no-embed
-LLM_PROVIDER=bedrock   python -m scripts.smoke_test
+aws login --profile <perfil>
+cd infra && npm ci
+npx cdk synth                                        # 3 stacks + cdk-nag
+npx cdk deploy InventoryGuardrail                    # sin costo fijo, sin cdk bootstrap
+BEDROCK_GUARDRAIL_ID=... python -m evals.run_bedrock_guardrail_eval
 ```
 
-Router en cascada (modelo rápido primero, escala al capaz si falla):
+`InventoryData` (Aurora Serverless v2 con auto-pause, VPC aislada con endpoints) e `InventoryApp`
+(Lambda + API Gateway con IAM) se validan con `synth`, pruebas de plantilla y cdk-nag en CI. Se
+despliegan con `npx cdk deploy --all -c budgetEmail=...` y se destruyen con
+`-c allowDestroy=true`; **Aurora, los VPC endpoints y la Lambda cobran mientras existen**.
 
-```bash
-ROUTER_TIERS="omniroute:kr/minimax-m2.1,lmstudio:qwen/qwen3.6-35b-a3b" \
-  python -m evals.run_sql_eval --provider router
-```
+**Costo real de la Semana 6 en Bedrock:** corrida comparativa de 3 modelos + Guardrails + Titan,
+menos de US$5 estimado con `config/pricing.json`.
 
-## Órdenes de compra con aprobación humana
-
-```bash
-python -m src.agent --user "Ana" "Propón una orden de compra de 1500 unidades del SKU-0009"
-#   → muestra monto, nivel de aprobación y cobertura, y pide confirmación [s/N]
-python -m scripts.po_review list
-python -m scripts.po_review approve 1 --as comprador --by "Luis"
-```
-
-Dos compuertas: la persona que pregunta confirma la propuesta y otra con autoridad suficiente la
-aprueba (comprador < $50k ≤ gerente ≤ $250k < director). La DB es la fuente de verdad: el agente
-(`copilot_po`) solo puede insertar columnas de la propuesta, un trigger calcula monto y nivel, y
-otro impide aprobar sin autoridad o re-decidir. Todo queda en `audit_log` (append-only).
-
-## Guardrails
-
-- **PII** (email, teléfono, RFC, CURP, tarjeta, CLABE): se anonimiza antes de enviar al LLM y en la
-  respuesta; tarjetas y CLABEs se bloquean.
-- **Inyección directa**: heurísticas deterministas (ES/EN) y, opcionalmente, un clasificador LLM
-  (`GUARDRAIL_LLM_CLASSIFIER=on`).
-- **Inyección indirecta**: las salidas de tools se revisan y se retira el contenido con instrucciones;
-  además se delimitan como datos no confiables (*spotlighting*).
-- **Bedrock Guardrails**: adaptador `ApplyGuardrail` con la misma interfaz (`BEDROCK_GUARDRAIL_ID`).
-
-```bash
-python -m evals.run_guardrails_eval [--llm-classifier omniroute:kr/minimax-m2.1]
-python -m evals.run_injection_eval --provider lmstudio
-```
-
-## MCP server
-
-Las tres herramientas de lectura (`query_inventory`, `get_sku_status`, `search_documents`) y el
-esquema (`inventory://schema`) se exponen por MCP, con las salidas saneadas por los guardrails.
-Las órdenes de compra no se exponen: un cliente MCP no garantiza la confirmación humana.
-
-```bash
-python -m src.mcp_server        # stdio
-```
-
-El repo incluye `.mcp.json`, así que Claude Code lo detecta al abrir el proyecto (pide aprobarlo la primera vez). Su contenido:
-
-```json
-{
-  "mcpServers": {
-    "inventory": {
-      "command": ".venv/bin/python",
-      "args": ["-m", "src.mcp_server"]
-    }
-  }
-}
-```
-
-## Resultados actuales
-
-Split **test** (nunca usado para ajustar), 3 repeticiones, media (mín–máx). Detalle en
-[`evals/results/`](evals/results/) y [ADR-008](docs/adr/008-evaluation-strategy-and-ci-gate.md).
-
-| Métrica | LM Studio · Qwen3.6-35B-A3B | OmniRoute · minimax-m2.1 |
-|---|---|---|
-| Text-to-SQL, execution accuracy (30) | 95.6% (93.3–96.7) · p50 16.8 s | 92.2% (86.7–96.7) · p50 2.3 s |
-| Agente: tools · exactitud · faithfulness (10) | 100% · 100% · 100% | 100% · 100% · 100% |
-| Agente: latencia p50 / p95 | 6.6 s / 16.4 s | 4.0 s / 8.8 s |
-| Agente: costo equivalente en Bedrock por consulta | $0.0009 | $0.0041* |
-| Inyección indirecta, 7 escenarios: éxito con defensas · OC no pedidas | 29% · 0 | 29% · 0 |
-
-- **Router con verificador** (minimax → Qwen): 96.7% en SQL, 10% de escaladas, p50 de 6.6 s.
-- **RAG** (bge-m3): hit@1 87.5% en test y 100% en dev.
-- **Guardrails:** 80% de detección y 0 falsos positivos en 109 preguntas legítimas.
-- **Juez de faithfulness:** 100% de acuerdo con 16 casos etiquetados.
-
-\* OmniRoute agrega su propio contexto a cada llamada; llamando a MiniMax M2.1 directo en Bedrock,
-el costo sería menor. Los ataques exitosos fueron la exfiltración por "norma de formato" y la
-desinformación en los datos: ver [ADR-007](docs/adr/007-layered-guardrails.md).
-
-```bash
-python -m evals.run_all                # ~2 h con Qwen: 3 repeticiones, juez, costos, resumen
-python -m evals.gate                   # lo que corre el CI: huellas + umbrales
-```
+## Limitaciones
+- Los sets test son pequeños (8–30 casos) y los modelos de Bedrock se evaluaron con 1 repetición.
+- El juez de faithfulness está validado con 16 casos de errores claros, no con errores sutiles.
+- Fallos conocidos sin corregir a propósito, porque corregirlos mirando el set test lo contaminaría: t08 (nombres de almacén) y una falsa alarma del verificador del router.
+- El despliegue completo (Data + App) no se probó en vivo. `decided_by` en las aprobaciones es texto; en producción vendría de IAM o Cognito.
+- La desinformación en los datos (sin instrucciones) no la detiene ningún guardrail de texto.
 
 ## Decisiones de arquitectura
-- [ADR-001: Capa LLM agnóstica de proveedor](docs/adr/001-provider-agnostic-llm.md)
-- [ADR-002: Tool text-to-SQL evaluada por execution accuracy](docs/adr/002-text-to-sql-execution-accuracy.md)
-- [ADR-003: Tool calling neutro, loop de agente propio y MCP](docs/adr/003-agent-tool-calling.md)
-- [ADR-004: RAG sobre pgvector](docs/adr/004-rag-pgvector.md)
-- [ADR-005: Router de modelos en cascada](docs/adr/005-model-router-cascade.md)
-- [ADR-006: Órdenes de compra con human-in-the-loop](docs/adr/006-hitl-purchase-orders.md)
-- [ADR-007: Guardrails en capas](docs/adr/007-layered-guardrails.md)
-- [ADR-008: Estrategia de evaluación, costo y gate de CI](docs/adr/008-evaluation-strategy-and-ci-gate.md)
+1. [Capa LLM agnóstica de proveedor](docs/adr/001-provider-agnostic-llm.md)
+2. [Text-to-SQL evaluado por execution accuracy](docs/adr/002-text-to-sql-execution-accuracy.md)
+3. [Tool calling neutro, loop de agente propio y MCP](docs/adr/003-agent-tool-calling.md)
+4. [RAG sobre pgvector](docs/adr/004-rag-pgvector.md)
+5. [Router de modelos en cascada](docs/adr/005-model-router-cascade.md)
+6. [Órdenes de compra con human-in-the-loop](docs/adr/006-hitl-purchase-orders.md)
+7. [Guardrails en capas](docs/adr/007-layered-guardrails.md)
+8. [Estrategia de evaluación, costo y gate de CI](docs/adr/008-evaluation-strategy-and-ci-gate.md)
+9. [Arquitectura en AWS con CDK y cdk-nag](docs/adr/009-aws-architecture.md)
+10. [Comparativa local vs. Bedrock](docs/adr/010-bedrock-comparison.md)
 
-## Datos
-Todos los datos son **sintéticos**. Nunca envíes datos reales a proveedores gratuitos.
-
-## Licencia
-MIT
+## Datos y licencia
+Todos los datos son **sintéticos** (empresa ficticia). Nunca envíes datos reales a proveedores gratuitos. Licencia MIT.

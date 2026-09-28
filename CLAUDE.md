@@ -38,6 +38,14 @@ agente GenAI gobernado sobre un sistema de inventario. Costo objetivo: $0 en loc
 - OmniRoute: las evals ponen un sufijo de sistema por repeticion y reportan `cache_hit_rate` (debe ser 0).
 - Costo: `config/pricing.json` (AWS Price List, con fuente y fecha). No inventar precios.
 - Integracion: `INTEGRATION_ADMIN_DSN=... pytest tests/integration` (solo contra una DB desechable).
+
+## AWS (Semana 6)
+- Infra en `infra/` (CDK Python + cdk-nag): `cd infra && npx cdk synth`. Pruebas: `../.venv/bin/python -m pytest -q tests`.
+- Solo `InventoryGuardrail` esta desplegado (LegacyStackSynthesizer: sin `cdk bootstrap`). Data/App: solo synth.
+- El motor de regex de Bedrock Guardrails NO admite lookbehind. `ANONYMIZE` de PII solo aplica a la salida.
+- Temas denegados del guardrail desactivados por falsos positivos (context `guardrailTopics=true` para activarlos).
+- Evals de Bedrock: `run_all --providers "etiqueta=bedrock:<modelo>"`; `--resume <dir>` reutiliza reportes crudos.
+- API: `uvicorn src.api.app:app`; en Lambda via Mangum (`src/api/lambda_handler.py`), config desde Secrets Manager.
 - Todos los datos son sintéticos (`scripts/generate_data.py`, seed 42). La fecha "hoy" es fija:
   `ANCHOR_DATE` en `src/tools/sql_tool.py`; el golden set usa fechas literales.
 - Los ejemplos few-shot del prompt SQL no deben coincidir con preguntas del golden set.
@@ -55,4 +63,4 @@ agente GenAI gobernado sobre un sistema de inventario. Costo objetivo: $0 en loc
 - [x] Semana 3: agente con tools, RAG con pgvector, MCP server, router de modelos.
 - [x] Semana 4: guardrails (PII, prompt injection), human-in-the-loop para órdenes de compra.
 - [x] Semana 5: evaluaciones completas, CI gate, métricas de costo/latencia.
-- [ ] Semana 6: CDK + cdk-nag, corrida comparativa en Bedrock, README final, demo.
+- [x] Semana 6: CDK + cdk-nag, corrida comparativa en Bedrock, README final, demo.
