@@ -4,7 +4,7 @@ Agente de IA generativa para consultar y operar un sistema de inventario con len
 de forma **segura, auditable y agnóstica de proveedor**: corre a $0 en local (LM Studio / OmniRoute)
 y en **Amazon Bedrock** cambiando una variable.
 
-> Estado: 🚧 v0.4 — guardrails (PII, prompt injection) y órdenes de compra con aprobación humana.
+> Estado: 🚧 v0.5 — evaluaciones con sets dev/test, repeticiones, juez validado, costo por consulta y gate en CI.
 
 ## Qué demuestra
 
@@ -17,8 +17,8 @@ y en **Amazon Bedrock** cambiando una variable.
 | Órdenes de compra | Propuesta por el agente → confirmación del usuario → aprobación por nivel de autoridad; roles de DB de mínimo privilegio y bitácora append-only | ✅ |
 | Guardrails | PII (formatos MX), prompt injection directa e indirecta (heurísticas + clasificador LLM opcional), spotlighting · adaptador Bedrock ApplyGuardrail | ✅ |
 | Router de modelos (cascada) | Modelo rápido por defecto, escala a uno más capaz ante fallos detectables | ✅ |
-| Evaluación | Execution accuracy (SQL), hit@k/MRR (RAG), tool selection (agente) · faithfulness y LLM-as-judge pendientes | 🟡 |
-| Observabilidad | Tokens, latencia p95 y costo estimado por consulta | ⏳ |
+| Evaluación | Sets dev/test, 3 repeticiones, execution accuracy, exactitud de respuestas, faithfulness con juez LLM validado, inyección indirecta por capas · gate en CI | ✅ |
+| Observabilidad | Telemetría por turno: latencia por etapa, tokens por llamada y costo real vs. equivalente en Bedrock (AWS Price List) | ✅ |
 | IaC | AWS CDK + cdk-nag (`cdk synth` en CI) | ⏳ |
 
 ## Arquitectura
@@ -132,17 +132,30 @@ El repo incluye `.mcp.json`, así que Claude Code lo detecta al abrir el proyect
 
 ## Resultados actuales
 
-| Eval | LM Studio · Qwen3.6-35B-A3B | OmniRoute · minimax-m2.1 |
+Split **test** (nunca usado para ajustar), 3 repeticiones, media (mín–máx). Detalle en
+[`evals/results/`](evals/results/) y [ADR-008](docs/adr/008-evaluation-strategy-and-ci-gate.md).
+
+| Métrica | LM Studio · Qwen3.6-35B-A3B | OmniRoute · minimax-m2.1 |
 |---|---|---|
-| Text-to-SQL, execution accuracy (30 preguntas) | 100.0% · p50 15 s | 93.3% · p50 1.7 s |
-| Selección de herramientas del agente (16 tareas, incluye proponer o no OC) | 100% · p50 7.1 s | 100% · p50 6.0 s |
-| Recuperación RAG, bge-m3 (15 preguntas) | hit@1 100% · MRR 1.0 | — |
-| Clasificador de inyección (30 ataques, sobre heurísticas 80%) | 100% · +7.6 s/pregunta | 96.7% · +1.8 s/pregunta |
-| Inyección indirecta (4 escenarios): éxito del ataque · OC no pedidas | 0% · 0 | 0% · 0 |
+| Text-to-SQL, execution accuracy (30) | 95.6% (93.3–96.7) · p50 16.8 s | 92.2% (86.7–96.7) · p50 2.3 s |
+| Agente: tools · exactitud · faithfulness (10) | 100% · 100% · 100% | 100% · 100% · 100% |
+| Agente: latencia p50 / p95 | 6.6 s / 16.4 s | 4.0 s / 8.8 s |
+| Agente: costo equivalente en Bedrock por consulta | $0.0009 | $0.0041* |
+| Inyección indirecta, 7 escenarios: éxito con defensas · OC no pedidas | 29% · 0 | 29% · 0 |
 
-Guardrails de entrada: 0% de falsos positivos en 61 preguntas legítimas y 38 chunks del corpus.
+- **Router con verificador** (minimax → Qwen): 96.7% en SQL, 10% de escaladas, p50 de 6.6 s.
+- **RAG** (bge-m3): hit@1 87.5% en test y 100% en dev.
+- **Guardrails:** 80% de detección y 0 falsos positivos en 109 preguntas legítimas.
+- **Juez de faithfulness:** 100% de acuerdo con 16 casos etiquetados.
 
-Muestras pequeñas: una pregunta mueve 3–8 puntos. Ver los ADR para limitaciones.
+\* OmniRoute agrega su propio contexto a cada llamada; llamando a MiniMax M2.1 directo en Bedrock,
+el costo sería menor. Los ataques exitosos fueron la exfiltración por "norma de formato" y la
+desinformación en los datos: ver [ADR-007](docs/adr/007-layered-guardrails.md).
+
+```bash
+python -m evals.run_all                # ~2 h con Qwen: 3 repeticiones, juez, costos, resumen
+python -m evals.gate                   # lo que corre el CI: huellas + umbrales
+```
 
 ## Decisiones de arquitectura
 - [ADR-001: Capa LLM agnóstica de proveedor](docs/adr/001-provider-agnostic-llm.md)
@@ -152,6 +165,7 @@ Muestras pequeñas: una pregunta mueve 3–8 puntos. Ver los ADR para limitacion
 - [ADR-005: Router de modelos en cascada](docs/adr/005-model-router-cascade.md)
 - [ADR-006: Órdenes de compra con human-in-the-loop](docs/adr/006-hitl-purchase-orders.md)
 - [ADR-007: Guardrails en capas](docs/adr/007-layered-guardrails.md)
+- [ADR-008: Estrategia de evaluación, costo y gate de CI](docs/adr/008-evaluation-strategy-and-ci-gate.md)
 
 ## Datos
 Todos los datos son **sintéticos**. Nunca envíes datos reales a proveedores gratuitos.

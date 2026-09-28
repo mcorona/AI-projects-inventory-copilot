@@ -32,6 +32,15 @@ ninguna señal barata detecta.
   latencia de ~30 ms. Las latencias de OmniRoute en evals repetidas no son confiables; deben
   correrse con caché desactivada o con prompts nuevos.
 
+## Actualización (Semana 5): verificador
+`SQLVerifier` le pide al nivel barato que juzgue si el SQL y una muestra del resultado responden la
+pregunta, y la cascada escala si no. En el split test (1 corrida):
+- **96.7% de execution accuracy con 10% de escaladas y p50 de 6.6 s.** Minimax solo da 92.2%
+  (media de 3 corridas) y Qwen solo 95.6% con 16.8 s de p50.
+- El verificador detectó 2 errores semánticos que antes pasaban sin escalar, y dio 1 falsa alarma
+  por no conocer el esquema.
+- Su costo (una llamada extra por consulta) se suma al de cada consulta.
+
 ## Consecuencias
 - (+) Tolerancia a fallas del proveedor gratuito sin cambiar el agente.
 - (+) Métrica de escalamiento lista para las evals de costo/latencia.

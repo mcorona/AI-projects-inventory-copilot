@@ -24,8 +24,20 @@ agente GenAI gobernado sobre un sistema de inventario. Costo objetivo: $0 en loc
   nivel y estado los fija la DB (`db/init/02_hitl_guardrails.sql`). Bitacora: `audit_log` (`copilot_audit`).
 - Argumentos de tools con prefijo `_` son internos: el loop los quita de lo que manda el modelo.
 - Guardrails en `src/guardrails/pipeline.py` (PII, inyeccion directa/indirecta, spotlighting); el
-  agente los usa por defecto. No ajustar heuristicas mirando `evals/guardrails_set.jsonl` (sobreajuste).
+  agente los usa por defecto. No ajustar heuristicas mirando `evals/datasets/guardrails_attacks.jsonl` (sobreajuste).
 - Migraciones: `python -m scripts.migrate` aplica `db/init/0[2-9]_*.sql` (idempotentes).
+
+## Evaluaciones (Semana 5)
+- Datasets en `evals/datasets/{sql,agent,rag}_{dev,test}.jsonl`. **El split test NUNCA se usa para
+  ajustar prompts, reglas ni ejemplos**; si un fallo de test sugiere una mejora, se agrega un caso
+  equivalente a dev y se ajusta mirando dev.
+- Corrida completa: `python -m evals.run_all` (3 repeticiones, split test, juez Qwen validado con
+  `judge_calibration.jsonl`). Escribe `evals/results/<ts>/summary.{json,md}` y `evals/results/latest.json`.
+- Gate de CI: `python -m evals.gate` compara huellas (prompts, tools, guardrails, datasets) y umbrales
+  (`evals/gate.json`). Si cambias algo con huella, vuelve a correr `run_all` y versiona `latest.json`.
+- OmniRoute: las evals ponen un sufijo de sistema por repeticion y reportan `cache_hit_rate` (debe ser 0).
+- Costo: `config/pricing.json` (AWS Price List, con fuente y fecha). No inventar precios.
+- Integracion: `INTEGRATION_ADMIN_DSN=... pytest tests/integration` (solo contra una DB desechable).
 - Todos los datos son sintéticos (`scripts/generate_data.py`, seed 42). La fecha "hoy" es fija:
   `ANCHOR_DATE` en `src/tools/sql_tool.py`; el golden set usa fechas literales.
 - Los ejemplos few-shot del prompt SQL no deben coincidir con preguntas del golden set.
@@ -42,5 +54,5 @@ agente GenAI gobernado sobre un sistema de inventario. Costo objetivo: $0 en loc
 - [x] Semana 2: generador de datos sintéticos, tool text-to-SQL, golden set v1 + execution accuracy.
 - [x] Semana 3: agente con tools, RAG con pgvector, MCP server, router de modelos.
 - [x] Semana 4: guardrails (PII, prompt injection), human-in-the-loop para órdenes de compra.
-- [ ] Semana 5: evaluaciones completas, CI gate, métricas de costo/latencia.
+- [x] Semana 5: evaluaciones completas, CI gate, métricas de costo/latencia.
 - [ ] Semana 6: CDK + cdk-nag, corrida comparativa en Bedrock, README final, demo.
