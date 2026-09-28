@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 cdk.out/
 .DS_Store
+
+# resultados crudos por corrida (el resumen summary.{json,md} y latest.json si se versionan)
+evals/results/*/raw/
