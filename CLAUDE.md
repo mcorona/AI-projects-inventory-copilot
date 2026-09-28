@@ -17,7 +17,15 @@ agente GenAI gobernado sobre un sistema de inventario. Costo objetivo: $0 en loc
   (`src/mcp_server/`, SDK `mcp` 2.x: `MCPServer`, no `FastMCP`).
 - Mensajes/tools en formato neutro (`src/llm/__init__.py`); cada adaptador traduce a su API.
 - Embeddings: `EMBED_PROVIDER` (lmstudio|bedrock); el indice filtra por `metadata.embed_model`.
-- OmniRoute cachea respuestas: no confiar en latencias de evals repetidas con prompts identicos.
+- OmniRoute cachea respuestas: no confiar en latencias de evals repetidas con prompts identicos
+  (las evals de guardrails agregan un id de corrida al prompt del clasificador).
+- Ordenes de compra: el agente PROPONE (rol `copilot_po`, solo INSERT de columnas de propuesta) tras
+  confirmacion del usuario; aprueba una persona (`copilot_approver`, `scripts/po_review.py`). Monto,
+  nivel y estado los fija la DB (`db/init/02_hitl_guardrails.sql`). Bitacora: `audit_log` (`copilot_audit`).
+- Argumentos de tools con prefijo `_` son internos: el loop los quita de lo que manda el modelo.
+- Guardrails en `src/guardrails/pipeline.py` (PII, inyeccion directa/indirecta, spotlighting); el
+  agente los usa por defecto. No ajustar heuristicas mirando `evals/guardrails_set.jsonl` (sobreajuste).
+- Migraciones: `python -m scripts.migrate` aplica `db/init/0[2-9]_*.sql` (idempotentes).
 - Todos los datos son sintéticos (`scripts/generate_data.py`, seed 42). La fecha "hoy" es fija:
   `ANCHOR_DATE` en `src/tools/sql_tool.py`; el golden set usa fechas literales.
 - Los ejemplos few-shot del prompt SQL no deben coincidir con preguntas del golden set.
@@ -33,6 +41,6 @@ agente GenAI gobernado sobre un sistema de inventario. Costo objetivo: $0 en loc
 - [x] Semana 1: capa LLM multiproveedor, esquema, SQL guard, CI.
 - [x] Semana 2: generador de datos sintéticos, tool text-to-SQL, golden set v1 + execution accuracy.
 - [x] Semana 3: agente con tools, RAG con pgvector, MCP server, router de modelos.
-- [ ] Semana 4: guardrails (PII, prompt injection), human-in-the-loop para órdenes de compra.
+- [x] Semana 4: guardrails (PII, prompt injection), human-in-the-loop para órdenes de compra.
 - [ ] Semana 5: evaluaciones completas, CI gate, métricas de costo/latencia.
 - [ ] Semana 6: CDK + cdk-nag, corrida comparativa en Bedrock, README final, demo.

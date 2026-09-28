@@ -4,7 +4,7 @@ Agente de IA generativa para consultar y operar un sistema de inventario con len
 de forma **segura, auditable y agnóstica de proveedor**: corre a $0 en local (LM Studio / OmniRoute)
 y en **Amazon Bedrock** cambiando una variable.
 
-> Estado: 🚧 v0.3 — agente con tools, RAG, MCP server y router de modelos.
+> Estado: 🚧 v0.4 — guardrails (PII, prompt injection) y órdenes de compra con aprobación humana.
 
 ## Qué demuestra
 
@@ -14,8 +14,8 @@ y en **Amazon Bedrock** cambiando una variable.
 | Text-to-SQL seguro | Validador `sqlglot`: solo SELECT, allowlist de tablas, LIMIT forzado, rol read-only | ✅ |
 | RAG | PostgreSQL + pgvector (equivalente a Aurora pgvector), chunks por sección | ✅ |
 | Agente con herramientas + MCP | Tool calling nativo · SQL, ficha de SKU, RAG · MCP server (stdio) | ✅ |
-| Órdenes de compra | Propuesta por el agente con aprobación humana | ⏳ |
-| Guardrails | PII, prompt injection (directa e indirecta) · Bedrock ApplyGuardrail | ⏳ |
+| Órdenes de compra | Propuesta por el agente → confirmación del usuario → aprobación por nivel de autoridad; roles de DB de mínimo privilegio y bitácora append-only | ✅ |
+| Guardrails | PII (formatos MX), prompt injection directa e indirecta (heurísticas + clasificador LLM opcional), spotlighting · adaptador Bedrock ApplyGuardrail | ✅ |
 | Router de modelos (cascada) | Modelo rápido por defecto, escala a uno más capaz ante fallos detectables | ✅ |
 | Evaluación | Execution accuracy (SQL), hit@k/MRR (RAG), tool selection (agente) · faithfulness y LLM-as-judge pendientes | 🟡 |
 | Observabilidad | Tokens, latencia p95 y costo estimado por consulta | ⏳ |
@@ -45,6 +45,7 @@ docker compose up -d
 python -m pytest -q
 python -m scripts.smoke_test
 python -m scripts.generate_data      # datos sinteticos reproducibles (seed 42)
+python -m scripts.migrate            # roles y tablas de la Semana 4 (si tu DB ya existia)
 python -m scripts.ingest_docs        # indexa data/docs en pgvector (embeddings bge-m3)
 python -m evals.run_sql_eval         # execution accuracy del text-to-SQL
 python -m evals.run_rag_eval         # hit@k y MRR de la recuperacion
@@ -77,10 +78,40 @@ ROUTER_TIERS="omniroute:kr/minimax-m2.1,lmstudio:qwen/qwen3.6-35b-a3b" \
   python -m evals.run_sql_eval --provider router
 ```
 
+## Órdenes de compra con aprobación humana
+
+```bash
+python -m src.agent --user "Ana" "Propón una orden de compra de 1500 unidades del SKU-0009"
+#   → muestra monto, nivel de aprobación y cobertura, y pide confirmación [s/N]
+python -m scripts.po_review list
+python -m scripts.po_review approve 1 --as comprador --by "Luis"
+```
+
+Dos compuertas: la persona que pregunta confirma la propuesta y otra con autoridad suficiente la
+aprueba (comprador < $50k ≤ gerente ≤ $250k < director). La DB es la fuente de verdad: el agente
+(`copilot_po`) solo puede insertar columnas de la propuesta, un trigger calcula monto y nivel, y
+otro impide aprobar sin autoridad o re-decidir. Todo queda en `audit_log` (append-only).
+
+## Guardrails
+
+- **PII** (email, teléfono, RFC, CURP, tarjeta, CLABE): se anonimiza antes de enviar al LLM y en la
+  respuesta; tarjetas y CLABEs se bloquean.
+- **Inyección directa**: heurísticas deterministas (ES/EN) y, opcionalmente, un clasificador LLM
+  (`GUARDRAIL_LLM_CLASSIFIER=on`).
+- **Inyección indirecta**: las salidas de tools se revisan y se retira el contenido con instrucciones;
+  además se delimitan como datos no confiables (*spotlighting*).
+- **Bedrock Guardrails**: adaptador `ApplyGuardrail` con la misma interfaz (`BEDROCK_GUARDRAIL_ID`).
+
+```bash
+python -m evals.run_guardrails_eval [--llm-classifier omniroute:kr/minimax-m2.1]
+python -m evals.run_injection_eval --provider lmstudio
+```
+
 ## MCP server
 
-Las tres herramientas del agente (`query_inventory`, `get_sku_status`, `search_documents`) y el
-esquema (`inventory://schema`) se exponen por MCP, todas de solo lectura:
+Las tres herramientas de lectura (`query_inventory`, `get_sku_status`, `search_documents`) y el
+esquema (`inventory://schema`) se exponen por MCP, con las salidas saneadas por los guardrails.
+Las órdenes de compra no se exponen: un cliente MCP no garantiza la confirmación humana.
 
 ```bash
 python -m src.mcp_server        # stdio
@@ -104,8 +135,12 @@ El repo incluye `.mcp.json`, así que Claude Code lo detecta al abrir el proyect
 | Eval | LM Studio · Qwen3.6-35B-A3B | OmniRoute · minimax-m2.1 |
 |---|---|---|
 | Text-to-SQL, execution accuracy (30 preguntas) | 100.0% · p50 15 s | 93.3% · p50 1.7 s |
-| Selección de herramientas del agente (12 tareas) | 100% · p50 5.4 s | 100% · p50 4.1 s |
+| Selección de herramientas del agente (16 tareas, incluye proponer o no OC) | 100% · p50 7.1 s | 100% · p50 6.0 s |
 | Recuperación RAG, bge-m3 (15 preguntas) | hit@1 100% · MRR 1.0 | — |
+| Clasificador de inyección (30 ataques, sobre heurísticas 80%) | 100% · +7.6 s/pregunta | 96.7% · +1.8 s/pregunta |
+| Inyección indirecta (4 escenarios): éxito del ataque · OC no pedidas | 0% · 0 | 0% · 0 |
+
+Guardrails de entrada: 0% de falsos positivos en 61 preguntas legítimas y 38 chunks del corpus.
 
 Muestras pequeñas: una pregunta mueve 3–8 puntos. Ver los ADR para limitaciones.
 
@@ -115,6 +150,8 @@ Muestras pequeñas: una pregunta mueve 3–8 puntos. Ver los ADR para limitacion
 - [ADR-003: Tool calling neutro, loop de agente propio y MCP](docs/adr/003-agent-tool-calling.md)
 - [ADR-004: RAG sobre pgvector](docs/adr/004-rag-pgvector.md)
 - [ADR-005: Router de modelos en cascada](docs/adr/005-model-router-cascade.md)
+- [ADR-006: Órdenes de compra con human-in-the-loop](docs/adr/006-hitl-purchase-orders.md)
+- [ADR-007: Guardrails en capas](docs/adr/007-layered-guardrails.md)
 
 ## Datos
 Todos los datos son **sintéticos**. Nunca envíes datos reales a proveedores gratuitos.
