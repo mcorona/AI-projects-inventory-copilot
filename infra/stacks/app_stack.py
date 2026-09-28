@@ -27,11 +27,10 @@ from constructs import Construct
 from stacks.data_stack import DB_PORT, DataStack
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CHAT_PROFILE = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
-CHAT_MODEL = "anthropic.claude-haiku-4-5-20251001-v1:0"
+# ADR-010: MiniMax M2.1 on-demand es la mejor relacion calidad/costo del agente (100% en tools,
+# exactitud y faithfulness; $0.0012 por consulta). No usa perfil de inferencia: solo la region local.
+CHAT_MODEL = "minimax.minimax-m2.1"
 EMBED_MODEL = "amazon.titan-embed-text-v2:0"
-# regiones a las que puede enrutar el perfil de inferencia us.* (cross-region inference)
-PROFILE_REGIONS = ("us-east-1", "us-east-2", "us-west-2")
 METRICS_NAMESPACE = "InventoryCopilot"
 
 
@@ -46,7 +45,7 @@ class AppStack(Stack):
         lambda_sg = data.app_sg
 
         env = {
-            "LLM_PROVIDER": "bedrock", "BEDROCK_CHAT_MODEL": CHAT_PROFILE,
+            "LLM_PROVIDER": "bedrock", "BEDROCK_CHAT_MODEL": CHAT_MODEL,
             "EMBED_PROVIDER": "bedrock", "BEDROCK_EMBED_MODEL": EMBED_MODEL,
             "BEDROCK_GUARDRAIL_ID": guardrail_id, "BEDROCK_GUARDRAIL_VERSION": guardrail_version,
             "DB_HOST": data.cluster.cluster_endpoint.hostname, "DB_PORT": str(DB_PORT), "DB_NAME": "inventory",
@@ -90,9 +89,8 @@ class AppStack(Stack):
             role=fn_role("BootstrapFn", bootstrap_logs), **common)
 
         # --- IAM de minimo privilegio
-        model_arns = [f"arn:aws:bedrock:{r}::foundation-model/{CHAT_MODEL}" for r in PROFILE_REGIONS]
-        model_arns += [f"arn:aws:bedrock:{self.region}:{self.account}:inference-profile/{CHAT_PROFILE}",
-                       f"arn:aws:bedrock:{self.region}::foundation-model/{EMBED_MODEL}"]
+        # solo los dos modelos que usa la app, en la region del stack (sin perfiles entre regiones)
+        model_arns = [f"arn:aws:bedrock:{self.region}::foundation-model/{m}" for m in (CHAT_MODEL, EMBED_MODEL)]
         for fn in (self.api_fn, self.bootstrap_fn):
             fn.add_to_role_policy(iam.PolicyStatement(actions=["bedrock:InvokeModel"], resources=model_arns))
             for s in role_secrets.values():

@@ -77,8 +77,10 @@ Entrada: 30 ataques y 110 preguntas legítimas. Grounding: 16 casos etiquetados.
 - **Embeddings:** `amazon.titan-embed-text-v2:0`.
 - **Guardrails:** capas locales + Bedrock Guardrail STANDARD sin temas denegados. El juez LLM se
   usa en evaluación, no en línea.
-- **Cambio pendiente de aplicar:** `infra/stacks/app_stack.py` aún apunta a Haiku 4.5
-  (`CHAT_PROFILE`). Cambiarlo a MiniMax implica ajustar los ARNs de IAM y volver a evaluar.
+- **Aplicado en `infra/stacks/app_stack.py`:** `BEDROCK_CHAT_MODEL=minimax.minimax-m2.1`. El IAM
+  queda acotado a dos ARNs de `foundation-model` en la región del stack; ya no incluye el perfil
+  `us.` ni sus 3 regiones. Una prueba de infraestructura lo fija. El modelo ya estaba evaluado en
+  Bedrock (tabla de arriba, 1 repetición); el despliegue de la Lambda sigue sin probarse en vivo.
 
 ## Limitaciones
 - Los modelos de Bedrock se corrieron con **1 repetición**. Con 30 preguntas, una sola mueve

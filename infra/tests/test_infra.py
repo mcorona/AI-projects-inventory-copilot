@@ -95,3 +95,16 @@ def test_api_requires_iam_auth_and_logs_access(stacks):
     env = next(iter(t.find_resources("AWS::Lambda::Function").values()))["Properties"]["Environment"]["Variables"]
     assert env["LLM_PROVIDER"] == "bedrock" and "DB_PASSWORD" not in env   # secretos solo por ARN
     assert json.loads(env["DB_ROLE_SECRETS"]) if isinstance(env["DB_ROLE_SECRETS"], str) else True
+
+
+def test_chat_model_is_minimax_and_bedrock_iam_is_exact(stacks):
+    t = Template.from_stack(stacks[2])
+    env = next(iter(t.find_resources("AWS::Lambda::Function").values()))["Properties"]["Environment"]["Variables"]
+    assert env["BEDROCK_CHAT_MODEL"] == "minimax.minimax-m2.1"   # ADR-010
+    bedrock = [s for s in _policy_statements(t) if s["Action"] == "bedrock:InvokeModel"]
+    assert bedrock, "falta el permiso de Bedrock"
+    for s in bedrock:
+        resources = sorted(json.dumps(r) for r in (s["Resource"] if isinstance(s["Resource"], list) else [s["Resource"]]))
+        assert len(resources) == 2 and all("foundation-model/" in r for r in resources)
+        assert any("minimax.minimax-m2.1" in r for r in resources) and any("titan-embed-text-v2" in r for r in resources)
+        assert not any("inference-profile" in r or "haiku" in r for r in resources)

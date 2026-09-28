@@ -25,7 +25,8 @@ Tres stacks de CDK en Python (`infra/`), revisados en cada synth con cdk-nag (`A
 - Menor superficie de ataque y sin el costo fijo de un NAT Gateway.
 
 **IAM de mínimo privilegio:**
-- `bedrock:InvokeModel` solo sobre Haiku 4.5 (perfil `us.` y sus regiones) y Titan Embeddings V2.
+- `bedrock:InvokeModel` solo sobre MiniMax M2.1 (on-demand, región del stack) y Titan Embeddings V2.
+  Al principio era Haiku 4.5 con su perfil `us.` (3 regiones); se cambió según ADR-010.
 - `bedrock:ApplyGuardrail` solo sobre el guardrail del proyecto.
 - Lectura solo de los secretos que usa cada función.
 - Roles propios en lugar de `AWSLambdaBasicExecutionRole` y `AWSLambdaVPCAccessExecutionRole`.
