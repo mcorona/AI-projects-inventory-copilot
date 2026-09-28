@@ -1,4 +1,4 @@
-"""Evaluacion de recuperacion RAG sobre evals/rag_golden_set.jsonl.
+"""Evaluacion de recuperacion RAG sobre evals/datasets/rag_{dev,test}.jsonl.
 
 Uso:
     python -m evals.run_rag_eval            # requiere haber corrido scripts.ingest_docs
@@ -14,13 +14,12 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-GOLDEN_PATH = Path(__file__).parent / "rag_golden_set.jsonl"
 REPORTS_DIR = Path(__file__).parent / "reports"
 
 
-def load_golden(path: Path = GOLDEN_PATH) -> list[dict]:
-    with open(path, encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
+def load_golden(split: str = "dev") -> list[dict]:
+    from evals.datasets import load_dataset
+    return load_dataset("rag", split)
 
 
 def first_hit_rank(sources: list[str], expected: list[str]) -> int | None:
@@ -62,11 +61,13 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--k", type=int, default=4)
     p.add_argument("--provider", default=None, help="proveedor de embeddings")
+    p.add_argument("--split", default="dev", choices=["dev", "test"])
     args = p.parse_args()
 
     embedder = get_embedder(args.provider)
-    report = evaluate(load_golden(), lambda q, k: search(q, k=k, embedder=embedder), args.k)
+    report = evaluate(load_golden(args.split), lambda q, k: search(q, k=k, embedder=embedder), args.k)
     report["summary"]["embed_model"] = embed_model_id(embedder)
+    report["summary"]["split"] = args.split
     for i in report["items"]:
         mark = "OK " if i["rank"] == 1 else ("~  " if i["rank"] else "XX ")
         got = i["retrieved"][0][0] if i["retrieved"] else "-"
@@ -76,7 +77,7 @@ def main() -> None:
           f"hit@{s['k']}={s[f'hit_at_{s['k']}']:.1%}  MRR={s['mrr']:.3f}")
     REPORTS_DIR.mkdir(exist_ok=True)
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    out = REPORTS_DIR / f"rag_eval_{ts}.json"
+    out = REPORTS_DIR / f"rag_eval_{args.split}_{ts}.json"
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     print(f"reporte: {out}")
 

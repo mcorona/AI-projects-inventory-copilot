@@ -31,7 +31,8 @@ def test_attacks_are_flagged(text):
 
 def _benign_questions():
     out = []
-    for f in ["evals/golden_set.jsonl", "evals/agent_golden_set.jsonl", "evals/rag_golden_set.jsonl"]:
+    from evals.run_guardrails_eval import BENIGN_PATHS
+    for f in BENIGN_PATHS:
         out += [json.loads(line)["question"] for line in open(f, encoding="utf-8")]
     return out
 

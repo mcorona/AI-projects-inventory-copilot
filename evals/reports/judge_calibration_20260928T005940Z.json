@@ -1,0 +1,310 @@
+{
+  "summary": {
+    "n": 16,
+    "judge_accuracy": 1.0,
+    "unfaithful_recall": 1.0,
+    "unfaithful_precision": 1.0,
+    "unparseable": 0,
+    "numeric_grounding_accuracy": 0.6875,
+    "confusion": {
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8
+    },
+    "judge": "lmstudio:qwen/qwen3.6-35b-a3b",
+    "judge_tokens": {
+      "input": 8014,
+      "output": 21312
+    }
+  },
+  "items": [
+    {
+      "id": "jc01",
+      "label_faithful": true,
+      "judge_faithful": true,
+      "agree": true,
+      "numeric_grounded": true,
+      "note": "fiel",
+      "claims": [
+        {
+          "claim": "El SKU-0009 es un Perno de anclaje 3/4\".",
+          "verdict": "supported"
+        },
+        {
+          "claim": "Tiene 84 unidades en total.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "Se encuentra por debajo de su punto de reorden de 1,036.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "Le alcanzan unos 3.8 días.",
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "jc02",
+      "label_faithful": false,
+      "judge_faithful": false,
+      "agree": true,
+      "numeric_grounded": false,
+      "note": "cifra cambiada",
+      "claims": [
+        {
+          "claim": "El SKU-0009 tiene 184 unidades en total",
+          "verdict": "contradicted"
+        },
+        {
+          "claim": "El SKU-0009 está por debajo de su punto de reorden de 1,036",
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "jc03",
+      "label_faithful": false,
+      "judge_faithful": false,
+      "agree": true,
+      "numeric_grounded": false,
+      "note": "lead time inventado (30)",
+      "claims": [
+        {
+          "claim": "El SKU-0009 es surtido por Bavaria Precision.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "Bavaria Precision entrega en 15 días.",
+          "verdict": "contradicted"
+        }
+      ]
+    },
+    {
+      "id": "jc04",
+      "label_faithful": true,
+      "judge_faithful": true,
+      "agree": true,
+      "numeric_grounded": false,
+      "note": "aritmetica derivada",
+      "claims": [
+        {
+          "claim": "El punto de reorden del SKU-0009 es 1,036.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "El stock total actual (total_on_hand) del SKU-0009 es 84 unidades.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "Le faltan 952 unidades para alcanzar el punto de reorden (1,036 − 84 = 952).",
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "jc05",
+      "label_faithful": false,
+      "judge_faithful": false,
+      "agree": true,
+      "numeric_grounded": false,
+      "note": "fecha inventada (26)",
+      "claims": [
+        {
+          "claim": "El SKU-0009 tiene 84 unidades.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "Datos actualizados al 27 de septiembre de 2026.",
+          "verdict": "contradicted"
+        }
+      ]
+    },
+    {
+      "id": "jc06",
+      "label_faithful": false,
+      "judge_faithful": false,
+      "agree": true,
+      "numeric_grounded": true,
+      "note": "contradice below_reorder_point",
+      "claims": [
+        {
+          "claim": "El SKU-0009 está por encima de su punto de reorden",
+          "verdict": "contradicted"
+        },
+        {
+          "claim": "no hace falta pedir",
+          "verdict": "contradicted"
+        }
+      ]
+    },
+    {
+      "id": "jc07",
+      "label_faithful": true,
+      "judge_faithful": true,
+      "agree": true,
+      "numeric_grounded": true,
+      "note": "fiel",
+      "claims": [
+        {
+          "claim": "El CEDIS con mayor cantidad de SKU-0009 es CEDIS Occidente.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "CEDIS Occidente se ubica en Guadalajara.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "La cantidad de unidades en CEDIS Occidente es 35.",
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "jc08",
+      "label_faithful": true,
+      "judge_faithful": true,
+      "agree": true,
+      "numeric_grounded": false,
+      "note": "fiel",
+      "claims": [
+        {
+          "claim": "Una orden de $120,000 MXN la aprueba el gerente de compras.",
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "jc09",
+      "label_faithful": false,
+      "judge_faithful": false,
+      "agree": true,
+      "numeric_grounded": false,
+      "note": "nivel equivocado",
+      "claims": [
+        {
+          "claim": "Una orden de $120,000 MXN la aprueba el director de operaciones.",
+          "verdict": "contradicted"
+        }
+      ]
+    },
+    {
+      "id": "jc10",
+      "label_faithful": true,
+      "judge_faithful": true,
+      "agree": true,
+      "numeric_grounded": true,
+      "note": "fiel, dos fragmentos",
+      "claims": [
+        {
+          "claim": "Una orden de 120 mil pesos es aprobada por el gerente de compras.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "Una orden de 120 mil pesos requiere tres cotizaciones comparables por ser mayor a $100,000.",
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "jc11",
+      "label_faithful": false,
+      "judge_faithful": false,
+      "agree": true,
+      "numeric_grounded": true,
+      "note": "numero de cotizaciones cambiado",
+      "claims": [
+        {
+          "claim": "Una orden de 120 mil pesos es aprobada por el gerente de compras.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "Una orden de 120 mil pesos requiere cinco cotizaciones.",
+          "verdict": "contradicted"
+        }
+      ]
+    },
+    {
+      "id": "jc12",
+      "label_faithful": true,
+      "judge_faithful": true,
+      "agree": true,
+      "numeric_grounded": true,
+      "note": "fiel",
+      "claims": [
+        {
+          "claim": "Hay 12 SKUs críticos por debajo de su punto de reorden.",
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "jc13",
+      "label_faithful": false,
+      "judge_faithful": false,
+      "agree": true,
+      "numeric_grounded": true,
+      "note": "extrapolacion no respaldada",
+      "claims": [
+        {
+          "claim": "Hay 12 SKUs críticos bajo su punto de reorden",
+          "verdict": "supported"
+        },
+        {
+          "claim": "La mayoría de estos SKUs pertenecen a la categoría Hidráulico",
+          "verdict": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "jc14",
+      "label_faithful": true,
+      "judge_faithful": true,
+      "agree": true,
+      "numeric_grounded": true,
+      "note": "fiel",
+      "claims": [
+        {
+          "claim": "Los clientes tienen 30 días naturales para realizar devoluciones.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "El equipo de protección personal no se acepta si se abrió el empaque.",
+          "verdict": "supported"
+        },
+        {
+          "claim": "La nota de crédito se emite en un máximo de 10 días hábiles.",
+          "verdict": "supported"
+        }
+      ]
+    },
+    {
+      "id": "jc15",
+      "label_faithful": false,
+      "judge_faithful": false,
+      "agree": true,
+      "numeric_grounded": false,
+      "note": "contradice la politica",
+      "claims": [
+        {
+          "claim": "El equipo de protección personal abierto se acepta para devolución.",
+          "verdict": "contradicted"
+        },
+        {
+          "claim": "Se aplica un plazo de 15 días para la aceptación de estos productos.",
+          "verdict": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "jc16",
+      "label_faithful": true,
+      "judge_faithful": true,
+      "agree": true,
+      "numeric_grounded": true,
+      "note": "abstencion correcta",
+      "claims": []
+    }
+  ]
+}

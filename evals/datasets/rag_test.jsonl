@@ -1,0 +1,8 @@
+{"id": "rt01", "question": "¿Cuál es la meta de calidad de piezas rechazadas para un proveedor?", "expected_sources": ["proveedores.md"]}
+{"id": "rt02", "question": "¿Qué cantidad mínima se puede mandar en una transferencia entre almacenes?", "expected_sources": ["transferencias_cedis.md"]}
+{"id": "rt03", "question": "¿En cuánto tiempo se emite la nota de crédito de una devolución?", "expected_sources": ["devoluciones.md"]}
+{"id": "rt04", "question": "¿Qué se hace si una ubicación tiene diferencia de más de 5 unidades en el conteo?", "expected_sources": ["inventario_ciclico.md"]}
+{"id": "rt05", "question": "¿Qué datos debe llevar obligatoriamente una orden de compra?", "expected_sources": ["ordenes_de_compra.md"]}
+{"id": "rt06", "question": "¿Cuándo se considera que un SKU crítico está en riesgo?", "expected_sources": ["skus_criticos.md"]}
+{"id": "rt07", "question": "¿En cuánto tiempo se debe registrar una entrada de mercancía en el sistema?", "expected_sources": ["recepcion_almacen.md"]}
+{"id": "rt08", "question": "¿Qué información no puede consultar el asistente de IA?", "expected_sources": ["uso_copiloto.md"]}

@@ -1,8 +1,9 @@
-"""Evaluacion de text-to-SQL por execution accuracy sobre evals/golden_set.jsonl.
+"""Evaluacion de text-to-SQL por execution accuracy sobre evals/datasets/sql_{dev,test}.jsonl.
 
 Uso:
     python -m evals.run_sql_eval                       # proveedor de LLM_PROVIDER
     python -m evals.run_sql_eval --provider bedrock --limit 5
+    python -m evals.run_sql_eval --split test          # set de prueba (nunca se usa para ajustar)
 
 Por cada pregunta se ejecutan el SQL de referencia y el generado (ambos con PG_DSN,
 rol copilot_ro) y se comparan los resultados, no el texto del SQL:
@@ -22,15 +23,14 @@ from decimal import Decimal
 from itertools import permutations
 from pathlib import Path
 
-GOLDEN_PATH = Path(__file__).parent / "golden_set.jsonl"
 REPORTS_DIR = Path(__file__).parent / "reports"
 FLOAT_DIGITS = 2
 MAX_EXTRA_COLS = 8  # limite de columnas para buscar proyecciones (costo combinatorio)
 
 
-def load_golden(path: Path = GOLDEN_PATH) -> list[dict]:
-    with open(path, encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
+def load_golden(split: str = "dev") -> list[dict]:
+    from evals.datasets import load_dataset
+    return load_dataset("sql", split)
 
 
 def normalize_value(v):
@@ -76,7 +76,7 @@ def _percentile(values: list[float], p: float) -> float:
     return statistics.quantiles(values, n=100, method="inclusive")[int(p) - 1]
 
 
-def evaluate(golden: list[dict], llm, executor, max_tokens: int = 8192) -> dict:
+def evaluate(golden: list[dict], llm, executor, max_tokens: int = 8192, verifier=None) -> dict:
     """Corre la tool sobre cada pregunta y compara contra el SQL de referencia."""
     from src.guardrails.sql_guard import validate_sql
     from src.tools.sql_tool import run_sql_tool
@@ -84,7 +84,7 @@ def evaluate(golden: list[dict], llm, executor, max_tokens: int = 8192) -> dict:
     items = []
     for g in golden:
         _, gold_rows = executor(validate_sql(g["sql"]))
-        r = run_sql_tool(g["question"], llm=llm, executor=executor, max_tokens=max_tokens)
+        r = run_sql_tool(g["question"], llm=llm, executor=executor, max_tokens=max_tokens, verifier=verifier)
         ok = r.ok and results_match(gold_rows, r.rows, g.get("order_matters", False))
         strict = r.ok and results_match(gold_rows, r.rows, g.get("order_matters", False),
                                         allow_extra_columns=False)
@@ -97,7 +97,7 @@ def evaluate(golden: list[dict], llm, executor, max_tokens: int = 8192) -> dict:
             "llm_latency_ms": round(r.llm_latency_ms, 1),
             "total_latency_ms": round(r.total_latency_ms, 1),
             "provider": r.provider, "model": r.model,
-            "escalations": r.escalations, "attempts": r.attempts,
+            "escalations": r.escalations, "attempts": r.attempts, "cache_hit": r.cache_hit,
         })
     summary = summarize(items)
     # con el router, cada item puede venir de un proveedor distinto: se reporta el router
@@ -116,6 +116,8 @@ def summarize(items: list[dict]) -> dict:
         "guard_rejected_rate": round(sum(e.startswith("guard_rejected") for e in errors) / n, 4),
         "truncated_rate": round(sum(e.startswith("truncated") for e in errors) / n, 4),
         "escalation_rate": round(sum(i.get("escalations", 0) > 0 for i in items) / n, 4),
+        # si hay aciertos de cache, la latencia de esa corrida no es representativa
+        "cache_hit_rate": round(sum(bool(i.get("cache_hit")) for i in items) / n, 4),
         "error_rate": round(sum(bool(e) for e in errors) / n, 4),
         "latency_p50_ms": round(_percentile(lat, 50), 1),
         "latency_p95_ms": round(_percentile(lat, 95), 1),
@@ -138,19 +140,28 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--provider", default=None)
     p.add_argument("--limit", type=int, default=None)
+    p.add_argument("--split", default="dev", choices=["dev", "test"])
+    p.add_argument("--verifier", action="store_true",
+                   help="con --provider router: verifica con el nivel barato y escala si no responde la pregunta")
     p.add_argument("--max-tokens", type=int, default=8192,
                    help="los modelos de razonamiento necesitan margen para <think>")
     args = p.parse_args()
 
-    golden = load_golden()[: args.limit]
+    golden = load_golden(args.split)[: args.limit]
     llm = get_provider(args.provider)
     dsn = os.environ["PG_DSN"]
-    report = evaluate(golden, llm, lambda sql: execute_readonly(sql, dsn), args.max_tokens)
+    verifier = None
+    if args.verifier:
+        from src.tools.sql_verifier import SQLVerifier
+        verifier = SQLVerifier(llm.tiers[0])
+    report = evaluate(golden, llm, lambda sql: execute_readonly(sql, dsn), args.max_tokens, verifier)
+    report["summary"]["verifier"] = bool(verifier)
 
     for i in report["items"]:
         mark = "OK " if i["match"] else "XX "
         print(f"{mark}{i['id']}  {i['total_latency_ms']:>8.0f} ms  {i['error'] or ''}")
     s = report["summary"]
+    s["split"] = args.split
     models = ", ".join(f"{m} x{c}" for m, c in s["models"].items())
     print(f"\n[{s['provider']}] {models}  n={s['n']}")
     print(f"  execution accuracy : {s['execution_accuracy']:.1%} "
@@ -163,7 +174,7 @@ def main() -> None:
 
     REPORTS_DIR.mkdir(exist_ok=True)
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    out = REPORTS_DIR / f"sql_eval_{s['provider'] or 'unknown'}_{ts}.json"
+    out = REPORTS_DIR / f"sql_eval_{args.split}_{s['provider'] or 'unknown'}_{ts}.json"
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     print(f"  reporte            : {out}")
 

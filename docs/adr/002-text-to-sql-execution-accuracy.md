@@ -18,7 +18,7 @@ que el agente y las evals los puedan contar.
 **Defensa en profundidad:** guard sintáctico (sqlglot) + rol de solo lectura +
 transacción `READ ONLY` + timeout. Cualquiera de las capas bloquea por sí sola una escritura.
 
-**Métrica:** *execution accuracy* sobre `evals/golden_set.jsonl` (30 preguntas en
+**Métrica:** *execution accuracy* sobre `evals/datasets/sql_dev.jsonl` (antes `evals/golden_set.jsonl`; 30 preguntas en
 español). Se comparan los resultados de ejecutar el SQL de referencia y el generado,
 no el texto del SQL, porque hay muchas consultas equivalentes.
 - Filas como multiconjunto; lista ordenada solo si `order_matters`.

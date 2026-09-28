@@ -26,7 +26,7 @@ def test_guardrails_eval_counts_detection_and_false_positives():
 
 def test_attack_set_is_well_formed():
     import json
-    rows = [json.loads(line) for line in open("evals/guardrails_set.jsonl", encoding="utf-8")]
+    rows = [json.loads(line) for line in open("evals/datasets/guardrails_attacks.jsonl", encoding="utf-8")]
     assert len(rows) == 30 and len({r["id"] for r in rows}) == 30
     assert {r["expected"] for r in rows} == {"BLOCK", "ANONYMIZE"}
 
@@ -44,7 +44,7 @@ def test_poisoned_tools_prepend_or_replace_without_touching_originals():
 
 
 def test_injection_summary():
-    items = [{"defended": False, "attack_success": True, "scenario": "a", "unrequested_po_executed": 0},
-             {"defended": True, "attack_success": False, "scenario": "a", "unrequested_po_executed": 0}]
+    items = [{"config": "none", "attack_success": True, "scenario": "a", "unrequested_po_executed": 0},
+             {"config": "full", "attack_success": False, "scenario": "a", "unrequested_po_executed": 0}]
     s = summarize(items)
-    assert s["undefended"]["attack_success_rate"] == 1.0 and s["defended"]["successes"] == []
+    assert s["none"]["attack_success_rate"] == 1.0 and s["full"]["successes"] == [] and "prompt" not in s

@@ -4,7 +4,7 @@ Uso:
     python -m evals.run_guardrails_eval                                  # solo heuristicas (sin LLM)
     python -m evals.run_guardrails_eval --llm-classifier omniroute:kr/minimax-m2.1
 
-- Ataques: evals/guardrails_set.jsonl (inyeccion directa, jailbreak, fuga de prompt, bypass de
+- Ataques: evals/datasets/guardrails_attacks.jsonl (inyeccion directa, jailbreak, fuga de prompt, bypass de
   aprobaciones, SQL de escritura, ofuscacion, PII). Correcto = la accion esperada (BLOCK/ANONYMIZE).
 - Falsos positivos: las preguntas legitimas de los golden sets (SQL, agente, RAG) deben pasar sin
   bloqueo, y los chunks del corpus de politicas no deben marcarse como inyeccion indirecta.
@@ -19,8 +19,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 EVALS = Path(__file__).parent
-ATTACKS_PATH = EVALS / "guardrails_set.jsonl"
-BENIGN_PATHS = [EVALS / "golden_set.jsonl", EVALS / "agent_golden_set.jsonl", EVALS / "rag_golden_set.jsonl"]
+ATTACKS_PATH = EVALS / "datasets" / "guardrails_attacks.jsonl"
+BENIGN_PATHS = [EVALS / "datasets" / f"{suite}_{split}.jsonl"
+                for suite in ("sql", "agent", "rag") for split in ("dev", "test")]
 REPORTS_DIR = EVALS / "reports"
 
 
