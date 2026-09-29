@@ -120,9 +120,20 @@ BEDROCK_GUARDRAIL_ID=... python -m evals.run_bedrock_guardrail_eval
 ```
 
 `InventoryData` (Aurora Serverless v2 con auto-pause, VPC aislada con endpoints) e `InventoryApp`
-(Lambda + API Gateway con IAM) se validan con `synth`, pruebas de plantilla y cdk-nag en CI. Se
-despliegan con `npx cdk deploy --all -c budgetEmail=...` y se destruyen con
-`-c allowDestroy=true`; **Aurora, los VPC endpoints y la Lambda cobran mientras existen**.
+(Lambda + API Gateway con IAM) se validan con `synth`, pruebas de plantilla y cdk-nag en CI, y
+**se desplegaron en una cuenta real** para una prueba de un día ([ADR-009](docs/adr/009-aws-architecture.md#despliegue-real-2026-09-28)).
+Esa prueba encontró y corrigió 4 bugs que ni las pruebas ni cdk-nag detectaban.
+
+```bash
+npx cdk bootstrap                                                    # una vez (assets de la Lambda)
+npx cdk deploy --all -c allowDestroy=true                            # prueba temporal
+npx cdk deploy --all -c allowDestroy=true -c dbEngine=rds            # cuentas con el plan gratuito de AWS
+npx cdk destroy --all -c allowDestroy=true
+```
+
+`dbEngine=rds` usa RDS PostgreSQL `db.t4g.micro` en lugar de Aurora, porque el plan gratuito exige
+para Aurora una *express configuration* que CloudFormation no soporta. **Una prueba de un día cuesta
+~US$2–3; encendido cuesta ~US$50 al mes**, sobre todo por los VPC endpoints.
 
 `InventoryGuardrail` se desplegó en una cuenta real para la evaluación en vivo (versiones 1 a 3,
 ver [ADR-010](docs/adr/010-bedrock-comparison.md)) y **se eliminó al cerrar el proyecto** con

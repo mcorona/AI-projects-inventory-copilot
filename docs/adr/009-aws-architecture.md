@@ -69,6 +69,55 @@ por las de Secrets Manager, carga los datos sintéticos e indexa el corpus con T
   - `BootstraplessSynthesizer` sigue exigiendo los roles del bootstrap; el sintetizador correcto
     para desplegar sin bootstrap es `LegacyStackSynthesizer`.
 
+## Despliegue real (2026-09-28)
+Los tres stacks se desplegaron en una cuenta real con `-c allowDestroy=true`, se probaron por la
+API con peticiones firmadas con SigV4 y se destruyeron el mismo día.
+
+**Plan gratuito de AWS.** Una cuenta con el plan gratuito no puede crear la arquitectura objetivo:
+- Limita la retención de backups: el despliegue temporal usa 1 día; el modo normal conserva 7.
+- Para Aurora exige *express configuration* (`WithExpressConfiguration`). Ese parámetro existe en
+  la API de RDS pero **no en CloudFormation ni en CDK**, y fija VPC, puerto y security groups.
+
+Por eso se agregó **`-c dbEngine=rds`**: RDS PostgreSQL 16 `db.t4g.micro` (20 GB, una AZ) con la
+misma red, seguridad y rotación, compatible con el plan gratuito. Aurora sigue siendo el modo por
+defecto.
+
+**Qué se comprobó en AWS (modo RDS):**
+- ✅ La API rechaza peticiones sin firma (403) y acepta las firmadas con IAM (200).
+- ✅ La Lambda corre en la VPC aislada y alcanza Secrets Manager y Bedrock por los endpoints.
+- ✅ El bootstrap aplicó el esquema y las migraciones, reemplazó las contraseñas de los roles por las
+  de Secrets Manager y cargó los datos sintéticos.
+- ✅ `/orders` lee RDS con el rol `copilot_ro` y su secreto.
+- ✅ Las inyecciones se bloquean antes de llegar a cualquier modelo.
+- ✅ Bedrock Guardrail evaluado desde la Lambda.
+- ❌ **Chat y embeddings de Bedrock:** *"Access to Bedrock models is not allowed for this account"*.
+  Es un bloqueo de la cuenta, no de la infraestructura: también ocurre desde fuera de AWS con un
+  usuario administrador. El agente lo maneja y responde `stop_reason=llm_error`, sin error 500.
+  Quedan sin probar en AWS la respuesta del agente, el flujo de órdenes por la API y el índice RAG
+  con Titan.
+
+**Arquitectura objetivo con Aurora (plan de pago):** se desplegó en 13 minutos y dio los mismos
+resultados que el modo RDS en la API: 403 sin firma, `/health` y `/orders` en 200, inyección
+bloqueada y `llm_error` limpio. Configuración verificada en AWS:
+- Aurora PostgreSQL 16.9, cifrada, puerto 5438 y autenticación IAM;
+- Serverless v2 con **`MinCapacity: 0` y auto-pause a los 600 s**;
+- 5 secretos con rotación activa.
+
+**Bugs que solo aparecieron en el despliegue real** (corregidos, con prueba de regresión):
+1. **El bootstrap leía la llave HMAC.** La Lambda de bootstrap comparte variables de entorno con la
+   API y `load_runtime_env()` leía la llave de firma. El IAM de mínimo privilegio lo **bloqueó
+   correctamente**. Se corrigió en el código: el bootstrap ya no la lee. No se amplió ningún permiso.
+2. **`ApplyGuardrail` necesita el perfil entre regiones.** Con el tier STANDARD, `ApplyGuardrail`
+   exige permiso sobre el perfil `us.guardrail.v1:0` y sobre el guardrail **en cada región de
+   destino** (us-east-1/2, us-west-1/2). El simulador de IAM aprobaba el ARN de `us-east-1`, pero
+   la llamada se negaba. Ahora son 8 ARNs concretos, sin comodines.
+3. **Una exportación entre stacks bloqueaba el despliegue.** Dejar de usar una exportación que
+   consume otro stack desplegado hace fallar el despliegue del productor. Se conserva la
+   referencia original.
+4. **cdk-nag frenaba el modo temporal.** El modo temporal quita la protección contra borrado. Se
+   agregó una excepción justificada solo para `allowDestroy=true`; una prueba verifica que el modo
+   normal la sigue exigiendo.
+
 ## Consecuencias
 - (+) Costo en reposo cercano a cero: el guardrail no cobra por existir, y Aurora con auto-pause
   solo cobra almacenamiento.
@@ -78,5 +127,6 @@ por las de Secrets Manager, carga los datos sintéticos e indexa el corpus con T
   membresía de rol y habría que verificarlos en un despliegue real.
 - (−) `decided_by` sigue siendo texto en el flujo de aprobación. En AWS, el aprobador debería
   autenticarse con IAM o Cognito.
-- (−) El despliegue completo (Data + App) no se probó en vivo: solo `synth`, cdk-nag y pruebas
-  de plantilla.
+- (−) El camino con modelos (respuesta del agente, órdenes por la API, RAG con Titan) no se ha
+  probado en AWS mientras la cuenta tenga bloqueado el acceso a Bedrock. Basta un redespliegue de
+  ~25 minutos para completarlo.

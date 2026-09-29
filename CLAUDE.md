@@ -41,8 +41,12 @@ agente GenAI gobernado sobre un sistema de inventario. Costo objetivo: $0 en loc
 
 ## AWS (Semana 6)
 - Infra en `infra/` (CDK Python + cdk-nag): `cd infra && npx cdk synth`. Pruebas: `../.venv/bin/python -m pytest -q tests`.
-- Nada desplegado en AWS: `InventoryGuardrail` se uso para la evaluacion en vivo y se destruyo al cerrar
-  (v1.0). Se despliega sin `cdk bootstrap` (LegacyStackSynthesizer). Data/App: solo synth.
+- Despliegue real probado (2026-09-28, ADR-009): `cdk bootstrap` + `cdk deploy --all -c allowDestroy=true`.
+  Con cuentas del plan gratuito usar `-c dbEngine=rds` (Aurora exige express configuration, no soportada
+  por CloudFormation). Destruir con `cdk destroy --all -c allowDestroy=true` el mismo dia (~US$50/mes encendido).
+- IAM hallado en vivo: `ApplyGuardrail` (tier STANDARD) necesita guardrail + perfil `us.guardrail.v1:0` en
+  las 4 regiones de EE. UU.; el bootstrap NO lee la llave HMAC (`load_runtime_env(signing_key=False)`).
+- No quitar exports que consume un stack ya desplegado (CloudFormation bloquea el deploy del productor).
 - El motor de regex de Bedrock Guardrails NO admite lookbehind. `ANONYMIZE` de PII solo aplica a la salida.
 - Temas denegados del guardrail desactivados por falsos positivos (context `guardrailTopics=true` para activarlos).
 - Evals de Bedrock: `run_all --providers "etiqueta=bedrock:<modelo>"`; `--resume <dir>` reutiliza reportes crudos.
