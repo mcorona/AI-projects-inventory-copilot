@@ -34,6 +34,10 @@ class GuardrailStack(Stack):
         # (CLASSIC) y 13.6% (STANDARD) de falsos positivos sobre preguntas legitimas, y el control
         # que buscaban ya lo imponen la DB y la compuerta humana (ADR-006).
         with_topics = str(self.node.try_get_context("guardrailTopics")).lower() == "true"
+        profile_arn = f"arn:aws:bedrock:{self.region}:{self.account}:guardrail-profile/us.guardrail.v1:0"
+        # ApplyGuardrail con tier STANDARD exige permiso tambien sobre el perfil entre regiones
+        # (hallado en el despliegue real: AccessDenied sobre guardrail-profile/us.guardrail.v1:0)
+        self.guardrail_profile_arn = profile_arn if standard else None
         content_filters = [F.ContentFilterConfigProperty(type=t, input_strength="HIGH", output_strength="HIGH")
                            for t in ("SEXUAL", "VIOLENCE", "HATE", "INSULTS", "MISCONDUCT")]
         # PROMPT_ATTACK solo aplica a la entrada (la salida debe ser NONE)
@@ -49,8 +53,7 @@ class GuardrailStack(Stack):
             content_policy_config=F.ContentPolicyConfigProperty(
                 filters_config=content_filters,
                 content_filters_tier_config=F.ContentFiltersTierConfigProperty(tier_name=tier) if standard else None),
-            cross_region_config=F.GuardrailCrossRegionConfigProperty(
-                guardrail_profile_arn=f"arn:aws:bedrock:{self.region}:{self.account}:guardrail-profile/us.guardrail.v1:0")
+            cross_region_config=F.GuardrailCrossRegionConfigProperty(guardrail_profile_arn=profile_arn)
             if standard else None,
             sensitive_information_policy_config=F.SensitiveInformationPolicyConfigProperty(
                 pii_entities_config=[

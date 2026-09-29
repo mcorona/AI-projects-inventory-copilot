@@ -32,11 +32,14 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CHAT_MODEL = "minimax.minimax-m2.1"
 EMBED_MODEL = "amazon.titan-embed-text-v2:0"
 METRICS_NAMESPACE = "InventoryCopilot"
+# regiones de EE. UU. a las que puede enrutar el perfil de guardrail us.guardrail.v1:0
+GUARDRAIL_REGIONS = ("us-east-1", "us-east-2", "us-west-1", "us-west-2")
 
 
 class AppStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, *, data: DataStack, guardrail_arn: str,
-                 guardrail_id: str, guardrail_version: str, budget_email: str | None = None, **kwargs) -> None:
+                 guardrail_id: str, guardrail_version: str, guardrail_profile_arn: str | None = None,
+                 budget_email: str | None = None, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         role_secrets = data.role_secrets
@@ -48,9 +51,9 @@ class AppStack(Stack):
             "LLM_PROVIDER": "bedrock", "BEDROCK_CHAT_MODEL": CHAT_MODEL,
             "EMBED_PROVIDER": "bedrock", "BEDROCK_EMBED_MODEL": EMBED_MODEL,
             "BEDROCK_GUARDRAIL_ID": guardrail_id, "BEDROCK_GUARDRAIL_VERSION": guardrail_version,
-            "DB_HOST": data.cluster.cluster_endpoint.hostname, "DB_PORT": str(DB_PORT), "DB_NAME": "inventory",
+            "DB_HOST": data.db_host, "DB_PORT": str(DB_PORT), "DB_NAME": "inventory",
             "DB_ROLE_SECRETS": json.dumps({r: s.secret_arn for r, s in role_secrets.items()}),
-            "DB_ADMIN_SECRET_ARN": data.cluster.secret.secret_arn,
+            "DB_ADMIN_SECRET_ARN": data.db_secret.secret_arn,
             "SIGNING_KEY_SECRET_ARN": signing_key.secret_arn,
             "METRICS_NAMESPACE": METRICS_NAMESPACE,
         }
@@ -95,10 +98,21 @@ class AppStack(Stack):
             fn.add_to_role_policy(iam.PolicyStatement(actions=["bedrock:InvokeModel"], resources=model_arns))
             for s in role_secrets.values():
                 s.grant_read(fn)
+        # Tier STANDARD: el guardrail se evalua entre regiones via el perfil us.guardrail.v1:0, y IAM
+        # exige el guardrail y el perfil en cada region de destino (hallado en el despliegue real: el
+        # simulador aprobaba us-east-1 pero la llamada se negaba). Mismos recursos, sin comodines.
+        guardrail_resources = [guardrail_arn]
+        if guardrail_profile_arn:
+            # guardrail_arn (export de la region de origen) se conserva para no romper la referencia entre
+            # stacks; las otras regiones se arman desde el id, que CDK interpola (el ARN es un token)
+            guardrail_resources = [guardrail_arn, guardrail_profile_arn] + [
+                arn for r in GUARDRAIL_REGIONS if r != self.region for arn in (
+                    f"arn:aws:bedrock:{r}:{self.account}:guardrail/{guardrail_id}",
+                    f"arn:aws:bedrock:{r}:{self.account}:guardrail-profile/us.guardrail.v1:0")]
         self.api_fn.add_to_role_policy(iam.PolicyStatement(actions=["bedrock:ApplyGuardrail"],
-                                                           resources=[guardrail_arn]))
+                                                           resources=guardrail_resources))
         signing_key.grant_read(self.api_fn)
-        data.cluster.secret.grant_read(self.bootstrap_fn)   # solo el bootstrap usa el admin
+        data.db_secret.grant_read(self.bootstrap_fn)   # solo el bootstrap usa el admin
 
         # --- API HTTP con autenticacion IAM (SigV4) y logs de acceso
         self.api = apigw.HttpApi(self, "HttpApi", description="Inventory Copilot API",

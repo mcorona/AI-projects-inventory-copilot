@@ -25,7 +25,7 @@ def stacks():
     g = GuardrailStack(app, "G", env=env)
     d = DataStack(app, "D", env=env)
     a = AppStack(app, "A", env=env, data=d, guardrail_arn=g.guardrail_arn, guardrail_id=g.guardrail_id,
-                 guardrail_version=g.guardrail_version)
+                 guardrail_version=g.guardrail_version, guardrail_profile_arn=g.guardrail_profile_arn)
     apply_suppressions(d, a)
     cdk.Aspects.of(app).add(AwsSolutionsChecks())
     app.synth()
@@ -108,3 +108,54 @@ def test_chat_model_is_minimax_and_bedrock_iam_is_exact(stacks):
         assert len(resources) == 2 and all("foundation-model/" in r for r in resources)
         assert any("minimax.minimax-m2.1" in r for r in resources) and any("titan-embed-text-v2" in r for r in resources)
         assert not any("inference-profile" in r or "haiku" in r for r in resources)
+
+
+def test_deletion_protection_only_relaxed_in_temporary_mode():
+    app = cdk.App(context={"@aws-cdk/core:defaultCrossStackReferences": "strong"})
+    env = cdk.Environment(account="123456789012", region="us-east-1")
+    g = GuardrailStack(app, "G2", env=env)
+    d = DataStack(app, "D2", env=env, allow_destroy=True)
+    a = AppStack(app, "A2", env=env, data=d, guardrail_arn=g.guardrail_arn, guardrail_id=g.guardrail_id,
+                 guardrail_version=g.guardrail_version)
+    apply_suppressions(d, a)
+    cdk.Aspects.of(app).add(AwsSolutionsChecks())
+    app.synth()
+    Template.from_stack(d).has_resource_properties("AWS::RDS::DBCluster", {"DeletionProtection": False})
+    found = Annotations.from_stack(d).find_error("*", Match.string_like_regexp("AwsSolutions-.*"))
+    assert found == []   # la unica excepcion (RDS10) esta suprimida con justificacion
+
+
+def test_free_plan_rds_mode_keeps_security_and_is_nag_clean():
+    app = cdk.App(context={"@aws-cdk/core:defaultCrossStackReferences": "strong"})
+    env = cdk.Environment(account="123456789012", region="us-east-1")
+    g = GuardrailStack(app, "G3", env=env)
+    d = DataStack(app, "D3", env=env, allow_destroy=True, engine="rds")
+    a = AppStack(app, "A3", env=env, data=d, guardrail_arn=g.guardrail_arn, guardrail_id=g.guardrail_id,
+                 guardrail_version=g.guardrail_version)
+    apply_suppressions(d, a)
+    cdk.Aspects.of(app).add(AwsSolutionsChecks())
+    app.synth()
+    t = Template.from_stack(d)
+    t.resource_count_is("AWS::RDS::DBCluster", 0)
+    t.has_resource_properties("AWS::RDS::DBInstance", {
+        "DBInstanceClass": "db.t4g.micro", "StorageEncrypted": True, "Port": "5438",
+        "EnableIAMDatabaseAuthentication": True, "MultiAZ": False, "BackupRetentionPeriod": 1})
+    t.resource_count_is("AWS::SecretsManager::RotationSchedule", 5)
+    t.resource_count_is("AWS::EC2::NatGateway", 0)
+    for stack in (d, a):
+        assert Annotations.from_stack(stack).find_error("*", Match.string_like_regexp("AwsSolutions-.*")) == []
+
+
+def test_invalid_db_engine_is_rejected():
+    with pytest.raises(ValueError):
+        DataStack(cdk.App(), "D4", engine="mysql")
+
+
+def test_apply_guardrail_covers_the_cross_region_profile(stacks):
+    t = Template.from_stack(stacks[2])
+    st = [s for s in _policy_statements(t) if s["Action"] == "bedrock:ApplyGuardrail"]
+    resources = json.dumps(st[0]["Resource"])
+    assert st and len(st[0]["Resource"]) == 8           # guardrail + perfil en 4 regiones de EE. UU.
+    assert "guardrail-profile/us.guardrail.v1:0" in resources and '"*"' not in resources
+    for region in ("us-east-1", "us-east-2", "us-west-1", "us-west-2"):
+        assert f"arn:aws:bedrock:{region}:" in resources

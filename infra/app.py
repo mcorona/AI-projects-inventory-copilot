@@ -20,9 +20,11 @@ allow_destroy = str(app.node.try_get_context("allowDestroy")).lower() == "true"
 
 # sin assets: se despliega sin `cdk bootstrap` (no crea bucket, ECR ni roles de despliegue en la cuenta)
 guardrail = GuardrailStack(app, "InventoryGuardrail", env=env, synthesizer=cdk.LegacyStackSynthesizer())
-data = DataStack(app, "InventoryData", env=env, allow_destroy=allow_destroy)
+data = DataStack(app, "InventoryData", env=env, allow_destroy=allow_destroy,
+                 engine=app.node.try_get_context("dbEngine") or "aurora")
 api = AppStack(app, "InventoryApp", env=env, data=data, guardrail_arn=guardrail.guardrail_arn,
                guardrail_id=guardrail.guardrail_id, guardrail_version=guardrail.guardrail_version,
+               guardrail_profile_arn=guardrail.guardrail_profile_arn,
                budget_email=app.node.try_get_context("budgetEmail"))
 for stack in (guardrail, data, api):
     cdk.Tags.of(stack).add("project", "inventory-copilot")
