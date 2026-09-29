@@ -114,3 +114,21 @@ def test_runtime_env_builds_dsns_from_secrets(monkeypatch):
     import os
     assert os.environ["PG_DSN"] == "postgresql://copilot_ro:p%40ss%2F1@db.internal:5438/inventory?sslmode=require"
     assert os.environ["PO_DSN"].startswith("postgresql://copilot_po:x@") and os.environ["SIGNING_KEY"] == "abc"
+
+
+def test_bootstrap_does_not_read_signing_key(monkeypatch):
+    """Regresion encontrada en el despliegue real: el rol del bootstrap no puede leer la llave HMAC."""
+    from src.api.aws_runtime import load_runtime_env
+    for k, v in {"DB_HOST": "h", "DB_PORT": "5438", "DB_NAME": "inventory",
+                 "DB_ROLE_SECRETS": json.dumps({"copilot_ro": "arn:ro"}),
+                 "DB_ADMIN_SECRET_ARN": "arn:admin", "SIGNING_KEY_SECRET_ARN": "arn:key"}.items():
+        monkeypatch.setenv(k, v)
+    read = []
+
+    class SM:
+        def get_secret_value(self, SecretId):
+            read.append(SecretId)
+            return {"SecretString": json.dumps({"username": "u", "password": "p"})}
+
+    load_runtime_env(client=SM(), admin=True, signing_key=False)
+    assert "arn:key" not in read and set(read) == {"arn:ro", "arn:admin"}

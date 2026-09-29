@@ -23,7 +23,9 @@ def dsn(user: str, password: str) -> str:
             f"{os.environ['DB_PORT']}/{os.environ['DB_NAME']}?sslmode=require")
 
 
-def load_runtime_env(client=None, admin: bool = False) -> None:
+def load_runtime_env(client=None, admin: bool = False, signing_key: bool = True) -> None:
+    """Carga solo lo que cada funcion necesita: el bootstrap no lee la llave de firma (y su rol IAM
+    no tiene permiso para hacerlo); la API no lee el secreto de administrador."""
     import boto3
     client = client or boto3.client("secretsmanager")
     for role, arn in json.loads(os.environ["DB_ROLE_SECRETS"]).items():
@@ -32,6 +34,6 @@ def load_runtime_env(client=None, admin: bool = False) -> None:
     if admin:
         s = _secret(client, os.environ["DB_ADMIN_SECRET_ARN"])
         os.environ["PG_ADMIN_DSN"] = dsn(s["username"], s["password"])
-    if os.getenv("SIGNING_KEY_SECRET_ARN"):
+    if signing_key and os.getenv("SIGNING_KEY_SECRET_ARN"):
         key = _secret(client, os.environ["SIGNING_KEY_SECRET_ARN"])
         os.environ["SIGNING_KEY"] = key if isinstance(key, str) else json.dumps(key)

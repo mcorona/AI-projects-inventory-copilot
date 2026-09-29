@@ -14,7 +14,7 @@ def handler(event=None, context=None) -> dict:
 
     from src.api.aws_runtime import _secret, load_runtime_env
 
-    load_runtime_env(admin=True)
+    load_runtime_env(admin=True, signing_key=False)
     admin = os.environ["PG_ADMIN_DSN"]
     steps = []
     with psycopg.connect(admin, autocommit=True) as conn:
