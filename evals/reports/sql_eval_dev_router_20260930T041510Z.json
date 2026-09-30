@@ -1,0 +1,1301 @@
+{
+  "summary": {
+    "n": 34,
+    "execution_accuracy": 1.0,
+    "execution_accuracy_strict": 0.9118,
+    "guard_rejected_rate": 0.0,
+    "truncated_rate": 0.0,
+    "escalation_rate": 0.0294,
+    "cache_hit_rate": 0.8824,
+    "error_rate": 0.0,
+    "latency_p50_ms": 35.1,
+    "latency_p95_ms": 13919.8,
+    "input_tokens": 321424,
+    "output_tokens": 5349,
+    "provider": "router",
+    "model": "minimax-m2.1",
+    "models": {
+      "minimax-m2.1": 33,
+      "qwen/qwen3.6-35b-a3b": 1
+    },
+    "verifier_outcomes": {
+      "accept_ok": 34
+    },
+    "verifier": true,
+    "split": "dev"
+  },
+  "items": [
+    {
+      "id": "q01",
+      "question": "¿Cuántos productos hay en total?",
+      "tags": [
+        "simple",
+        "count"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM products",
+      "pred_sql": "SELECT COUNT(*) AS total_productos FROM products LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9060,
+      "output_tokens": 61,
+      "llm_latency_ms": 82.0,
+      "total_latency_ms": 88.8,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT COUNT(*) AS total_productos FROM products LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta COUNT(*) sobre products responde directamente a la pregunta del total de productos. El resultado 200 tiene sentido como cantidad total."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q02",
+      "question": "¿Cuántos productos críticos hay?",
+      "tags": [
+        "simple",
+        "count"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM products WHERE critical",
+      "pred_sql": "SELECT COUNT(*) AS productos_criticos FROM products WHERE critical = TRUE LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9111,
+      "output_tokens": 65,
+      "llm_latency_ms": 13.8,
+      "total_latency_ms": 19.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT COUNT(*) AS productos_criticos FROM products WHERE critical = TRUE LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta filtra correctamente products WHERE critical = TRUE y cuenta el total. El LIMIT 200 es innecesario pero no afecta el resultado."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q03",
+      "question": "Lista el nombre y la ciudad de cada almacén.",
+      "tags": [
+        "simple"
+      ],
+      "gold_sql": "SELECT name, city FROM warehouses",
+      "pred_sql": "SELECT name, city FROM warehouses LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 3,
+      "pred_rows": 3,
+      "input_tokens": 9107,
+      "output_tokens": 67,
+      "llm_latency_ms": 13.1,
+      "total_latency_ms": 18.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 3,
+          "sql": "SELECT name, city FROM warehouses LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta devuelve exactamente las columnas pedidas (name, city) y las 3 filas de almacenes definidos en el esquema. Sin filtros necesarios ya que la pregunta pide todos los almacenes."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q04",
+      "question": "¿Qué proveedores son de China? Devuelve solo su nombre.",
+      "tags": [
+        "simple",
+        "filter"
+      ],
+      "gold_sql": "SELECT name FROM suppliers WHERE country = 'CN'",
+      "pred_sql": "SELECT name FROM suppliers WHERE country = 'CN' LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 2,
+      "pred_rows": 2,
+      "input_tokens": 9105,
+      "output_tokens": 56,
+      "llm_latency_ms": 13.0,
+      "total_latency_ms": 18.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 2,
+          "sql": "SELECT name FROM suppliers WHERE country = 'CN' LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "Filtra correctamente por country = 'CN' y devuelve solo la columna name. El resultado de 2 proveedores de China es razonable."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q05",
+      "question": "¿Qué proveedor tiene el mayor tiempo de entrega? Devuelve nombre y días de entrega.",
+      "tags": [
+        "simple",
+        "top-n"
+      ],
+      "gold_sql": "SELECT name, lead_time_days FROM suppliers ORDER BY lead_time_days DESC LIMIT 1",
+      "pred_sql": "SELECT name, lead_time_days FROM suppliers ORDER BY lead_time_days DESC LIMIT 1",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9211,
+      "output_tokens": 84,
+      "llm_latency_ms": 46.1,
+      "total_latency_ms": 54.2,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT name, lead_time_days FROM suppliers ORDER BY lead_time_days DESC LIMIT 1",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta identifica correctamente el proveedor con mayor lead_time_days, ordenando descendentemente y limitando a 1 resultado. Las columnas name y lead_time_days coinciden exactamente con lo solici"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q06",
+      "question": "¿Cuántos productos hay en cada categoría?",
+      "tags": [
+        "aggregation"
+      ],
+      "gold_sql": "SELECT category, COUNT(*) FROM products GROUP BY category",
+      "pred_sql": "SELECT category, COUNT(*) AS productos FROM products GROUP BY category ORDER BY category LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 8,
+      "pred_rows": 8,
+      "input_tokens": 9162,
+      "output_tokens": 91,
+      "llm_latency_ms": 12.8,
+      "total_latency_ms": 19.2,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 8,
+          "sql": "SELECT category, COUNT(*) AS productos FROM products GROUP BY category ORDER BY category LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta cuenta productos por categoría correctamente. GROUP BY category con COUNT(*) responde exactamente lo pedido. 8 filas = 8 categorías del esquema, distribución uniforme de 25 productos por c"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q07",
+      "question": "¿Cuál es el costo unitario promedio de los productos hidráulicos, redondeado a 2 decimales?",
+      "tags": [
+        "aggregation",
+        "entity-mapping"
+      ],
+      "gold_sql": "SELECT ROUND(AVG(unit_cost), 2) FROM products WHERE category = 'Hidraulico'",
+      "pred_sql": "SELECT ROUND(CAST(AVG(unit_cost) AS DECIMAL), 2) AS costo_promedio FROM products WHERE category = 'Hidraulico' LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9221,
+      "output_tokens": 91,
+      "llm_latency_ms": 19.4,
+      "total_latency_ms": 25.4,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT ROUND(CAST(AVG(unit_cost) AS DECIMAL), 2) AS costo_promedio FROM products WHERE category = 'Hidraulico' LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta filtra correctamente por category = 'Hidraulico', calcula el promedio con AVG(unit_cost), y redondea a 2 decimales con ROUND(..., 2). El resultado de 1 fila con el costo promedio es exacta"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q08",
+      "question": "¿Cuáles son los 3 productos de la categoría Rodamientos con mayor costo unitario? Devuelve SKU y costo, de mayor a menor.",
+      "tags": [
+        "top-n",
+        "filter"
+      ],
+      "gold_sql": "SELECT sku, unit_cost FROM products WHERE category = 'Rodamientos' ORDER BY unit_cost DESC LIMIT 3",
+      "pred_sql": "SELECT sku, unit_cost FROM products WHERE category = 'Rodamientos' ORDER BY unit_cost DESC LIMIT 3",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 3,
+      "pred_rows": 3,
+      "input_tokens": 9231,
+      "output_tokens": 96,
+      "llm_latency_ms": 4613.6,
+      "total_latency_ms": 4625.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 3,
+          "sql": "SELECT sku, unit_cost FROM products WHERE category = 'Rodamientos' ORDER BY unit_cost DESC LIMIT 3",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta filtra correctamente por categoria = 'Rodamientos', ordena por unit_cost DESC, limita a 3 filas y devuelve solo las columnas solicitadas (sku, unit_cost). El resultado muestra 3 productos "
+        }
+      ],
+      "cache_hit": false,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q09",
+      "question": "¿Qué SKUs tienen un stock total (sumando todos los almacenes) por debajo de su punto de reorden?",
+      "tags": [
+        "join",
+        "reorder"
+      ],
+      "gold_sql": "SELECT p.sku FROM products p JOIN stock s ON s.sku = p.sku GROUP BY p.sku, p.reorder_point HAVING SUM(s.on_hand) < p.reorder_point",
+      "pred_sql": "SELECT p.sku, p.name, SUM(s.on_hand) AS stock_total, p.reorder_point FROM products AS p JOIN stock AS s ON s.sku = p.sku GROUP BY p.sku, p.name, p.reorder_point HAVING SUM(s.on_hand) < p.reorder_point ORDER BY p.sku LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": false,
+      "gold_rows": 25,
+      "pred_rows": 25,
+      "input_tokens": 9677,
+      "output_tokens": 124,
+      "llm_latency_ms": 27.0,
+      "total_latency_ms": 37.4,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 25,
+          "sql": "SELECT p.sku, p.name, SUM(s.on_hand) AS stock_total, p.reorder_point FROM products AS p JOIN stock AS s ON s.sku = p.sku GROUP BY p.sku, p.name, p.reorder_point HAVING SUM(s.on_hand) < p.reorder_point ORDER BY p.sku LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta agrupa por SKU, suma el stock de todos los almacenes (SUM s.on_hand) y filtra con HAVING donde stock_total < reorder_point. Las columnas son correctas y el resultado muestra 25 SKUs con st"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q10",
+      "question": "¿Qué porcentaje de los productos críticos está por debajo de su punto de reorden (stock total)? Redondea a 1 decimal.",
+      "tags": [
+        "join",
+        "reorder",
+        "subquery",
+        "ratio"
+      ],
+      "gold_sql": "SELECT ROUND(100.0 * COUNT(*) FILTER (WHERE st.total < p.reorder_point) / COUNT(*), 1) FROM products p JOIN (SELECT sku, SUM(on_hand) AS total FROM stock GROUP BY sku) st ON st.sku = p.sku WHERE p.critical",
+      "pred_sql": "WITH critical_products AS (SELECT p.sku, p.reorder_point FROM products AS p WHERE p.critical = TRUE), product_stock AS (SELECT cp.sku, cp.reorder_point, COALESCE(SUM(s.on_hand), 0) AS total_stock FROM critical_products AS cp LEFT JOIN stock AS s ON s.sku = cp.sku GROUP BY cp.sku, cp.reorder_point) SELECT ROUND(CAST(100.0 * COUNT(CASE WHEN total_stock < reorder_point THEN 1 END) / COUNT(*) AS DECIMAL), 1) AS porcentaje_bajo_reorden FROM product_stock LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9423,
+      "output_tokens": 191,
+      "llm_latency_ms": 7544.9,
+      "total_latency_ms": 7560.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "WITH critical_products AS (SELECT p.sku, p.reorder_point FROM products AS p WHERE p.critical = TRUE), product_stock AS (SELECT cp.sku, cp.reorder_point, COALESCE(SUM(s.on_hand), 0) AS total_stock FROM critical_products AS cp LEFT JOIN stock AS s ON s.sku = cp.sku GROUP BY cp.sku, cp.reorder_point) SELECT ROUND(CAST(100.0 * COUNT(CASE WHEN total_stock < reorder_point THEN 1 END) / COUNT(*) AS DECIMAL), 1) AS porcentaje_bajo_reorden FROM product_stock LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta filtra correctamente productos críticos, calcula el stock total sumando on_hand de todas las almacenes, compara con reorder_point, y calcula el porcentaje. El resultado de 1 fila con el po"
+        }
+      ],
+      "cache_hit": false,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q11",
+      "question": "¿Cuál es el stock total del SKU-0042 sumando todos los almacenes?",
+      "tags": [
+        "aggregation"
+      ],
+      "gold_sql": "SELECT SUM(on_hand) FROM stock WHERE sku = 'SKU-0042'",
+      "pred_sql": "SELECT SUM(on_hand) AS stock_total FROM stock WHERE sku = 'SKU-0042' LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9169,
+      "output_tokens": 62,
+      "llm_latency_ms": 65.7,
+      "total_latency_ms": 75.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT SUM(on_hand) AS stock_total FROM stock WHERE sku = 'SKU-0042' LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "Consulta correcta: filtra por SKU-0042, suma on_hand de todos los almacenes, y el resultado de 853 es razonable para un stock total"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q12",
+      "question": "¿Cuántas unidades en existencia hay en total en el almacén de Monterrey?",
+      "tags": [
+        "join",
+        "entity-mapping"
+      ],
+      "gold_sql": "SELECT SUM(s.on_hand) FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Monterrey'",
+      "pred_sql": "SELECT COALESCE(SUM(s.on_hand), 0) AS total_existencia FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Norte' LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9236,
+      "output_tokens": 82,
+      "llm_latency_ms": 34.5,
+      "total_latency_ms": 50.2,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT COALESCE(SUM(s.on_hand), 0) AS total_existencia FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Norte' LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "Filtra correctamente por CEDIS Norte (Monterrey) y suma el total de on_hand. El resultado de 1 fila con el total es lo esperado."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q13",
+      "question": "¿Cuál es el valor del inventario (existencias por costo unitario) de cada almacén? Devuelve nombre del almacén y valor.",
+      "tags": [
+        "join",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT w.name, SUM(s.on_hand * p.unit_cost) FROM stock s JOIN products p ON p.sku = s.sku JOIN warehouses w ON w.warehouse_id = s.warehouse_id GROUP BY w.name",
+      "pred_sql": "SELECT w.name, SUM(s.on_hand * p.unit_cost) AS valor_inventario FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id JOIN products AS p ON p.sku = s.sku GROUP BY w.name ORDER BY w.name LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 3,
+      "pred_rows": 3,
+      "input_tokens": 9365,
+      "output_tokens": 117,
+      "llm_latency_ms": 28.3,
+      "total_latency_ms": 38.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 3,
+          "sql": "SELECT w.name, SUM(s.on_hand * p.unit_cost) AS valor_inventario FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id JOIN products AS p ON p.sku = s.sku GROUP BY w.name ORDER BY w.name LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta calcula correctamente el valor del inventario (SUM de on_hand * unit_cost) agrupado por almacén. Las 3 filas corresponden a los 3 almacenes existentes, con las columnas name y valor_invent"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q14",
+      "question": "¿Qué almacén tiene más unidades en existencia? Devuelve solo su nombre.",
+      "tags": [
+        "join",
+        "top-n"
+      ],
+      "gold_sql": "SELECT w.name FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id GROUP BY w.name ORDER BY SUM(s.on_hand) DESC LIMIT 1",
+      "pred_sql": "SELECT w.name FROM warehouses AS w JOIN stock AS s ON s.warehouse_id = w.warehouse_id GROUP BY w.name ORDER BY SUM(s.on_hand) DESC LIMIT 1",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9276,
+      "output_tokens": 88,
+      "llm_latency_ms": 40.5,
+      "total_latency_ms": 51.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT w.name FROM warehouses AS w JOIN stock AS s ON s.warehouse_id = w.warehouse_id GROUP BY w.name ORDER BY SUM(s.on_hand) DESC LIMIT 1",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta agrupa correctamente por almacén, suma el stock total (SUM s.on_hand) y ordena descendente para obtener el primero. Una fila es lo esperado para 'qué almacén'."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q15",
+      "question": "¿Qué SKUs tienen cero existencias en el almacén de Guadalajara?",
+      "tags": [
+        "join",
+        "filter"
+      ],
+      "gold_sql": "SELECT s.sku FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Guadalajara' AND s.on_hand = 0",
+      "pred_sql": "SELECT s.sku FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Guadalajara' AND s.on_hand = 0 ORDER BY s.sku LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 4,
+      "pred_rows": 4,
+      "input_tokens": 9435,
+      "output_tokens": 81,
+      "llm_latency_ms": 24.6,
+      "total_latency_ms": 34.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 4,
+          "sql": "SELECT s.sku FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.city = 'Guadalajara' AND s.on_hand = 0 ORDER BY s.sku LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta filtra correctamente por warehouse.city = 'Guadalajara' y stock.on_hand = 0. Las columnas y el resultado son los esperados."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q16",
+      "question": "¿Cuántas unidades se vendieron en total en los últimos 30 días?",
+      "tags": [
+        "dates"
+      ],
+      "gold_sql": "SELECT SUM(units) FROM sales_daily WHERE day BETWEEN '2026-08-28' AND '2026-09-26'",
+      "pred_sql": "SELECT SUM(units) AS total_unidades_vendidas FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9721,
+      "output_tokens": 89,
+      "llm_latency_ms": 33.6,
+      "total_latency_ms": 44.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT SUM(units) AS total_unidades_vendidas FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "Filtro de fechas correcto para ultimos 30 dias (day > '2026-08-27' AND day <= '2026-09-26'), SUM sin GROUP BY devuelve el total general en 1 fila, columna con el total de unidades."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q17",
+      "question": "¿Cuáles son los 5 SKUs con más unidades vendidas en todo el periodo? Devuelve SKU y total, de mayor a menor.",
+      "tags": [
+        "aggregation",
+        "top-n"
+      ],
+      "gold_sql": "SELECT sku, SUM(units) AS total FROM sales_daily GROUP BY sku ORDER BY total DESC LIMIT 5",
+      "pred_sql": "SELECT sku, SUM(units) AS total FROM sales_daily GROUP BY sku ORDER BY total DESC LIMIT 5",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 5,
+      "pred_rows": 5,
+      "input_tokens": 9322,
+      "output_tokens": 74,
+      "llm_latency_ms": 89.1,
+      "total_latency_ms": 110.2,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 5,
+          "sql": "SELECT sku, SUM(units) AS total FROM sales_daily GROUP BY sku ORDER BY total DESC LIMIT 5",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta agrupa por SKU, suma todas las unidades del periodo completo, ordena descendente y limita a 5. El resultado tiene las columnas correctas y 5 filas."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q18",
+      "question": "¿Cuántas unidades se vendieron por mes? Devuelve el mes en formato YYYY-MM y el total, en orden cronológico.",
+      "tags": [
+        "dates",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT to_char(day, 'YYYY-MM') AS mes, SUM(units) FROM sales_daily GROUP BY mes ORDER BY mes",
+      "pred_sql": "SELECT TO_CHAR(day, 'YYYY-MM') AS mes, SUM(units) AS total FROM sales_daily GROUP BY TO_CHAR(day, 'YYYY-MM') ORDER BY mes LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 7,
+      "pred_rows": 7,
+      "input_tokens": 10323,
+      "output_tokens": 2013,
+      "llm_latency_ms": 35413.3,
+      "total_latency_ms": 35447.0,
+      "provider": "lmstudio",
+      "model": "qwen/qwen3.6-35b-a3b",
+      "escalations": 1,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": "db_error: column \"sales_daily.day\" must appear in the GROUP BY clause or be used in an aggregate function\nLINE 1: SELECT TO_CHAR(day, 'YYYY-MM') AS mes, SUM(units) AS total_v...\n                       ^",
+          "rows": 0,
+          "sql": "SELECT TO_CHAR(day, 'YYYY-MM') AS mes, SUM(units) AS total_vendido FROM sales_daily GROUP BY EXTRACT(YEAR FROM day), EXTRACT(MONTH FROM day) ORDER BY mes LIMIT 200",
+          "verifier_ok": null,
+          "verifier_reason": null
+        },
+        {
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "error": null,
+          "rows": 7,
+          "sql": "SELECT TO_CHAR(day, 'YYYY-MM') AS mes, SUM(units) AS total FROM sales_daily GROUP BY TO_CHAR(day, 'YYYY-MM') ORDER BY mes LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta agrupa correctamente por mes (TO_CHAR(day, 'YYYY-MM')), suma las unidades vendidas, y ordena por mes en formato YYYY-MM que resulta en orden cronológico. Sin filtros porque la pregunta pid"
+        }
+      ],
+      "cache_hit": null,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q19",
+      "question": "¿Qué categoría vendió más unidades en septiembre de 2026?",
+      "tags": [
+        "join",
+        "dates",
+        "top-n"
+      ],
+      "gold_sql": "SELECT p.category FROM sales_daily sd JOIN products p ON p.sku = sd.sku WHERE sd.day BETWEEN '2026-09-01' AND '2026-09-30' GROUP BY p.category ORDER BY SUM(sd.units) DESC LIMIT 1",
+      "pred_sql": "SELECT p.category, SUM(sd.units) AS total_unidades FROM sales_daily AS sd JOIN products AS p ON p.sku = sd.sku WHERE sd.day >= CAST('2026-09-01' AS DATE) AND sd.day <= CAST('2026-09-26' AS DATE) GROUP BY p.category ORDER BY total_unidades DESC LIMIT 1",
+      "error": null,
+      "match": true,
+      "match_strict": false,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9653,
+      "output_tokens": 112,
+      "llm_latency_ms": 18.9,
+      "total_latency_ms": 30.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT p.category, SUM(sd.units) AS total_unidades FROM sales_daily AS sd JOIN products AS p ON p.sku = sd.sku WHERE sd.day >= CAST('2026-09-01' AS DATE) AND sd.day <= CAST('2026-09-26' AS DATE) GROUP BY p.category ORDER BY total_unidades DESC LIMIT 1",
+          "verifier_ok": true,
+          "verifier_reason": "Filtro de fecha correcto (septiembre hasta 2026-09-26), agrupación por categoría, suma de unidades, orden descendente y límite 1. El resultado tiene 1 fila como se espera."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q20",
+      "question": "¿Cuál fue el promedio diario de unidades vendidas del SKU-0007 en los últimos 7 días, redondeado a 2 decimales?",
+      "tags": [
+        "dates",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT ROUND(AVG(units), 2) FROM sales_daily WHERE sku = 'SKU-0007' AND day BETWEEN '2026-09-20' AND '2026-09-26'",
+      "pred_sql": "SELECT ROUND(CAST(AVG(units) AS DECIMAL), 2) AS promedio_diario FROM sales_daily WHERE sku = 'SKU-0007' AND day > CAST('2026-09-26' AS DATE) - 7 AND day <= CAST('2026-09-26' AS DATE) LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9868,
+      "output_tokens": 99,
+      "llm_latency_ms": 20.3,
+      "total_latency_ms": 29.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT ROUND(CAST(AVG(units) AS DECIMAL), 2) AS promedio_diario FROM sales_daily WHERE sku = 'SKU-0007' AND day > CAST('2026-09-26' AS DATE) - 7 AND day <= CAST('2026-09-26' AS DATE) LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta filtra correctamente por SKU-0007, el período de 7 días (2026-09-20 al 2026-09-26), calcula el promedio de units y lo redondea a 2 decimales. El resultado de 1 fila es el esperado."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q21",
+      "question": "¿En cuántos días el SKU-0096 no tuvo ventas?",
+      "tags": [
+        "filter",
+        "count"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM sales_daily WHERE sku = 'SKU-0096' AND units = 0",
+      "pred_sql": "SELECT COUNT(*) AS dias_sin_ventas FROM sales_daily WHERE sku = 'SKU-0096' AND units = 0 LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9517,
+      "output_tokens": 88,
+      "llm_latency_ms": 22.5,
+      "total_latency_ms": 31.4,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT COUNT(*) AS dias_sin_ventas FROM sales_daily WHERE sku = 'SKU-0096' AND units = 0 LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta cuenta correctamente las filas con units = 0 para el SKU-0096, lo cual equivale a los días sin ventas. El esquema indica que no hay huecos en las fechas, por lo que cada día del período ti"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q22",
+      "question": "¿Cuál fue el monto vendido (unidades por costo unitario) por categoría en los últimos 90 días?",
+      "tags": [
+        "join",
+        "dates",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT p.category, SUM(sd.units * p.unit_cost) FROM sales_daily sd JOIN products p ON p.sku = sd.sku WHERE sd.day BETWEEN '2026-06-29' AND '2026-09-26' GROUP BY p.category",
+      "pred_sql": "SELECT p.category, SUM(s.units * p.unit_cost) AS monto_vendido FROM products AS p JOIN sales_daily AS s ON s.sku = p.sku WHERE s.day > CAST('2026-09-26' AS DATE) - 90 AND s.day <= CAST('2026-09-26' AS DATE) GROUP BY p.category ORDER BY p.category LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 8,
+      "pred_rows": 8,
+      "input_tokens": 9657,
+      "output_tokens": 129,
+      "llm_latency_ms": 18.6,
+      "total_latency_ms": 31.9,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 8,
+          "sql": "SELECT p.category, SUM(s.units * p.unit_cost) AS monto_vendido FROM products AS p JOIN sales_daily AS s ON s.sku = p.sku WHERE s.day > CAST('2026-09-26' AS DATE) - 90 AND s.day <= CAST('2026-09-26' AS DATE) GROUP BY p.category ORDER BY p.category LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta filtra correctamente los últimos 90 días (day > 2026-05-28 AND day <= 2026-09-26), agrupa por categoría, y calcula el monto como SUM(units * unit_cost). El resultado tiene 8 filas que corr"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q23",
+      "question": "Para cada producto crítico, calcula los días de cobertura: stock total dividido entre el promedio diario de ventas de los últimos 30 días, redondeado a 1 decimal. Devuelve SKU y días de cobertura.",
+      "tags": [
+        "cte",
+        "dates",
+        "hard"
+      ],
+      "gold_sql": "WITH st AS (SELECT sku, SUM(on_hand) AS total FROM stock GROUP BY sku), dem AS (SELECT sku, AVG(units) AS avg_units FROM sales_daily WHERE day BETWEEN '2026-08-28' AND '2026-09-26' GROUP BY sku) SELECT p.sku, ROUND(st.total / dem.avg_units, 1) FROM products p JOIN st ON st.sku = p.sku JOIN dem ON dem.sku = p.sku WHERE p.critical",
+      "pred_sql": "WITH stock_total AS (SELECT s.sku, SUM(s.on_hand) AS total_stock FROM stock AS s GROUP BY s.sku), ventas_promedio AS (SELECT sku, AVG(units) AS avg_diario FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) GROUP BY sku) SELECT p.sku, ROUND(s.total_stock / v.avg_diario, 1) AS dias_cobertura FROM products AS p JOIN stock_total AS s ON s.sku = p.sku JOIN ventas_promedio AS v ON v.sku = p.sku WHERE p.critical = TRUE ORDER BY p.sku LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 30,
+      "pred_rows": 30,
+      "input_tokens": 9950,
+      "output_tokens": 214,
+      "llm_latency_ms": 15.9,
+      "total_latency_ms": 28.8,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 30,
+          "sql": "WITH stock_total AS (SELECT s.sku, SUM(s.on_hand) AS total_stock FROM stock AS s GROUP BY s.sku), ventas_promedio AS (SELECT sku, AVG(units) AS avg_diario FROM sales_daily WHERE day > CAST('2026-09-26' AS DATE) - 30 AND day <= CAST('2026-09-26' AS DATE) GROUP BY sku) SELECT p.sku, ROUND(s.total_stock / v.avg_diario, 1) AS dias_cobertura FROM products AS p JOIN stock_total AS s ON s.sku = p.sku JOIN ventas_promedio AS v ON v.sku = p.sku WHERE p.critical = TRUE ORDER BY p.sku LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "Consulta correcta: filtra productos críticos (p.critical = TRUE), calcula stock total de todos los almacenes (SUM de on_hand), promedia ventas de los últimos 30 días según el período definido (day > '"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q24",
+      "question": "¿Qué productos críticos tienen un proveedor con tiempo de entrega mayor a 20 días? Devuelve SKU y nombre del proveedor.",
+      "tags": [
+        "join",
+        "filter"
+      ],
+      "gold_sql": "SELECT p.sku, s.name FROM products p JOIN suppliers s ON s.supplier_id = p.supplier_id WHERE p.critical AND s.lead_time_days > 20",
+      "pred_sql": "SELECT p.sku, s.name AS proveedor FROM products AS p JOIN suppliers AS s ON s.supplier_id = p.supplier_id WHERE p.critical = TRUE AND s.lead_time_days > 20 ORDER BY p.sku LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 12,
+      "pred_rows": 12,
+      "input_tokens": 9537,
+      "output_tokens": 97,
+      "llm_latency_ms": 16.4,
+      "total_latency_ms": 25.7,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 12,
+          "sql": "SELECT p.sku, s.name AS proveedor FROM products AS p JOIN suppliers AS s ON s.supplier_id = p.supplier_id WHERE p.critical = TRUE AND s.lead_time_days > 20 ORDER BY p.sku LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "Filtros correctos (critical = TRUE y lead_time > 20), columnas correctas (sku y nombre del proveedor), join apropiado. 12 filas es un resultado razonable para esta consulta."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q25",
+      "question": "¿Cuántos productos surte cada país (según el país del proveedor)?",
+      "tags": [
+        "join",
+        "aggregation"
+      ],
+      "gold_sql": "SELECT s.country, COUNT(*) FROM products p JOIN suppliers s ON s.supplier_id = p.supplier_id GROUP BY s.country",
+      "pred_sql": "SELECT s.country, COUNT(p.sku) AS productos FROM suppliers AS s JOIN products AS p ON p.supplier_id = s.supplier_id GROUP BY s.country ORDER BY s.country LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 7,
+      "pred_rows": 7,
+      "input_tokens": 9170,
+      "output_tokens": 91,
+      "llm_latency_ms": 17.8,
+      "total_latency_ms": 27.4,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 7,
+          "sql": "SELECT s.country, COUNT(p.sku) AS productos FROM suppliers AS s JOIN products AS p ON p.supplier_id = s.supplier_id GROUP BY s.country ORDER BY s.country LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta hace JOIN entre suppliers y products, agrupa por país y cuenta los SKUs. El resultado muestra 7 países con su conteo de productos, respondiendo exactamente lo pedido."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q26",
+      "question": "¿Qué proveedores surten al menos un producto que está por debajo de su punto de reorden? Devuelve nombres sin repetir.",
+      "tags": [
+        "join",
+        "reorder",
+        "subquery"
+      ],
+      "gold_sql": "SELECT DISTINCT su.name FROM suppliers su JOIN products p ON p.supplier_id = su.supplier_id WHERE p.sku IN (SELECT st.sku FROM stock st GROUP BY st.sku HAVING SUM(st.on_hand) < p.reorder_point)",
+      "pred_sql": "SELECT DISTINCT s.name AS proveedor FROM suppliers AS s JOIN products AS p ON p.supplier_id = s.supplier_id JOIN (SELECT sku, SUM(on_hand) AS stock_total FROM stock GROUP BY sku) AS total ON total.sku = p.sku WHERE total.stock_total < p.reorder_point ORDER BY s.name LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 10,
+      "pred_rows": 10,
+      "input_tokens": 9523,
+      "output_tokens": 132,
+      "llm_latency_ms": 22.5,
+      "total_latency_ms": 32.5,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 10,
+          "sql": "SELECT DISTINCT s.name AS proveedor FROM suppliers AS s JOIN products AS p ON p.supplier_id = s.supplier_id JOIN (SELECT sku, SUM(on_hand) AS stock_total FROM stock GROUP BY sku) AS total ON total.sku = p.sku WHERE total.stock_total < p.reorder_point ORDER BY s.name LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta identifica correctamente proveedores con productos bajo punto de reorden: suma el stock total de cada SKU, filtra donde stock_total < reorder_point, y usa DISTINCT para evitar nombres repe"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q27",
+      "question": "¿Cuánto costaría reponer todos los SKUs que están bajo su punto de reorden hasta exactamente ese punto? Suma de (punto de reorden menos stock total) por costo unitario.",
+      "tags": [
+        "cte",
+        "reorder",
+        "hard"
+      ],
+      "gold_sql": "WITH st AS (SELECT sku, SUM(on_hand) AS total FROM stock GROUP BY sku) SELECT SUM((p.reorder_point - st.total) * p.unit_cost) FROM products p JOIN st ON st.sku = p.sku WHERE st.total < p.reorder_point",
+      "pred_sql": "WITH total_stock AS (SELECT sku, SUM(on_hand) AS stock_total FROM stock GROUP BY sku) SELECT SUM((p.reorder_point - ts.stock_total) * p.unit_cost) AS costo_reposicion FROM total_stock AS ts JOIN products AS p ON p.sku = ts.sku WHERE ts.stock_total < p.reorder_point LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9392,
+      "output_tokens": 146,
+      "llm_latency_ms": 24.8,
+      "total_latency_ms": 35.7,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "WITH total_stock AS (SELECT sku, SUM(on_hand) AS stock_total FROM stock GROUP BY sku) SELECT SUM((p.reorder_point - ts.stock_total) * p.unit_cost) AS costo_reposicion FROM total_stock AS ts JOIN products AS p ON p.sku = ts.sku WHERE ts.stock_total < p.reorder_point LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta calcula correctamente: para cada SKU bajo el punto de reorden, multiplica la diferencia (reorder_point - stock_total) por el costo unitario, y suma todo. El resultado de 1 fila con el cost"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q28",
+      "question": "¿Cuál fue la mayor venta de un SKU en un solo día? Devuelve SKU, fecha y unidades.",
+      "tags": [
+        "top-n"
+      ],
+      "gold_sql": "SELECT sku, day, units FROM sales_daily ORDER BY units DESC LIMIT 1",
+      "pred_sql": "SELECT sku, day, units FROM sales_daily WHERE units = (SELECT MAX(units) FROM sales_daily) LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9503,
+      "output_tokens": 102,
+      "llm_latency_ms": 15.6,
+      "total_latency_ms": 26.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT sku, day, units FROM sales_daily WHERE units = (SELECT MAX(units) FROM sales_daily) LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta encuentra correctamente la mayor venta: usa MAX(units) en subconsulta para obtener el valor máximo y filtra por ese valor. Las columnas devueltas (sku, day, units) son exactamente las soli"
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q29",
+      "question": "¿Cuántas unidades se vendieron en agosto de 2026 y cuántas en septiembre de 2026? Devuelve ambas cifras en una sola fila (agosto primero).",
+      "tags": [
+        "dates",
+        "hard"
+      ],
+      "gold_sql": "SELECT SUM(units) FILTER (WHERE day BETWEEN '2026-08-01' AND '2026-08-31'), SUM(units) FILTER (WHERE day BETWEEN '2026-09-01' AND '2026-09-30') FROM sales_daily",
+      "pred_sql": "SELECT COALESCE(SUM(CASE WHEN s.day >= CAST('2026-08-01' AS DATE) AND s.day <= CAST('2026-08-31' AS DATE) THEN s.units END), 0) AS agosto_2026, COALESCE(SUM(CASE WHEN s.day >= CAST('2026-09-01' AS DATE) AND s.day <= CAST('2026-09-26' AS DATE) THEN s.units END), 0) AS septiembre_2026 FROM sales_daily AS s LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9587,
+      "output_tokens": 118,
+      "llm_latency_ms": 22.1,
+      "total_latency_ms": 34.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT COALESCE(SUM(CASE WHEN s.day >= CAST('2026-08-01' AS DATE) AND s.day <= CAST('2026-08-31' AS DATE) THEN s.units END), 0) AS agosto_2026, COALESCE(SUM(CASE WHEN s.day >= CAST('2026-09-01' AS DATE) AND s.day <= CAST('2026-09-26' AS DATE) THEN s.units END), 0) AS septiembre_2026 FROM sales_daily AS s LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "Filtros correctos: agosto completo (1-31) y septiembre hasta la fecha de referencia (1-26). Una sola fila con ambas cifras en el orden solicitado."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q30",
+      "question": "¿Qué SKUs vendieron menos de 5 unidades en total en los últimos 7 días?",
+      "tags": [
+        "dates",
+        "filter"
+      ],
+      "gold_sql": "SELECT sku FROM sales_daily WHERE day BETWEEN '2026-09-20' AND '2026-09-26' GROUP BY sku HAVING SUM(units) < 5",
+      "pred_sql": "SELECT s.sku, SUM(s.units) AS total_vendido FROM sales_daily AS s WHERE s.day > CAST('2026-09-26' AS DATE) - 7 AND s.day <= CAST('2026-09-26' AS DATE) GROUP BY s.sku HAVING SUM(s.units) < 5 ORDER BY total_vendido LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": false,
+      "gold_rows": 3,
+      "pred_rows": 3,
+      "input_tokens": 9800,
+      "output_tokens": 110,
+      "llm_latency_ms": 17.7,
+      "total_latency_ms": 28.8,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 3,
+          "sql": "SELECT s.sku, SUM(s.units) AS total_vendido FROM sales_daily AS s WHERE s.day > CAST('2026-09-26' AS DATE) - 7 AND s.day <= CAST('2026-09-26' AS DATE) GROUP BY s.sku HAVING SUM(s.units) < 5 ORDER BY total_vendido LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta filtra correctamente los últimos 7 días (20-26 sep), agrupa por SKU, y filtra con HAVING SUM(units) < 5. El resultado tiene 3 filas con ventas de 3-4 unidades, lo cual es razonable."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q31",
+      "question": "¿Cuántos SKUs distintos tienen al menos 100 unidades en el CEDIS Occidente?",
+      "tags": [
+        "join",
+        "entity-mapping",
+        "filter"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Occidente' AND s.on_hand >= 100",
+      "pred_sql": "SELECT COUNT(DISTINCT s.sku) AS total_skus FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Occidente' AND s.on_hand >= 100 LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9409,
+      "output_tokens": 100,
+      "llm_latency_ms": 25716.7,
+      "total_latency_ms": 25730.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT COUNT(DISTINCT s.sku) AS total_skus FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Occidente' AND s.on_hand >= 100 LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "Filtra correctamente por CEDIS Occidente, evalúa on_hand >= 100, y cuenta SKUs únicos. El COUNT(DISTINCT) con resultado de 1 fila responde directamente la pregunta de cuántas unidades."
+        }
+      ],
+      "cache_hit": false,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q32",
+      "question": "¿Cuántos SKUs tienen existencias en cero en el CEDIS Norte?",
+      "tags": [
+        "join",
+        "entity-mapping"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Norte' AND s.on_hand = 0",
+      "pred_sql": "SELECT COUNT(DISTINCT s.sku) AS skus_sin_stock FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Norte' AND s.on_hand = 0 LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9429,
+      "output_tokens": 86,
+      "llm_latency_ms": 30.5,
+      "total_latency_ms": 41.3,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT COUNT(DISTINCT s.sku) AS skus_sin_stock FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Norte' AND s.on_hand = 0 LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "La consulta filtra correctamente por warehouse_id del CEDIS Norte, cuenta SKUs con on_hand = 0, y devuelve el conteo total en una fila."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q33",
+      "question": "¿Qué producto tiene más unidades en el almacén Centro? Devuelve SKU y unidades.",
+      "tags": [
+        "join",
+        "entity-mapping",
+        "top-n"
+      ],
+      "gold_sql": "SELECT s.sku, s.on_hand FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Centro' ORDER BY s.on_hand DESC LIMIT 1",
+      "pred_sql": "SELECT s.sku, s.on_hand AS unidades FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Centro' ORDER BY s.on_hand DESC LIMIT 1",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9433,
+      "output_tokens": 98,
+      "llm_latency_ms": 28.6,
+      "total_latency_ms": 38.7,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT s.sku, s.on_hand AS unidades FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id WHERE w.name = 'CEDIS Centro' ORDER BY s.on_hand DESC LIMIT 1",
+          "verifier_ok": true,
+          "verifier_reason": "Consulta correcta: filtra por CEDIS Centro, ordena por stock descendente y limita a 1 fila para obtener el producto con más unidades, devolviendo SKU y on_hand como 'unidades'."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    },
+    {
+      "id": "q34",
+      "question": "¿En cuántos días de septiembre de 2026 vendió al menos 10 unidades el SKU-0150?",
+      "tags": [
+        "dates",
+        "filter",
+        "dense-table"
+      ],
+      "gold_sql": "SELECT COUNT(*) FROM sales_daily WHERE sku = 'SKU-0150' AND day BETWEEN '2026-09-01' AND '2026-09-30' AND units >= 10",
+      "pred_sql": "SELECT COUNT(*) AS dias_con_ventas FROM sales_daily WHERE sku = 'SKU-0150' AND day >= CAST('2026-09-01' AS DATE) AND day <= CAST('2026-09-26' AS DATE) AND units >= 10 LIMIT 200",
+      "error": null,
+      "match": true,
+      "match_strict": true,
+      "gold_rows": 1,
+      "pred_rows": 1,
+      "input_tokens": 9841,
+      "output_tokens": 95,
+      "llm_latency_ms": 28.7,
+      "total_latency_ms": 41.6,
+      "provider": "omniroute",
+      "model": "minimax-m2.1",
+      "escalations": 0,
+      "attempts": [
+        {
+          "provider": "omniroute",
+          "model": "minimax-m2.1",
+          "error": null,
+          "rows": 1,
+          "sql": "SELECT COUNT(*) AS dias_con_ventas FROM sales_daily WHERE sku = 'SKU-0150' AND day >= CAST('2026-09-01' AS DATE) AND day <= CAST('2026-09-26' AS DATE) AND units >= 10 LIMIT 200",
+          "verifier_ok": true,
+          "verifier_reason": "Filtros correctos: SKU-0150, septiembre 2026 (días 1-26), units >= 10. COUNT(*) cuenta los días que cumplen la condición. El resultado de 23 días es razonable de 26 días posibles."
+        }
+      ],
+      "cache_hit": true,
+      "verifier": [
+        "accept_ok"
+      ]
+    }
+  ]
+}

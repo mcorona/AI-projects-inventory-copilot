@@ -21,6 +21,31 @@ def test_dev_and_test_do_not_overlap(suite):
     assert {r["id"] for r in load_dataset(suite, "dev")}.isdisjoint({r["id"] for r in load_dataset(suite, "test")})
 
 
+def _tokens(text: str) -> set[str]:
+    import re
+    return set(re.findall(r"\w+", text.lower()))
+
+
+def _jaccard(a: str, b: str) -> float:
+    ta, tb = _tokens(a), _tokens(b)
+    return len(ta & tb) / len(ta | tb)
+
+
+@pytest.mark.parametrize("suite", ["sql", "agent", "rag"])
+def test_dev_has_no_mirrors_of_test_questions(suite):
+    """Un caso de dev que es la misma plantilla que uno de test con una palabra cambiada
+    (critical/NOT critical, DESC/ASC, otro CEDIS) filtra el set test: se practica en dev.
+    Umbral de pregunta 0.72; en SQL tambien pregunta >= 0.6 con SQL >= 0.8."""
+    mirrors = []
+    for d in load_dataset(suite, "dev"):
+        for t in load_dataset(suite, "test"):
+            q = _jaccard(d["question"], t["question"])
+            s = _jaccard(d["sql"], t["sql"]) if suite == "sql" else 0.0
+            if q >= 0.72 or (q >= 0.6 and s >= 0.8):
+                mirrors.append((d["id"], t["id"], round(q, 2), round(s, 2)))
+    assert mirrors == []
+
+
 @pytest.mark.parametrize("row", load_dataset("sql", "test"), ids=lambda r: r["id"])
 def test_sql_test_reference_passes_guard(row):
     validate_sql(row["sql"])

@@ -19,6 +19,19 @@ se escriben sets *test* nuevos: 30 SQL, 10 agente y 8 RAG. Los test se escribier
 contra la DB antes de correr ningún modelo sobre ellos, y nunca se usan para ajustar. Una prueba
 unitaria verifica que dev y test no compartan preguntas.
 
+**Sin espejos entre dev y test (v1.1.1).** Compartir el texto exacto no es la única fuga. Una revisión
+encontró 5 casos de dev que eran la misma plantilla que uno de test con una sola palabra cambiada:
+- `critical` contra `NOT critical`, y `DESC` contra `ASC`;
+- otro CEDIS, otra categoría, y otro SKU con otra cantidad.
+
+Uno de ellos era el "caso equivalente" que se había agregado a dev tras un fallo en test. Esa regla
+sigue vigente, pero el caso de dev debe cubrir la habilidad con otra forma, no copiar la plantilla.
+- Se reescribieron los 5 casos de dev. El set test no se tocó, para seguir comparable entre versiones.
+- Una prueba unitaria rechaza cualquier par con similitud de pregunta ≥ 0.72, o ≥ 0.6 en la pregunta
+  con ≥ 0.8 en el SQL de referencia (Jaccard de tokens).
+- Siguen permitidos los pares de la misma habilidad con otra dirección, periodo o tabla (máximo 0.71).
+- Las cifras de test anteriores a v1.1.1 pudieron estar ligeramente infladas por esos 5 espejos.
+
 **Calidad de la respuesta del agente, en tres niveles:**
 - **Exactitud:** `expected_facts` son grupos de alternativas. Los números se comparan por valor
   (19,820 = 19820.00, pero 2 ≠ 2026 y 98 ≠ 98.5).

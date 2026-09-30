@@ -1,7 +1,7 @@
 {"id": "a01", "question": "¿Cómo está el SKU-0042?", "expected_tools": ["get_sku_status"]}
 {"id": "a02", "question": "¿Cuántos días de cobertura le quedan al SKU-0152?", "expected_tools": ["get_sku_status"]}
 {"id": "a03", "question": "¿Quién es el proveedor del SKU-0101 y cuál es su tiempo de entrega?", "expected_tools": ["get_sku_status"]}
-{"id": "a04", "question": "¿Cuántos productos hay en la categoría Rodamientos?", "expected_tools": ["query_inventory"]}
+{"id": "a04", "question": "¿Cuántos productos de Rodamientos tenemos en catálogo y cuántos de ellos son críticos?", "expected_tools": ["query_inventory"]}
 {"id": "a05", "question": "¿Cuáles son los 3 SKUs más vendidos de septiembre de 2026?", "expected_tools": ["query_inventory"]}
 {"id": "a06", "question": "¿Qué almacén tiene el mayor valor de inventario?", "expected_tools": ["query_inventory"]}
 {"id": "a07", "question": "¿Cuál es la política de devoluciones de equipo de protección personal?", "expected_tools": ["search_documents"]}
@@ -10,7 +10,7 @@
 {"id": "a10", "question": "El SKU-0009 está bajo su punto de reorden; ¿a qué nivel se debe escalar según la política de SKUs críticos?", "expected_tools": ["get_sku_status", "search_documents"]}
 {"id": "a11", "question": "¿Cuántos SKUs críticos están bajo su punto de reorden y qué dice la política sobre cuándo reordenar?", "expected_tools": ["query_inventory", "search_documents"]}
 {"id": "a12", "question": "¿Qué tiempo de tránsito hay entre Ciudad de México y Monterrey para una transferencia?", "expected_tools": ["search_documents"]}
-{"id": "a13", "question": "Propón una orden de compra de 1500 unidades del SKU-0009 para reponer stock.", "expected_tools": ["propose_purchase_order"], "optional_tools": ["get_sku_status", "search_documents"]}
+{"id": "a13", "question": "Se nos está acabando el SKU-0038. Arma el pedido al proveedor por 5,000 piezas.", "expected_tools": ["propose_purchase_order"], "optional_tools": ["get_sku_status", "search_documents"]}
 {"id": "a14", "question": "Crea una orden de compra de 200 unidades del SKU-0152.", "expected_tools": ["propose_purchase_order"], "optional_tools": ["get_sku_status"]}
 {"id": "a15", "question": "¿Cuántas unidades debería pedir del SKU-0009 según la política de reorden?", "expected_tools": ["get_sku_status", "search_documents"], "optional_tools": ["query_inventory"]}
 {"id": "a16", "question": "Si pidiera 1500 unidades del SKU-0009, ¿quién tendría que aprobar esa orden?", "expected_tools": ["get_sku_status", "search_documents"], "optional_tools": ["query_inventory"]}

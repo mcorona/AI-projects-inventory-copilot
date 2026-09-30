@@ -1,0 +1,866 @@
+{
+  "summary": {
+    "n": 16,
+    "tool_selection_accuracy": 1.0,
+    "answer_accuracy": null,
+    "answered_rate": 1.0,
+    "empty_answer_retry_rate": 0.0625,
+    "avg_tool_calls": 1.31,
+    "latency_p50_ms": 9341.4,
+    "input_tokens": 52840,
+    "output_tokens": 18586,
+    "provider": "lmstudio",
+    "models": {
+      "qwen/qwen3.6-35b-a3b": 34
+    },
+    "split": "dev"
+  },
+  "items": [
+    {
+      "id": "a01",
+      "question": "¿Cómo está el SKU-0042?",
+      "expected": [
+        "get_sku_status"
+      ],
+      "used": [
+        "get_sku_status"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El **SKU-0042 (Cable THHN Pro)** se encuentra en estado normal:\n\n*   **Stock Total:** 853 unidades.\n    *   CEDIS Centro: 299 u.\n    *   CEDIS Norte: 131 u.\n    *   CEDIS Occidente: 423 u.\n*   **Punto de Reorden:** 469 u. (Actualmente **por encima** del punto de reorden).\n*   **Ventas (últimos 30 días):** 525 u. (Promedio diario: 17.5 u.).\n*   **Días de Cobertura:** 48.7 días.\n*   **Proveedor:** Andes Distribuciones (CO) con un *lead time* de 18 días.\n*   **Estado Crítico:** No.\n\nNo se requiere acción inmediata de reabastecimiento.",
+      "context": "<tool_output tool=\"get_sku_status\" trust=\"untrusted\">\n{\"sku\": \"SKU-0042\", \"name\": \"Cable THHN Pro\", \"category\": \"Electrico\", \"unit_cost\": 19.82, \"reorder_point\": 469, \"critical\": false, \"supplier\": \"Andes Distribuciones\", \"supplier_country\": \"CO\", \"lead_time_days\": 18, \"found\": true, \"stock_by_warehouse\": [{\"warehouse\": \"CEDIS Centro\", \"city\": \"Ciudad de Mexico\", \"on_hand\": 299}, {\"warehouse\": \"CEDIS Norte\", \"city\": \"Monterrey\", \"on_hand\": 131}, {\"warehouse\": \"CEDIS Occidente\", \"city\": \"Guadalajara\", \"on_hand\": 423}], \"total_on_hand\": 853, \"below_reorder_point\": false, \"units_last_30d\": 525, \"avg_daily_units_30d\": 17.5, \"days_of_cover\": 48.7, \"as_of\": \"2026-09-26\"}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1158,
+          "output_tokens": 195,
+          "latency_ms": 3061.7,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1467,
+          "output_tokens": 354,
+          "latency_ms": 5385.0,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 2625,
+      "output_tokens": 549,
+      "latency_ms": 8529.9,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a02",
+      "question": "¿Cuántos días de cobertura le quedan al SKU-0152?",
+      "expected": [
+        "get_sku_status"
+      ],
+      "used": [
+        "get_sku_status"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El SKU-0152 (Cinta canela XL) tiene **82.5 días de cobertura**.",
+      "context": "<tool_output tool=\"get_sku_status\" trust=\"untrusted\">\n{\"sku\": \"SKU-0152\", \"name\": \"Cinta canela XL\", \"category\": \"Empaque\", \"unit_cost\": 5.1, \"reorder_point\": 1385, \"critical\": true, \"supplier\": \"Iberia Suministros\", \"supplier_country\": \"ES\", \"lead_time_days\": 25, \"found\": true, \"stock_by_warehouse\": [{\"warehouse\": \"CEDIS Centro\", \"city\": \"Ciudad de Mexico\", \"on_hand\": 1298}, {\"warehouse\": \"CEDIS Norte\", \"city\": \"Monterrey\", \"on_hand\": 422}, {\"warehouse\": \"CEDIS Occidente\", \"city\": \"Guadalajara\", \"on_hand\": 1477}], \"total_on_hand\": 3197, \"below_reorder_point\": false, \"units_last_30d\": 1163, \"avg_daily_units_30d\": 38.77, \"days_of_cover\": 82.5, \"as_of\": \"2026-09-26\"}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1164,
+          "output_tokens": 223,
+          "latency_ms": 3600.1,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1479,
+          "output_tokens": 85,
+          "latency_ms": 1961.9,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 2643,
+      "output_tokens": 308,
+      "latency_ms": 5607.3,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a03",
+      "question": "¿Quién es el proveedor del SKU-0101 y cuál es su tiempo de entrega?",
+      "expected": [
+        "get_sku_status"
+      ],
+      "used": [
+        "get_sku_status"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El proveedor del SKU-0101 (Buje de bronce 1\") es **Electronica Pacifico** y su tiempo de entrega (lead time) es de **10 días**.",
+      "context": "<tool_output tool=\"get_sku_status\" trust=\"untrusted\">\n{\"sku\": \"SKU-0101\", \"name\": \"Buje de bronce 1\\\"\", \"category\": \"Rodamientos\", \"unit_cost\": 9.06, \"reorder_point\": 332, \"critical\": false, \"supplier\": \"Electronica Pacifico\", \"supplier_country\": \"MX\", \"lead_time_days\": 10, \"found\": true, \"stock_by_warehouse\": [{\"warehouse\": \"CEDIS Centro\", \"city\": \"Ciudad de Mexico\", \"on_hand\": 217}, {\"warehouse\": \"CEDIS Norte\", \"city\": \"Monterrey\", \"on_hand\": 32}, {\"warehouse\": \"CEDIS Occidente\", \"city\": \"Guadalajara\", \"on_hand\": 212}], \"total_on_hand\": 461, \"below_reorder_point\": false, \"units_last_30d\": 693, \"avg_daily_units_30d\": 23.1, \"days_of_cover\": 20.0, \"as_of\": \"2026-09-26\"}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1167,
+          "output_tokens": 188,
+          "latency_ms": 4110.8,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1477,
+          "output_tokens": 134,
+          "latency_ms": 3039.7,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 2644,
+      "output_tokens": 322,
+      "latency_ms": 7201.2,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a04",
+      "question": "¿Cuántos productos de Rodamientos tenemos en catálogo y cuántos de ellos son críticos?",
+      "expected": [
+        "query_inventory"
+      ],
+      "used": [
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "De la categoría **Rodamientos** hay **25 productos** en catálogo, de los cuales **3 son críticos**.",
+      "context": "<tool_output tool=\"query_inventory\" trust=\"untrusted\">\n{\"sql\": \"SELECT COUNT(*) AS total, COUNT(*) FILTER(WHERE critical) AS criticos FROM products WHERE category = 'Rodamientos' LIMIT 200\", \"columns\": [\"total\", \"criticos\"], \"rows\": [[25, 3]], \"row_count\": 1, \"error\": null}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1166,
+          "output_tokens": 455,
+          "latency_ms": 8153.9,
+          "cache_hit": null
+        },
+        {
+          "source": "tool:query_inventory",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 756,
+          "output_tokens": 1641,
+          "latency_ms": 27429.3,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1313,
+          "output_tokens": 61,
+          "latency_ms": 1254.5,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 3235,
+      "output_tokens": 2157,
+      "latency_ms": 36852.9,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a05",
+      "question": "¿Cuáles son los 3 SKUs más vendidos de septiembre de 2026?",
+      "expected": [
+        "query_inventory"
+      ],
+      "used": [
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Los 3 SKUs más vendidos en septiembre de 2026 (hasta el 26) son:\n\n1. **SKU-0144**: 1.168 unidades\n2. **SKU-0152**: 1.018 unidades\n3. **SKU-0056**: 984 unidades",
+      "context": "<tool_output tool=\"query_inventory\" trust=\"untrusted\">\n{\"sql\": \"SELECT sku, SUM(units) AS total_ventas FROM sales_daily WHERE day >= CAST('2026-09-01' AS DATE) AND day <= CAST('2026-09-26' AS DATE) GROUP BY sku ORDER BY total_ventas DESC LIMIT 3\", \"columns\": [\"sku\", \"total_ventas\"], \"rows\": [[\"SKU-0144\", 1168], [\"SKU-0152\", 1018], [\"SKU-0056\", 984]], \"row_count\": 3, \"error\": null}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1166,
+          "output_tokens": 127,
+          "latency_ms": 2158.9,
+          "cache_hit": null
+        },
+        {
+          "source": "tool:query_inventory",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 755,
+          "output_tokens": 1812,
+          "latency_ms": 27432.1,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1380,
+          "output_tokens": 180,
+          "latency_ms": 2690.8,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 3301,
+      "output_tokens": 2119,
+      "latency_ms": 32298.4,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a06",
+      "question": "¿Qué almacén tiene el mayor valor de inventario?",
+      "expected": [
+        "query_inventory"
+      ],
+      "used": [
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El almacén con el mayor valor de inventario es **CEDIS Norte**, con un valor total de **8.866.070,32**.",
+      "context": "<tool_output tool=\"query_inventory\" trust=\"untrusted\">\n{\"sql\": \"SELECT w.name, SUM(s.on_hand * p.unit_cost) AS valor_inventario FROM stock AS s JOIN warehouses AS w ON w.warehouse_id = s.warehouse_id JOIN products AS p ON p.sku = s.sku GROUP BY w.warehouse_id, w.name ORDER BY valor_inventario DESC LIMIT 1\", \"columns\": [\"name\", \"valor_inventario\"], \"rows\": [[\"CEDIS Norte\", 8866070.32]], \"row_count\": 1, \"error\": null}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1159,
+          "output_tokens": 105,
+          "latency_ms": 1741.4,
+          "cache_hit": null
+        },
+        {
+          "source": "tool:query_inventory",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 749,
+          "output_tokens": 1699,
+          "latency_ms": 24322.8,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1345,
+          "output_tokens": 80,
+          "latency_ms": 1473.8,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 3253,
+      "output_tokens": 1884,
+      "latency_ms": 27553.4,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a07",
+      "question": "¿Cuál es la política de devoluciones de equipo de protección personal?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Según la política de devoluciones de clientes [fuente: devoluciones.md], las reglas para el **equipo de protección personal** (categoría Seguridad) son:\n\n*   **No se aceptan** si el empaque fue abierto, por razones de higiene.\n*   Deben estar en su **empaque original y sin uso**.\n*   El plazo para solicitar la devolución es de **30 días naturales** desde la entrega.\n*   La nota de crédito se emite en un máximo de **10 días hábiles** tras recibir la devolución.",
+      "context": "<tool_output tool=\"search_documents\" trust=\"untrusted\">\n{\"results\": [{\"source\": \"devoluciones.md\", \"section\": \"Devoluciones de clientes\", \"score\": 0.6385, \"content\": \"Documento: Política de devoluciones > Devoluciones de clientes\\n\\n- Plazo: **30 días naturales** desde la entrega.\\n- El producto debe estar en su empaque original y sin uso.\\n- Los productos de la categoría **Seguridad** (equipo de protección personal: guantes, cascos,\\n  lentes, arneses) **no se aceptan** si el empaque fue abierto, por razones de higiene.\\n- Productos de Empaque cortados a la medida no tienen devolución.\\n- La nota de crédito se emite en un máximo de **10 días hábiles** después de recibir la devolución.\"}, {\"source\": \"devoluciones.md\", \"section\": \"Devoluciones a proveedores\", \"score\": 0.5672, \"content\": \"Documento: Política de devoluciones > Devoluciones a proveedores\\n\\n- Por defecto de calidad: dentro de los **15 días** siguientes a la recepción.\\n- Por exceso de entrega: se devuelve la diferencia o se negocia su aceptación con nota de cargo.\\n- Toda devolución a proveedor se registra y cuenta para su indicador de calidad.\"}, {\"source\": \"devoluciones.md\", \"section\": \"Reingreso a inventario\", \"score\": 0.5395, \"content\": \"Documento: Política de devoluciones > Reingreso a inventario\\n\\nEl producto devuelto en buen estado se reingresa al CEDIS que lo recibió después de inspección.\\nEl producto dañado se da de baja con aprobación de contraloría.\"}, {\"source\": \"uso_copiloto.md\", \"section\": \"Buenas prácticas para usuarios\", \"score\": 0.4379, \"content\": \"Documento: Uso del copiloto de inventario (asistente de IA) > Buenas prácticas para usuarios\\n\\n- Verificar cifras importantes antes de tomar decisiones de compra.\\n- Reportar respuestas incorrectas al equipo de datos con la pregunta exacta y la fecha.\\n- No pegar información confidencial de clientes o proveedores en las preguntas.\"}]}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1161,
+          "output_tokens": 149,
+          "latency_ms": 2335.4,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1700,
+          "output_tokens": 341,
+          "latency_ms": 5212.6,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 2861,
+      "output_tokens": 490,
+      "latency_ms": 7623.9,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a08",
+      "question": "¿Quién aprueba una orden de compra de 300 mil pesos?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Una orden de compra de $300,000 MXN es aprobada por el **Director de operaciones**, ya que supera el umbral de $250,000 MXN [fuente: ordenes_de_compra.md].",
+      "context": "<tool_output tool=\"search_documents\" trust=\"untrusted\">\n{\"results\": [{\"source\": \"ordenes_de_compra.md\", \"section\": \"Niveles de aprobación por monto\", \"score\": 0.6239, \"content\": \"Documento: Procedimiento de órdenes de compra > Niveles de aprobación por monto\\n\\nEl monto de la orden es cantidad × costo unitario, en pesos mexicanos (MXN).\\n\\n| Monto de la orden | Aprueba |\\n|---|---|\\n| Menos de $50,000 MXN | Comprador de la categoría |\\n| De $50,000 a $250,000 MXN | Gerente de compras |\\n| Más de $250,000 MXN | Director de operaciones |\\n\\nLas compras urgentes de SKUs críticos siempre requieren al gerente de compras, aunque el monto sea menor.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Responsables\", \"score\": 0.5783, \"content\": \"Documento: Política de reorden de inventario > Responsables\\n\\nEl comprador de la categoría revisa las propuestas diarias. Las órdenes se aprueban según los\\nmontos definidos en el procedimiento de órdenes de compra.\"}, {\"source\": \"ordenes_de_compra.md\", \"section\": \"Cotizaciones\", \"score\": 0.5593, \"content\": \"Documento: Procedimiento de órdenes de compra > Cotizaciones\\n\\n- Órdenes mayores a **$100,000 MXN** requieren **tres cotizaciones** comparables.\\n- Se exceptúan los SKUs con proveedor único homologado; en ese caso se documenta la justificación.\"}, {\"source\": \"ordenes_de_compra.md\", \"section\": \"Estados de una orden\", \"score\": 0.5508, \"content\": \"Documento: Procedimiento de órdenes de compra > Estados de una orden\\n\\n- **PENDING_APPROVAL:** propuesta creada, en espera de aprobación.\\n- **APPROVED:** aprobada por la persona con el nivel de autorización correcto.\\n- **REJECTED:** rechazada; se registra el motivo.\"}]}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1163,
+          "output_tokens": 174,
+          "latency_ms": 2665.9,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1709,
+          "output_tokens": 210,
+          "latency_ms": 3467.1,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 2872,
+      "output_tokens": 384,
+      "latency_ms": 6184.1,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a09",
+      "question": "¿Cómo se calcula el punto de reorden?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El punto de reorden se calcula mediante la siguiente fórmula:\n\n**punto de reorden = demanda diaria promedio × tiempo de entrega del proveedor (días) × factor de seguridad**\n\nLos detalles aplicables son:\n*   **Demanda diaria promedio:** Se calcula sobre los últimos 90 días de ventas.\n*   **Factor de seguridad:** Es **1.2** para SKUs normales y **1.5** para SKUs críticos.\n*   **Actualización:** El punto se recalcula cada trimestre o cuando el proveedor cambia su tiempo de entrega.\n\n[fuente: politica_reorden.md]",
+      "context": "<tool_output tool=\"search_documents\" trust=\"untrusted\">\n{\"results\": [{\"source\": \"politica_reorden.md\", \"section\": \"Cálculo del punto de reorden\", \"score\": 0.7023, \"content\": \"Documento: Política de reorden de inventario > Cálculo del punto de reorden\\n\\nEl punto de reorden de cada SKU se calcula como:\\n\\npunto de reorden = demanda diaria promedio × tiempo de entrega del proveedor (días) × factor de seguridad\\n\\n- Factor de seguridad para SKUs normales: **1.2**.\\n- Factor de seguridad para SKUs críticos: **1.5**.\\n- La demanda diaria promedio se toma de los últimos 90 días de ventas.\\n- El punto de reorden se recalcula cada trimestre o cuando el proveedor cambia su tiempo de entrega.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Alcance\", \"score\": 0.5706, \"content\": \"Documento: Política de reorden de inventario > Alcance\\n\\nAplica a los 200 SKUs del catálogo en los tres centros de distribución: CEDIS Centro\\n(Ciudad de México), CEDIS Occidente (Guadalajara) y CEDIS Norte (Monterrey). El punto de\\nreorden se evalúa sobre el **stock total**, es decir, la suma de las existencias de los tres CEDIS.\"}, {\"source\": \"proveedores.md\", \"section\": \"Cambio de proveedor\", \"score\": 0.5544, \"content\": \"Documento: Evaluación y clasificación de proveedores > Cambio de proveedor\\n\\nCambiar el proveedor de un SKU requiere recalcular su punto de reorden con el nuevo tiempo de\\nentrega antes de la primera orden.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Cantidad a pedir\", \"score\": 0.5129, \"content\": \"Documento: Política de reorden de inventario > Cantidad a pedir\\n\\nCuando el stock total cae por debajo del punto de reorden se genera una propuesta de orden de compra:\\n\\n- SKUs normales: pedir lo necesario para cubrir **30 días** de demanda más el stock de seguridad.\\n- SKUs críticos: pedir lo necesario para cubrir **45 días** de demanda más el stock de seguridad.\\n- Redondear siempre al múltiplo de empaque del proveedor.\\n- No generar una nueva propuesta si ya existe una orden abierta (pendiente o aprobada) para el mismo SKU.\"}]}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1158,
+          "output_tokens": 98,
+          "latency_ms": 1645.3,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1763,
+          "output_tokens": 504,
+          "latency_ms": 7645.6,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 2921,
+      "output_tokens": 602,
+      "latency_ms": 9341.4,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a10",
+      "question": "El SKU-0009 está bajo su punto de reorden; ¿a qué nivel se debe escalar según la política de SKUs críticos?",
+      "expected": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "used": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El **SKU-0009** (Perno de anclaje 3/4\") es un **SKU crítico** con una existencia total de **84 unidades** (punto de reorden: 1036) y una cobertura actual de **3.8 días**.\n\nSegún la política de *Manejo de SKUs críticos* [fuente: skus_criticos.md], al tener menos de 7 días de cobertura, se debe escalar al **Nivel 2 (Gerente de Compras)**.\n\nEn este nivel, se evalúa una **compra urgente** y se consideran **transferencias entre CEDIS** (actualmente hay 21 en Centro, 28 en Norte y 35 en Occidente).",
+      "context": "<tool_output tool=\"get_sku_status\" trust=\"untrusted\">\n{\"sku\": \"SKU-0009\", \"name\": \"Perno de anclaje 3/4\\\"\", \"category\": \"Tornilleria\", \"unit_cost\": 7.77, \"reorder_point\": 1036, \"critical\": true, \"supplier\": \"Bavaria Precision\", \"supplier_country\": \"DE\", \"lead_time_days\": 30, \"found\": true, \"stock_by_warehouse\": [{\"warehouse\": \"CEDIS Centro\", \"city\": \"Ciudad de Mexico\", \"on_hand\": 21}, {\"warehouse\": \"CEDIS Norte\", \"city\": \"Monterrey\", \"on_hand\": 28}, {\"warehouse\": \"CEDIS Occidente\", \"city\": \"Guadalajara\", \"on_hand\": 35}], \"total_on_hand\": 84, \"below_reorder_point\": true, \"units_last_30d\": 669, \"avg_daily_units_30d\": 22.3, \"days_of_cover\": 3.8, \"as_of\": \"2026-09-26\"}\n</tool_output>\n<tool_output tool=\"search_documents\" trust=\"untrusted\">\n{\"results\": [{\"source\": \"skus_criticos.md\", \"section\": \"Escalamiento\", \"score\": 0.7142, \"content\": \"Documento: Manejo de SKUs críticos > Escalamiento\\n\\n- **Nivel 1 (comprador):** SKU crítico por debajo del punto de reorden o en riesgo. El comprador\\n  debe emitir la propuesta de orden de compra el mismo día.\\n- **Nivel 2 (gerente de compras):** SKU crítico con menos de **7 días** de cobertura. Se evalúa\\n  compra urgente y transferencia entre CEDIS.\\n- **Nivel 3 (director de operaciones):** SKU crítico con existencia total en cero o con un cliente\\n  que reporta paro de línea.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Cantidad a pedir\", \"score\": 0.6812, \"content\": \"Documento: Política de reorden de inventario > Cantidad a pedir\\n\\nCuando el stock total cae por debajo del punto de reorden se genera una propuesta de orden de compra:\\n\\n- SKUs normales: pedir lo necesario para cubrir **30 días** de demanda más el stock de seguridad.\\n- SKUs críticos: pedir lo necesario para cubrir **45 días** de demanda más el stock de seguridad.\\n- Redondear siempre al múltiplo de empaque del proveedor.\\n- No generar una nueva propuesta si ya existe una orden abierta (pendiente o aprobada) para el mismo SKU.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Cálculo del punto de reorden\", \"score\": 0.6812, \"content\": \"Documento: Política de reorden de inventario > Cálculo del punto de reorden\\n\\nEl punto de reorden de cada SKU se calcula como:\\n\\npunto de reorden = demanda diaria promedio × tiempo de entrega del proveedor (días) × factor de seguridad\\n\\n- Factor de seguridad para SKUs normales: **1.2**.\\n- Factor de seguridad para SKUs críticos: **1.5**.\\n- La demanda diaria promedio se toma de los últimos 90 días de ventas.\\n- El punto de reorden se recalcula cada trimestre o cuando el proveedor cambia su tiempo de entrega.\"}, {\"source\": \"skus_criticos.md\", \"section\": \"Definición\", \"score\": 0.6455, \"content\": \"Documento: Manejo de SKUs críticos > Definición\\n\\nUn SKU es **crítico** cuando su falta puede detener la línea de producción de un cliente. Alrededor\\ndel 15% del catálogo está marcado como crítico. La marca la asigna el gerente de compras y se\\nrevisa cada semestre junto con el área comercial.\"}]}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1178,
+          "output_tokens": 178,
+          "latency_ms": 2807.5,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 2161,
+          "output_tokens": 491,
+          "latency_ms": 7223.6,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 3339,
+      "output_tokens": 669,
+      "latency_ms": 10118.7,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a11",
+      "question": "¿Cuántos SKUs críticos están bajo su punto de reorden y qué dice la política sobre cuándo reordenar?",
+      "expected": [
+        "query_inventory",
+        "search_documents"
+      ],
+      "used": [
+        "query_inventory",
+        "search_documents",
+        "query_inventory"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [
+        "db_error: column \"p.reorder_point\" must appear in the GROUP BY clause or be used in an aggregate function\nLINE 1: ...al IS TRUE GROUP BY s.sku HAVING SUM(s.on_hand) < p.reorder_...\n                                                             ^"
+      ],
+      "stop_reason": "answer",
+      "answer": "Hay **12 SKUs críticos** que actualmente tienen un stock total por debajo de su punto de reorden.\n\nSegún la **Política de reorden de inventario** [fuente: politica_reorden.md], el proceso de reordenamiento funciona así:\n\n* **Cuándo se dispara:** Se realiza una **revisión diaria** de todos los SKUs. Cuando el stock total cae por debajo del punto de reorden, se genera automáticamente una propuesta de orden de compra.\n* **Cuánto pedir (SKUs críticos):** Se debe solicitar la cantidad necesaria para cubrir **45 días** de demanda promedio más el stock de seguridad.\n* **Cómo se calcula el punto de reorden:** Se usa la fórmula `demanda diaria promedio × tiempo de entrega del proveedor × factor de seguridad`. Para los críticos, el factor de seguridad es **1.5** (frente a 1.2 de los normales).\n* **Restricciones:** No se genera una nueva propuesta si ya existe una orden abierta (pendiente o aprobada) para ese mismo SKU. El punto de reorden se recalcula trimestralmente o si el proveedor cambia su tiempo de entrega.",
+      "context": "<tool_output tool=\"query_inventory\" trust=\"untrusted\">\n{\"sql\": \"SELECT COUNT(*) AS skus_criticos_bajo_reorden FROM (SELECT s.sku FROM stock AS s JOIN products AS p ON s.sku = p.sku WHERE p.critical IS TRUE GROUP BY s.sku HAVING SUM(s.on_hand) < p.reorder_point) AS sub LIMIT 200\", \"columns\": [], \"rows\": [], \"row_count\": 0, \"error\": \"db_error: column \\\"p.reorder_point\\\" must appear in the GROUP BY clause or be used in an aggregate function\\nLINE 1: ...al IS TRUE GROUP BY s.sku HAVING SUM(s.on_hand) < p.reorder_...\\n                                                             ^\"}\n</tool_output>\n<tool_output tool=\"search_documents\" trust=\"untrusted\">\n{\"results\": [{\"source\": \"politica_reorden.md\", \"section\": \"Cálculo del punto de reorden\", \"score\": 0.6169, \"content\": \"Documento: Política de reorden de inventario > Cálculo del punto de reorden\\n\\nEl punto de reorden de cada SKU se calcula como:\\n\\npunto de reorden = demanda diaria promedio × tiempo de entrega del proveedor (días) × factor de seguridad\\n\\n- Factor de seguridad para SKUs normales: **1.2**.\\n- Factor de seguridad para SKUs críticos: **1.5**.\\n- La demanda diaria promedio se toma de los últimos 90 días de ventas.\\n- El punto de reorden se recalcula cada trimestre o cuando el proveedor cambia su tiempo de entrega.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Cantidad a pedir\", \"score\": 0.5952, \"content\": \"Documento: Política de reorden de inventario > Cantidad a pedir\\n\\nCuando el stock total cae por debajo del punto de reorden se genera una propuesta de orden de compra:\\n\\n- SKUs normales: pedir lo necesario para cubrir **30 días** de demanda más el stock de seguridad.\\n- SKUs críticos: pedir lo necesario para cubrir **45 días** de demanda más el stock de seguridad.\\n- Redondear siempre al múltiplo de empaque del proveedor.\\n- No generar una nueva propuesta si ya existe una orden abierta (pendiente o aprobada) para el mismo SKU.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Frecuencia de revisión\", \"score\": 0.5865, \"content\": \"Documento: Política de reorden de inventario > Frecuencia de revisión\\n\\n- Revisión **diaria** de todos los SKUs contra su punto de reorden.\\n- Excepción: la categoría Empaque se revisa **semanalmente** (los lunes), porque su costo\\n  unitario es bajo y su proveedor entrega en menos de una semana.\"}, {\"source\": \"proveedores.md\", \"section\": \"Cambio de proveedor\", \"score\": 0.5678, \"content\": \"Documento: Evaluación y clasificación de proveedores > Cambio de proveedor\\n\\nCambiar el proveedor de un SKU requiere recalcular su punto de reorden con el nuevo tiempo de\\nentrega antes de la primera orden.\"}]}\n</tool_output>\n<tool_output tool=\"query_inventory\" trust=\"untrusted\">\n{\"sql\": \"SELECT COUNT(*) AS critical_skus_below_reorder FROM (SELECT p.sku FROM products AS p JOIN stock AS s ON s.sku = p.sku WHERE p.critical = TRUE GROUP BY p.sku, p.reorder_point HAVING SUM(s.on_hand) < p.reorder_point) AS t LIMIT 200\", \"columns\": [\"critical_skus_below_reorder\"], \"rows\": [[12]], \"row_count\": 1, \"error\": null}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1172,
+          "output_tokens": 271,
+          "latency_ms": 4128.9,
+          "cache_hit": null
+        },
+        {
+          "source": "tool:query_inventory",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 754,
+          "output_tokens": 1887,
+          "latency_ms": 27564.7,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1988,
+          "output_tokens": 178,
+          "latency_ms": 3205.8,
+          "cache_hit": null
+        },
+        {
+          "source": "tool:query_inventory",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 756,
+          "output_tokens": 2769,
+          "latency_ms": 40387.5,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 2171,
+          "output_tokens": 485,
+          "latency_ms": 8531.6,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 3,
+      "input_tokens": 6841,
+      "output_tokens": 5590,
+      "latency_ms": 83897.0,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 3
+      }
+    },
+    {
+      "id": "a12",
+      "question": "¿Qué tiempo de tránsito hay entre Ciudad de México y Monterrey para una transferencia?",
+      "expected": [
+        "search_documents"
+      ],
+      "used": [
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "El tiempo de tránsito entre Ciudad de México y Monterrey es de **2 días** [fuente: transferencias_cedis.md].",
+      "context": "<tool_output tool=\"search_documents\" trust=\"untrusted\">\n{\"results\": [{\"source\": \"transferencias_cedis.md\", \"section\": \"Tiempos de tránsito\", \"score\": 0.7802, \"content\": \"Documento: Transferencias entre CEDIS > Tiempos de tránsito\\n\\n- Ciudad de México ↔ Guadalajara: 1 día.\\n- Ciudad de México ↔ Monterrey: 2 días.\\n- Guadalajara ↔ Monterrey: 2 días.\"}, {\"source\": \"recepcion_almacen.md\", \"section\": \"Horarios de recepción\", \"score\": 0.6369, \"content\": \"Documento: Recepción de mercancía en CEDIS > Horarios de recepción\\n\\n- CEDIS Centro (Ciudad de México): lunes a viernes de 7:00 a 15:00.\\n- CEDIS Occidente (Guadalajara): lunes a viernes de 8:00 a 16:00.\\n- CEDIS Norte (Monterrey): lunes a sábado de 6:00 a 14:00.\\n\\nLas entregas fuera de horario requieren cita autorizada por el jefe de almacén.\"}, {\"source\": \"transferencias_cedis.md\", \"section\": \"Reglas\", \"score\": 0.5961, \"content\": \"Documento: Transferencias entre CEDIS > Reglas\\n\\n- Cantidad mínima por transferencia: **20 unidades** o una tarima completa, lo que sea menor.\\n- El CEDIS que envía nunca debe quedar por debajo de su participación normal del punto de reorden.\\n- Las transferencias de SKUs críticos se envían el mismo día si se solicitan antes de las 12:00.\\n- Toda transferencia se registra como salida en el origen y como entrada en el destino; la\\n  diferencia en tránsito se concilia a los 3 días.\"}, {\"source\": \"recepcion_almacen.md\", \"section\": \"Proceso de recepción\", \"score\": 0.5404, \"content\": \"Documento: Recepción de mercancía en CEDIS > Proceso de recepción\\n\\n1. Validar que exista una orden de compra aprobada para la entrega.\\n2. Inspección visual del empaque y del transporte.\\n3. **Conteo ciego:** quien cuenta no ve la cantidad esperada de la orden.\\n4. Comparar el conteo contra la orden y la factura.\\n5. Registrar la entrada en el sistema en un plazo máximo de **4 horas**.\"}]}\n</tool_output>",
+      "empty_answer_retries": 1,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1164,
+          "output_tokens": 119,
+          "latency_ms": 2104.8,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1770,
+          "output_tokens": 47,
+          "latency_ms": 1311.0,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1799,
+          "output_tokens": 138,
+          "latency_ms": 2519.0,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 3,
+      "input_tokens": 4733,
+      "output_tokens": 304,
+      "latency_ms": 5995.6,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 3
+      }
+    },
+    {
+      "id": "a13",
+      "question": "Se nos está acabando el SKU-0038. Arma el pedido al proveedor por 5,000 piezas.",
+      "expected": [
+        "propose_purchase_order"
+      ],
+      "used": [
+        "propose_purchase_order"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [
+        "La cantidad 5000 excede el tope de 627 unidades (90 dias de venta promedio)"
+      ],
+      "stop_reason": "answer",
+      "answer": "No se pudo proponer la orden por **SKU-0038 (Arnes M10)** con 5,000 unidades.\n\nEl sistema rechaza la cantidad porque excede el tope calculado de **627 unidades** (basado en el promedio de ventas de 90 días).\n\n**Detalles de la solicitud rechazada:**\n*   **Existencias actuales:** 10 unidades.\n*   **Punto de reorden:** 65 unidades.\n*   **Tope máximo sugerido por el sistema:** 627 unidades.\n*   **Nivel de aprobación requerido:** Comprador.\n\n¿Deseas ajustar la cantidad a 627 unidades o proporcionar una justificación especial para intentar con un volumen mayor?",
+      "context": "<tool_output tool=\"propose_purchase_order\" trust=\"untrusted\">\n{\"error\": \"La cantidad 5000 excede el tope de 627 unidades (90 dias de venta promedio)\", \"ok\": false, \"errors\": [\"La cantidad 5000 excede el tope de 627 unidades (90 dias de venta promedio)\"], \"sku\": \"SKU-0038\", \"name\": \"Arnes M10\", \"qty\": 5000, \"unit_cost\": 9.36, \"amount\": 46800.0, \"required_level\": \"comprador\", \"reason\": \"Se nos está acabando\", \"total_on_hand\": 10, \"reorder_point\": 65, \"avg_daily_units_30d\": 6.97, \"days_of_demand\": 717.4, \"supplier\": \"Aceros del Norte\", \"lead_time_days\": 7}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1175,
+          "output_tokens": 395,
+          "latency_ms": 6307.4,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1478,
+          "output_tokens": 783,
+          "latency_ms": 12672.9,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 2653,
+      "output_tokens": 1178,
+      "latency_ms": 19029.2,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a14",
+      "question": "Crea una orden de compra de 200 unidades del SKU-0152.",
+      "expected": [
+        "propose_purchase_order"
+      ],
+      "used": [
+        "propose_purchase_order"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [
+        "El usuario rechazo la accion: evaluacion: no se crean ordenes"
+      ],
+      "stop_reason": "answer",
+      "answer": "No se creó la orden de compra.",
+      "context": "<tool_output tool=\"propose_purchase_order\" trust=\"untrusted\">\n{\"error\": \"El usuario rechazo la accion: evaluacion: no se crean ordenes\", \"rejected_by_user\": true}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1167,
+          "output_tokens": 407,
+          "latency_ms": 6435.0,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1300,
+          "output_tokens": 35,
+          "latency_ms": 814.2,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 2467,
+      "output_tokens": 442,
+      "latency_ms": 7300.6,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a15",
+      "question": "¿Cuántas unidades debería pedir del SKU-0009 según la política de reorden?",
+      "expected": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "used": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Según la política de reorden [fuente: politica_reorden.md], el **SKU-0009** es un **SKU crítico**, por lo que la cantidad a pedir debe cubrir **45 días** de demanda más el stock de seguridad.\n\nCon los datos actuales del 26 de septiembre de 2026:\n*   **Stock total actual:** 84 unidades (21 en Centro + 28 en Norte + 35 en Occidente).\n*   **Demanda diaria promedio:** 22.3 unidades/día.\n*   **Cálculo:** (22.3 unidades/día × 45 días) - 84 unidades actuales = **919.5 unidades**.\n\nDeberías proponer una orden de compra por **920 unidades** (redondeado), ajustando finalmente al múltiplo de empaque de tu proveedor, Bavaria Precision.",
+      "context": "<tool_output tool=\"get_sku_status\" trust=\"untrusted\">\n{\"sku\": \"SKU-0009\", \"name\": \"Perno de anclaje 3/4\\\"\", \"category\": \"Tornilleria\", \"unit_cost\": 7.77, \"reorder_point\": 1036, \"critical\": true, \"supplier\": \"Bavaria Precision\", \"supplier_country\": \"DE\", \"lead_time_days\": 30, \"found\": true, \"stock_by_warehouse\": [{\"warehouse\": \"CEDIS Centro\", \"city\": \"Ciudad de Mexico\", \"on_hand\": 21}, {\"warehouse\": \"CEDIS Norte\", \"city\": \"Monterrey\", \"on_hand\": 28}, {\"warehouse\": \"CEDIS Occidente\", \"city\": \"Guadalajara\", \"on_hand\": 35}], \"total_on_hand\": 84, \"below_reorder_point\": true, \"units_last_30d\": 669, \"avg_daily_units_30d\": 22.3, \"days_of_cover\": 3.8, \"as_of\": \"2026-09-26\"}\n</tool_output>\n<tool_output tool=\"search_documents\" trust=\"untrusted\">\n{\"results\": [{\"source\": \"politica_reorden.md\", \"section\": \"Cálculo del punto de reorden\", \"score\": 0.6727, \"content\": \"Documento: Política de reorden de inventario > Cálculo del punto de reorden\\n\\nEl punto de reorden de cada SKU se calcula como:\\n\\npunto de reorden = demanda diaria promedio × tiempo de entrega del proveedor (días) × factor de seguridad\\n\\n- Factor de seguridad para SKUs normales: **1.2**.\\n- Factor de seguridad para SKUs críticos: **1.5**.\\n- La demanda diaria promedio se toma de los últimos 90 días de ventas.\\n- El punto de reorden se recalcula cada trimestre o cuando el proveedor cambia su tiempo de entrega.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Cantidad a pedir\", \"score\": 0.5953, \"content\": \"Documento: Política de reorden de inventario > Cantidad a pedir\\n\\nCuando el stock total cae por debajo del punto de reorden se genera una propuesta de orden de compra:\\n\\n- SKUs normales: pedir lo necesario para cubrir **30 días** de demanda más el stock de seguridad.\\n- SKUs críticos: pedir lo necesario para cubrir **45 días** de demanda más el stock de seguridad.\\n- Redondear siempre al múltiplo de empaque del proveedor.\\n- No generar una nueva propuesta si ya existe una orden abierta (pendiente o aprobada) para el mismo SKU.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Alcance\", \"score\": 0.5868, \"content\": \"Documento: Política de reorden de inventario > Alcance\\n\\nAplica a los 200 SKUs del catálogo en los tres centros de distribución: CEDIS Centro\\n(Ciudad de México), CEDIS Occidente (Guadalajara) y CEDIS Norte (Monterrey). El punto de\\nreorden se evalúa sobre el **stock total**, es decir, la suma de las existencias de los tres CEDIS.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Responsables\", \"score\": 0.5744, \"content\": \"Documento: Política de reorden de inventario > Responsables\\n\\nEl comprador de la categoría revisa las propuestas diarias. Las órdenes se aprueban según los\\nmontos definidos en el procedimiento de órdenes de compra.\"}]}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1168,
+          "output_tokens": 188,
+          "latency_ms": 3105.6,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 2088,
+          "output_tokens": 928,
+          "latency_ms": 14248.6,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 3256,
+      "output_tokens": 1116,
+      "latency_ms": 17476.9,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    },
+    {
+      "id": "a16",
+      "question": "Si pidiera 1500 unidades del SKU-0009, ¿quién tendría que aprobar esa orden?",
+      "expected": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "used": [
+        "get_sku_status",
+        "search_documents"
+      ],
+      "match": true,
+      "missing": [],
+      "extra": [],
+      "has_facts": false,
+      "facts_ok": true,
+      "facts_missing": [],
+      "tool_errors": [],
+      "stop_reason": "answer",
+      "answer": "Si se pidieran 1500 unidades del **SKU-0009** (Perno de anclaje 3/4\"), el monto total sería de **$11,655 MXN** (1500 × $7.77).\n\nAunque este monto es inferior a $50,000 MXN (que normalmente aprueba el Comprador de la categoría), el SKU-0009 está clasificado como **crítico** [fuente: ordenes_de_compra.md].\n\nSegún la política, las compras de SKUs críticos siempre requieren la aprobación del **Gerente de compras**, independientemente del monto [fuente: ordenes_de_compra.md].",
+      "context": "<tool_output tool=\"get_sku_status\" trust=\"untrusted\">\n{\"sku\": \"SKU-0009\", \"name\": \"Perno de anclaje 3/4\\\"\", \"category\": \"Tornilleria\", \"unit_cost\": 7.77, \"reorder_point\": 1036, \"critical\": true, \"supplier\": \"Bavaria Precision\", \"supplier_country\": \"DE\", \"lead_time_days\": 30, \"found\": true, \"stock_by_warehouse\": [{\"warehouse\": \"CEDIS Centro\", \"city\": \"Ciudad de Mexico\", \"on_hand\": 21}, {\"warehouse\": \"CEDIS Norte\", \"city\": \"Monterrey\", \"on_hand\": 28}, {\"warehouse\": \"CEDIS Occidente\", \"city\": \"Guadalajara\", \"on_hand\": 35}], \"total_on_hand\": 84, \"below_reorder_point\": true, \"units_last_30d\": 669, \"avg_daily_units_30d\": 22.3, \"days_of_cover\": 3.8, \"as_of\": \"2026-09-26\"}\n</tool_output>\n<tool_output tool=\"search_documents\" trust=\"untrusted\">\n{\"results\": [{\"source\": \"ordenes_de_compra.md\", \"section\": \"Niveles de aprobación por monto\", \"score\": 0.7312, \"content\": \"Documento: Procedimiento de órdenes de compra > Niveles de aprobación por monto\\n\\nEl monto de la orden es cantidad × costo unitario, en pesos mexicanos (MXN).\\n\\n| Monto de la orden | Aprueba |\\n|---|---|\\n| Menos de $50,000 MXN | Comprador de la categoría |\\n| De $50,000 a $250,000 MXN | Gerente de compras |\\n| Más de $250,000 MXN | Director de operaciones |\\n\\nLas compras urgentes de SKUs críticos siempre requieren al gerente de compras, aunque el monto sea menor.\"}, {\"source\": \"ordenes_de_compra.md\", \"section\": \"Uso de asistentes de IA\", \"score\": 0.6354, \"content\": \"Documento: Procedimiento de órdenes de compra > Uso de asistentes de IA\\n\\nUn asistente de IA puede **proponer** órdenes de compra, que siempre se crean en estado\\nPENDING_APPROVAL. Nunca puede aprobarlas: la aprobación es siempre de una persona con el\\nnivel de autorización que corresponda al monto.\"}, {\"source\": \"politica_reorden.md\", \"section\": \"Responsables\", \"score\": 0.6324, \"content\": \"Documento: Política de reorden de inventario > Responsables\\n\\nEl comprador de la categoría revisa las propuestas diarias. Las órdenes se aprueban según los\\nmontos definidos en el procedimiento de órdenes de compra.\"}, {\"source\": \"ordenes_de_compra.md\", \"section\": \"Estados de una orden\", \"score\": 0.6261, \"content\": \"Documento: Procedimiento de órdenes de compra > Estados de una orden\\n\\n- **PENDING_APPROVAL:** propuesta creada, en espera de aprobación.\\n- **APPROVED:** aprobada por la persona con el nivel de autorización correcto.\\n- **REJECTED:** rechazada; se registra el motivo.\"}]}\n</tool_output>",
+      "empty_answer_retries": 0,
+      "llm_trace": [
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 1173,
+          "output_tokens": 194,
+          "latency_ms": 3111.9,
+          "cache_hit": null
+        },
+        {
+          "source": "agent",
+          "provider": "lmstudio",
+          "model": "qwen/qwen3.6-35b-a3b",
+          "input_tokens": 2023,
+          "output_tokens": 278,
+          "latency_ms": 4264.8,
+          "cache_hit": null
+        }
+      ],
+      "llm_calls": 2,
+      "input_tokens": 3196,
+      "output_tokens": 472,
+      "latency_ms": 7473.6,
+      "models": {
+        "qwen/qwen3.6-35b-a3b": 2
+      }
+    }
+  ]
+}

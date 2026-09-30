@@ -41,8 +41,8 @@ En la corrida `20260930T004357Z`, Qwen terminó una pregunta de test con solo un
   (`EMPTY_ANSWER_NUDGE`, que forma parte de la huella del agente).
 - Si vuelve a salir vacía, el agente termina con `stop_reason=empty_answer` y un mensaje explícito,
   nunca con texto en blanco.
-- El eval reporta `empty_answer_retry_rate`. En dev (16 preguntas) no hubo respuestas vacías, así que el
-  reintento solo está probado con pruebas unitarias hasta la siguiente corrida completa.
+- El eval reporta `empty_answer_retry_rate`. En dev (16 preguntas, 2 corridas) hubo una respuesta vacía
+  (a12, 1 de 16 en la segunda corrida): el reintento la recuperó con la respuesta correcta y su fuente.
 
 ## Alternativas consideradas
 - **Strands Agents / LangGraph:** menos código propio, pero ocultan el loop que este
