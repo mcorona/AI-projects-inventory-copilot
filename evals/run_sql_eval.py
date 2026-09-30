@@ -98,11 +98,30 @@ def evaluate(golden: list[dict], llm, executor, max_tokens: int = 8192, verifier
             "total_latency_ms": round(r.total_latency_ms, 1),
             "provider": r.provider, "model": r.model,
             "escalations": r.escalations, "attempts": r.attempts, "cache_hit": r.cache_hit,
+            "verifier": _verifier_outcomes(r.attempts, gold_rows, g.get("order_matters", False), executor),
         })
     summary = summarize(items)
     # con el router, cada item puede venir de un proveedor distinto: se reporta el router
     summary["provider"] = getattr(llm, "name", summary["provider"])
     return {"summary": summary, "items": items}
+
+
+def _verifier_outcomes(attempts, gold_rows, order_matters: bool, executor) -> list[str]:
+    """Clasifica cada veredicto del verificador contra la referencia: re-ejecuta el SQL del intento.
+
+    accept_ok / accept_wrong (fallo no detectado) / reject_ok (falsa alarma) / reject_wrong (acierto).
+    """
+    out = []
+    for a in attempts or []:
+        if a.get("verifier_ok") is None or not a.get("sql"):
+            continue
+        try:
+            _, rows = executor(a["sql"])
+            correct = results_match(gold_rows, rows, order_matters)
+        except Exception:
+            correct = False
+        out.append(("accept_" if a["verifier_ok"] else "reject_") + ("ok" if correct else "wrong"))
+    return out
 
 
 def summarize(items: list[dict]) -> dict:
@@ -127,6 +146,8 @@ def summarize(items: list[dict]) -> dict:
         "model": items[0]["model"] if items else "",
         # los routers (p. ej. OmniRoute auto/*) pueden responder con modelos distintos
         "models": dict(Counter(i["model"] for i in items if i["model"])),
+        # matriz del verificador (solo con --verifier): falsas alarmas = reject_ok
+        "verifier_outcomes": dict(Counter(o for i in items for o in i.get("verifier", []))),
     }
 
 
@@ -153,7 +174,8 @@ def main() -> None:
     verifier = None
     if args.verifier:
         from src.tools.sql_verifier import SQLVerifier
-        verifier = SQLVerifier(llm.tiers[0])
+        from src.tools.sql_tool import schema_description
+        verifier = SQLVerifier(llm.tiers[0], schema_hint=schema_description())
     report = evaluate(golden, llm, lambda sql: execute_readonly(sql, dsn), args.max_tokens, verifier)
     report["summary"]["verifier"] = bool(verifier)
 
@@ -171,6 +193,8 @@ def main() -> None:
     print(f"  tokens in/out      : {s['input_tokens']} / {s['output_tokens']}")
     if s["escalation_rate"]:
         print(f"  escaladas (router) : {s['escalation_rate']:.1%}")
+    if s["verifier_outcomes"]:
+        print(f"  verificador        : {s['verifier_outcomes']}")
 
     REPORTS_DIR.mkdir(exist_ok=True)
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")

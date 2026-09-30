@@ -115,3 +115,12 @@ def test_closed_think_is_not_truncated():
     r = run_sql_tool("x", llm=FakeLLM("<think>a</think>SELECT sku FROM products"),
                      executor=FakeExecutor())
     assert r.ok
+
+
+def test_schema_prompt_lists_every_warehouse_name_from_the_generator():
+    from scripts.generate_data import WAREHOUSES
+    from src.tools.sql_tool import ANCHOR_DATE, SCHEMA_DESC, SCHEMA_PROMPT, schema_description
+    for name, city in WAREHOUSES:
+        assert f"'{name}' -> {city}" in SCHEMA_DESC
+    assert SCHEMA_DESC in SCHEMA_PROMPT          # una sola fuente para generador y verificador
+    assert ANCHOR_DATE.isoformat() in schema_description()

@@ -121,3 +121,21 @@ def test_sql_verifier_parses_and_fails_open():
     prompt = judge_llm.calls[0]["messages"][0]["content"]
     assert "200 filas; muestra de 10" in prompt   # la muestra se acota
     assert SQLVerifier(ScriptedLLM(["no se"])).verify("q", "s", [], []).ok   # fail-open
+
+
+def test_attempts_keep_sql_for_offline_verifier_analysis():
+    cheap = ScriptedLLM(["SELECT sku FROM products"], model="cheap")
+    strong = ScriptedLLM(["SELECT sku FROM stock"], model="strong")
+    r = run_sql_tool("x", llm=CascadeRouter([cheap, strong]), verifier=FakeVerifier([False, True]),
+                     executor=lambda sql: (["sku"], [("S",)]))
+    assert [a["sql"].split(" FROM ")[1].split()[0] for a in r.attempts] == ["products", "stock"]
+
+
+def test_sql_verifier_receives_schema_hint():
+    from src.tools.sql_tool import schema_description
+    from src.tools.sql_verifier import SQLVerifier
+    judge_llm = ScriptedLLM(['{"ok": true}'])
+    SQLVerifier(judge_llm, schema_hint=schema_description()).verify("q", "SELECT 1", [], [])
+    system = judge_llm.calls[0]["system"]
+    assert "UNA fila por cada SKU y cada dia" in system   # sabe que sales_daily es densa
+    assert "CEDIS Norte" in system and "{anchor}" not in system

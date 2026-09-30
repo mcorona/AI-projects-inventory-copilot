@@ -325,6 +325,9 @@ def to_markdown(s: dict) -> str:
         j = s["judge_calibration"]
         lines.append(f"- **Calibracion del juez** ({j['n']} casos etiquetados): acuerdo {j['judge_accuracy']:.1%} · "
                      f"detecta infieles {j['unfaithful_recall']:.1%}")
+        for d, m in j.get("by_difficulty", {}).items():
+            lines.append(f"  - {d} ({m['n']}): acuerdo {m['judge_accuracy']:.1%} · "
+                         f"detecta infieles {m['unfaithful_recall']:.1%} · precision {m['unfaithful_precision']:.1%}")
     lines += ["", "Huellas: " + ", ".join(f"`{k}={v}`" for k, v in s["fingerprints"].items()), ""]
     return "\n".join(lines)
 

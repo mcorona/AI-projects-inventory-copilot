@@ -22,27 +22,37 @@ REPORTS_DIR = Path(__file__).parent / "reports"
 DEFAULT_JUDGE = "lmstudio:qwen/qwen3.6-35b-a3b"
 
 
+def _agreement(items: list[dict]) -> dict:
+    """Acuerdo con las etiquetas; positivo = "infiel" detectado."""
+    cm = {"tp": 0, "fp": 0, "fn": 0, "tn": 0}
+    for i in items:
+        pred, actual = i["judge_faithful"] is False, not i["label_faithful"]
+        cm[("t" if pred == actual else "f") + ("p" if pred else "n")] += 1
+    n = len(items) or 1
+    return {"n": len(items), "judge_accuracy": round(sum(i["agree"] for i in items) / n, 4),
+            "unfaithful_recall": round(cm["tp"] / ((cm["tp"] + cm["fn"]) or 1), 4),
+            "unfaithful_precision": round(cm["tp"] / ((cm["tp"] + cm["fp"]) or 1), 4),
+            "confusion": cm}
+
+
 def calibrate(judge: LLMJudge, rows: list[dict]) -> dict:
-    items, tp = [], {"tp": 0, "fp": 0, "fn": 0, "tn": 0}   # positivo = "infiel" detectado
+    items = []
     for r in rows:
         j = judge.judge(r["question"], r["context"], r["answer"])
         g = numeric_grounding(r["answer"], r["context"], r["question"])
-        pred_unfaithful = j.faithful is False
-        actual_unfaithful = not r["faithful"]
-        key = ("t" if pred_unfaithful == actual_unfaithful else "f") + ("p" if pred_unfaithful else "n")
-        tp[key] += 1
         items.append({"id": r["id"], "label_faithful": r["faithful"], "judge_faithful": j.faithful,
                       "agree": j.faithful == r["faithful"], "numeric_grounded": g.grounded,
-                      "note": r["note"], "claims": j.claims})
+                      "difficulty": r.get("difficulty", "obvious"), "note": r["note"], "claims": j.claims})
     n = len(items) or 1
-    detect = tp["tp"] / ((tp["tp"] + tp["fn"]) or 1)
-    precision = tp["tp"] / ((tp["tp"] + tp["fp"]) or 1)
-    return {"summary": {"n": len(items), "judge_accuracy": round(sum(i["agree"] for i in items) / n, 4),
-                        "unfaithful_recall": round(detect, 4), "unfaithful_precision": round(precision, 4),
+    # "obvious": errores plantados evidentes (v1); "subtle": cifras reales mal atribuidas, limites de
+    # rangos, excepciones omitidas y parafrasis fieles que un juez estricto podria rechazar
+    by_difficulty = {d: _agreement([i for i in items if i["difficulty"] == d])
+                     for d in sorted({i["difficulty"] for i in items})}
+    return {"summary": {**_agreement(items),
                         "unparseable": sum(i["judge_faithful"] is None for i in items),
                         "numeric_grounding_accuracy": round(sum(i["numeric_grounded"] == i["label_faithful"]
                                                                 for i in items) / n, 4),
-                        "confusion": tp},
+                        "by_difficulty": by_difficulty},
             "items": items}
 
 
@@ -91,6 +101,9 @@ def main() -> None:
         print(f"\n[juez {args.judge}] acuerdo {s['judge_accuracy']:.1%} · detecta infieles "
               f"{s['unfaithful_recall']:.1%} · precision {s['unfaithful_precision']:.1%} · "
               f"ilegibles {s['unparseable']} · (chequeo de cifras solo: {s['numeric_grounding_accuracy']:.1%})")
+        for d, m in s["by_difficulty"].items():
+            print(f"  {d:<8} n={m['n']:<3} acuerdo {m['judge_accuracy']:.1%} · detecta infieles "
+                  f"{m['unfaithful_recall']:.1%} · precision {m['unfaithful_precision']:.1%}")
         name = "judge_calibration"
     else:
         agent_report = json.loads(args.from_report.read_text(encoding="utf-8"))

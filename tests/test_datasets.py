@@ -6,7 +6,7 @@ from src.guardrails.sql_guard import validate_sql
 from src.tools.sql_tool import SCHEMA_PROMPT
 
 
-@pytest.mark.parametrize("suite,split,n", [("sql", "dev", 31), ("sql", "test", 30), ("agent", "dev", 16),
+@pytest.mark.parametrize("suite,split,n", [("sql", "dev", 34), ("sql", "test", 30), ("agent", "dev", 16),
                                           ("agent", "test", 10), ("rag", "dev", 15), ("rag", "test", 8)])
 def test_dataset_sizes_and_unique_ids(suite, split, n):
     rows = load_dataset(suite, split)

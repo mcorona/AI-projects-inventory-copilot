@@ -41,6 +41,20 @@ pregunta, y la cascada escala si no. En el split test (1 corrida):
   por no conocer el esquema.
 - Su costo (una llamada extra por consulta) se suma al de cada consulta.
 
+## Actualización (v1.1.0): el verificador recibe el esquema
+La falsa alarma venía de que el verificador no conocía el esquema: ignoraba que `sales_daily` tiene una
+fila por SKU y día, cuál es la fecha de referencia y que las ventas terminan ese día. Por eso rechazaba
+consultas correctas: usaba la fecha real como "hoy" y exigía el mes completo aunque no hubiera datos
+posteriores.
+- La descripción del esquema es ahora una sola constante (`SCHEMA_DESC`) que comparten el generador y
+  el verificador (`schema_description()`), así que ya no pueden desincronizarse.
+- El eval re-ejecuta el SQL de cada intento y clasifica cada veredicto contra la referencia
+  (`accept_ok`, `accept_wrong`, `reject_ok` = falsa alarma, `reject_wrong`).
+- En dev (34 preguntas, 1 corrida): antes 1 falsa alarma de 31; después 0 falsas alarmas y 34/34
+  `accept_ok`. El p95 bajó de 19.3 s a 9.8 s porque ya no escala por falsas alarmas.
+- Límite: en una corrida intermedia el verificador aceptó un resultado con 8 filas cuando la pregunta
+  pedía una (`accept_wrong`). Con n tan chico, la tasa de fallos no detectados no está bien medida.
+
 ## Consecuencias
 - (+) Tolerancia a fallas del proveedor gratuito sin cambiar el agente.
 - (+) Métrica de escalamiento lista para las evals de costo/latencia.

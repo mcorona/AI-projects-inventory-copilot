@@ -11,8 +11,8 @@ GOLDEN = load_golden()
 
 
 def test_golden_set_shape():
-    assert len(GOLDEN) == 31
-    assert len({g["id"] for g in GOLDEN}) == 31
+    assert len(GOLDEN) == 34
+    assert len({g["id"] for g in GOLDEN}) == 34
     for g in GOLDEN:
         assert g["question"].strip() and g["sql"].strip()
         assert isinstance(g["order_matters"], bool)
@@ -84,3 +84,18 @@ def test_evaluate_end_to_end_with_mocks():
     assert s["input_tokens"] == 20 and s["output_tokens"] == 10
     assert s["models"] == {"m": 2}
     assert [i["match"] for i in report["items"]] == [True, False]
+
+
+def test_verifier_outcomes_classifies_each_verdict_against_gold():
+    from evals.run_sql_eval import _verifier_outcomes
+    results = {"SELECT good": [("A",)], "SELECT bad": [("B",)]}
+    executor = lambda sql: (["x"], results[sql])  # noqa: E731
+    attempts = [
+        {"sql": "SELECT good", "verifier_ok": False},   # falsa alarma
+        {"sql": "SELECT bad", "verifier_ok": True},     # fallo no detectado
+        {"sql": "SELECT bad", "verifier_ok": False},    # acierto
+        {"sql": "SELECT good", "verifier_ok": True},
+        {"sql": None, "verifier_ok": None},             # sin veredicto: se ignora
+    ]
+    assert _verifier_outcomes(attempts, [("A",)], False, executor) == \
+        ["reject_ok", "accept_wrong", "reject_wrong", "accept_ok"]

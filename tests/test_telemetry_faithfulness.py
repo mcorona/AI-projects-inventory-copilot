@@ -88,3 +88,27 @@ def test_parse_provider_spec_and_bedrock_prices():
     c = estimate_cost("bedrock", "minimax.minimax-m2.1", 1_000_000, 0)
     assert math.isclose(c.actual_usd, 0.30) and c.exact_equivalent
     assert math.isclose(estimate_cost("bedrock", "qwen.qwen3-32b-v1:0", 0, 1_000_000).actual_usd, 0.60)
+
+
+def test_calibration_reports_agreement_by_difficulty():
+    from evals.faithfulness import JudgeResult
+    from evals.run_faithfulness_eval import calibrate
+
+    class StubJudge:
+        def __init__(self, verdicts):
+            self.verdicts = iter(verdicts)
+
+        def judge(self, question, context, answer):
+            return JudgeResult(faithful=next(self.verdicts), claims=[])
+
+    rows = [{"id": "a", "question": "q", "context": "84", "answer": "84", "faithful": True, "note": ""},
+            {"id": "b", "question": "q", "context": "84", "answer": "85", "faithful": False, "note": ""},
+            {"id": "c", "question": "q", "context": "84", "answer": "84", "faithful": False, "note": "",
+             "difficulty": "subtle"},
+            {"id": "d", "question": "q", "context": "84", "answer": "84", "faithful": True, "note": "",
+             "difficulty": "subtle"}]
+    s = calibrate(StubJudge([True, False, True, False]), rows)["summary"]
+    assert s["judge_accuracy"] == 0.5
+    assert s["by_difficulty"]["obvious"]["judge_accuracy"] == 1.0
+    sub = s["by_difficulty"]["subtle"]
+    assert sub["judge_accuracy"] == 0.0 and sub["confusion"] == {"tp": 0, "fp": 1, "fn": 1, "tn": 0}

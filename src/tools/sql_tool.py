@@ -13,10 +13,8 @@ from src.llm import LLMProvider, get_provider
 from src.llm.router import CascadeRouter
 from src.llm.text import is_truncated_think, strip_think  # noqa: F401  (strip_think se re-exporta)
 
-SCHEMA_PROMPT = """Eres un experto en PostgreSQL 16. Traduce la pregunta del usuario a UNA sola
-consulta SELECT sobre este esquema de inventario (todas las fechas estan en sales_daily.day):
-
-suppliers(supplier_id INT PK, name TEXT, country TEXT -- codigo ISO de 2 letras: MX, US, CN, DE, CO, ES, CA,
+# Descripcion del esquema compartida por el generador (SCHEMA_PROMPT) y el verificador (sql_verifier)
+SCHEMA_DESC = """suppliers(supplier_id INT PK, name TEXT, country TEXT -- codigo ISO de 2 letras: MX, US, CN, DE, CO, ES, CA,
           lead_time_days INT)
 products(sku TEXT PK -- formato 'SKU-0001', name TEXT, category TEXT, unit_cost NUMERIC(12,2),
          reorder_point INT -- umbral de reorden sobre el stock TOTAL (suma de almacenes),
@@ -29,11 +27,20 @@ sales_daily(sku TEXT FK -> products, day DATE, units INT) -- PK (sku, day), unid
 
 Categorias: Tornilleria, Electrico, Hidraulico, Neumatico, Rodamientos, Seguridad, Herramientas, Empaque.
 Ciudades: Ciudad de Mexico, Guadalajara, Monterrey.
-Los valores de texto (categorias, ciudades, paises) se guardan SIN acentos y exactamente como
-aparecen arriba: si la pregunta dice "neumáticos" o "Neumático", usa category = 'Neumatico'.
+Almacenes (warehouses.name -> city): 'CEDIS Centro' -> Ciudad de Mexico, 'CEDIS Occidente' -> Guadalajara,
+'CEDIS Norte' -> Monterrey. Si la pregunta nombra un almacen ("el Norte", "CEDIS Centro"), filtra por
+el nombre completo exacto (w.name = 'CEDIS Norte') o por su ciudad.
+Los valores de texto (categorias, ciudades, paises, almacenes) se guardan SIN acentos y exactamente
+como aparecen arriba: si la pregunta dice "neumáticos" o "Neumático", usa category = 'Neumatico'.
 La fecha de referencia ("hoy") es {anchor}; usa fechas literales, no now() ni current_date.
+Las ventas terminan en {anchor}: no hay filas posteriores, asi que un mes en curso llega hasta ese dia.
 "Los ultimos N dias" incluye hoy y abarca exactamente N dias:
-day > DATE '{anchor}' - N AND day <= DATE '{anchor}'.
+day > DATE '{anchor}' - N AND day <= DATE '{anchor}'."""
+
+SCHEMA_PROMPT = """Eres un experto en PostgreSQL 16. Traduce la pregunta del usuario a UNA sola
+consulta SELECT sobre este esquema de inventario (todas las fechas estan en sales_daily.day):
+
+""" + SCHEMA_DESC + """
 
 Reglas:
 - Solo SELECT (se permiten CTE con WITH). Nunca modifiques datos.
@@ -58,6 +65,11 @@ ORDER BY w.name;
 
 # fecha "hoy" de los datos sinteticos; scripts/generate_data.py la usa como fin de sales_daily
 ANCHOR_DATE = date(2026, 9, 26)
+
+
+def schema_description() -> str:
+    """Esquema con la fecha de referencia resuelta (pista para el verificador)."""
+    return SCHEMA_DESC.format(anchor=ANCHOR_DATE.isoformat())
 
 _FENCE_RE = re.compile(r"```(?:sql|postgresql)?\s*(.*?)```", re.DOTALL | re.IGNORECASE)
 _START_RE = re.compile(r"\b(WITH|SELECT)\b", re.IGNORECASE)
@@ -166,6 +178,7 @@ def _run_cascade(question: str, router: CascadeRouter, executor: Executor,
     for r in tries:
         v = verdicts.get(id(r))
         final.attempts.append({"provider": r.provider, "model": r.model, "error": r.error, "rows": len(r.rows),
+                               "sql": r.sql,
                                "verifier_ok": getattr(v, "ok", None), "verifier_reason": getattr(v, "reason", None)})
     # el costo del verificador tambien cuenta
     v_in = sum(v.input_tokens for v in verdicts.values())

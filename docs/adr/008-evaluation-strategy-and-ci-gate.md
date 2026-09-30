@@ -109,5 +109,9 @@ También dio 1 falsa alarma, porque no recibe el esquema y no sabe que `sales_da
   evaluaciones con LLM no corren en GitHub Actions.
 - (−) Los sets test son pequeños (10–30). Sirven para detectar regresiones, no para comparar
   modelos con precisión fina.
-- (−) El juez está validado con 16 casos de errores claros; su desempeño en errores sutiles no
-  está medido.
+- (−) El juez se validó primero con 16 casos de errores claros. En v1.1.0 se agregaron 13 casos
+  sutiles (`difficulty: subtle`): cifras reales atribuidas al almacén equivocado, límites de rangos,
+  excepciones omitidas, días hábiles contra naturales y paráfrasis fieles. Resultado: 92.3% de acuerdo
+  en los sutiles (detecta 7 de 8 infieles, sin falsas alarmas) y 96.5% en total. El caso que se le
+  escapa (jc25) es un cambio de criterio que solo se ve en el SQL del contexto ("stock total" contra
+  "en algún almacén"). El prompt del juez no se ajustó con estos casos porque son su set de validación.
