@@ -116,3 +116,26 @@ def test_to_json_serializes_and_truncates():
     from decimal import Decimal
     assert to_json({"a": Decimal("1.5"), "d": date(2026, 9, 26)}) == '{"a": 1.5, "d": "2026-09-26"}'
     assert to_json({"x": "y" * 100}, max_chars=20).endswith("[salida truncada]")
+
+
+def test_empty_answer_is_retried_once_with_a_nudge():
+    from src.agent.core import EMPTY_ANSWER_NUDGE
+    llm = ScriptedLLM([
+        ("", [call("search_documents", "a", query="horario")]),
+        "<think>solo razone</think>",                       # sin texto tras quitar <think>
+        "El horario es de 7:00 a 15:00 [fuente: x.md].",
+    ])
+    r = Agent(llm, fake_tools([])).run("¿Horario?")
+    assert r.stop_reason == "answer" and r.answer.startswith("El horario es")
+    assert r.empty_answer_retries == 1 and r.llm_calls == 3
+    msgs = llm.calls[2]["messages"]
+    assert [m["role"] for m in msgs] == ["user", "assistant", "tool", "user"]
+    assert msgs[-1]["content"] == EMPTY_ANSWER_NUDGE
+
+
+def test_second_empty_answer_ends_with_fallback_not_blank():
+    from src.agent.core import EMPTY_ANSWER_FALLBACK
+    llm = ScriptedLLM(["<think>a</think>", "<think>b</think>", "no deberia llegar"])
+    r = Agent(llm, fake_tools([])).run("x")
+    assert r.stop_reason == "empty_answer" and r.answer == EMPTY_ANSWER_FALLBACK
+    assert r.empty_answer_retries == 1 and r.llm_calls == 2

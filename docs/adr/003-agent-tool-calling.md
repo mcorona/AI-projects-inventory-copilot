@@ -34,6 +34,16 @@ tools con `ToolAnnotations(read_only_hint=True)` y el resource `inventory://sche
 de sistema declara que la salida de las tools son datos, no instrucciones; las salidas se
 truncan (50 filas, 8,000 caracteres) antes de volver al modelo.
 
+## Actualización (v1.1.1): respuesta vacía
+En la corrida `20260930T004357Z`, Qwen terminó una pregunta de test con solo un bloque `<think>` en 2 de
+3 repeticiones, y el agente devolvió una respuesta vacía con `stop_reason=answer`.
+- Si la respuesta queda vacía después de quitar `<think>`, el loop le pide una vez la respuesta
+  (`EMPTY_ANSWER_NUDGE`, que forma parte de la huella del agente).
+- Si vuelve a salir vacía, el agente termina con `stop_reason=empty_answer` y un mensaje explícito,
+  nunca con texto en blanco.
+- El eval reporta `empty_answer_retry_rate`. En dev (16 preguntas) no hubo respuestas vacías, así que el
+  reintento solo está probado con pruebas unitarias hasta la siguiente corrida completa.
+
 ## Alternativas consideradas
 - **Strands Agents / LangGraph:** menos código propio, pero ocultan el loop que este
   portafolio quiere mostrar y agregan dependencias. Un adaptador a Strands puede sumarse en la

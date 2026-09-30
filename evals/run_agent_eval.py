@@ -76,6 +76,7 @@ def evaluate(golden: list[dict], agent) -> dict:
                       "facts_missing": facts_missing,
                       "tool_errors": [s.error for s in r.steps if s.error],
                       "stop_reason": r.stop_reason, "answer": r.answer, "context": context,
+                      "empty_answer_retries": r.empty_answer_retries,
                       "llm_trace": r.llm_trace,
                       "llm_calls": r.llm_calls, "input_tokens": r.input_tokens,
                       "output_tokens": r.output_tokens, "latency_ms": round(r.latency_ms, 1),
@@ -92,6 +93,8 @@ def evaluate(golden: list[dict], agent) -> dict:
                                   / sum(i["has_facts"] for i in items), 4)
                             if any(i["has_facts"] for i in items) else None),
         "answered_rate": round(sum(i["stop_reason"] == "answer" for i in items) / n, 4),
+        # respuestas que llegaron vacias (solo <think>) y se pidieron de nuevo
+        "empty_answer_retry_rate": round(sum(i.get("empty_answer_retries", 0) > 0 for i in items) / n, 4),
         "avg_tool_calls": round(sum(len(i["used"]) for i in items) / n, 2),
         "latency_p50_ms": lat[len(lat) // 2] if lat else 0,
         "input_tokens": sum(i["input_tokens"] for i in items),
