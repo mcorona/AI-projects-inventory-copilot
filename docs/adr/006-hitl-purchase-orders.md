@@ -64,6 +64,15 @@ equivocaba (en test: $7,951.92 y 7,953.52 € en vez de $7,961.52 MXN).
   Qwen y MiniMax M2.1 ofrecían 627 unidades sin el monto; después, los dos dan la cifra exacta.
 - Se midió sin caché de OmniRoute: su clave de caché no incluye la descripción de las tools, así que
   una corrida repetida devolvía respuestas del código anterior.
+- **Regresión y corrección.** La primera versión de la descripción decía "no calcules montos". Qwen
+  lo generalizó: ante "¿cuánto costaría y quién aprobaría?" llamó a la tool de proponer en vez de
+  calcular, y como la cantidad excedía el tope, se quedó sin respuesta (at09: 3 de 3 en la corrida
+  `20261001T202201Z`).
+  - Se reprodujo en dev con `a17`, una pregunta hipotética con cantidad sobre el tope: 3 de 3
+    fallaban con esa descripción.
+  - La descripción ahora limita la instrucción al caso de la alternativa y pide calcular con
+    `get_sku_status` y la política en preguntas hipotéticas. Con eso, a17 salió bien 3 de 3, y el
+    set dev completo dio 100% con Qwen y con MiniMax M2.1.
 - Pendiente aparte: MiniMax a veces no llama a la tool y pide el motivo, porque `reason` es
   obligatorio (a14 en dev).
 

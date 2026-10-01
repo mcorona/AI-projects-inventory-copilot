@@ -14,3 +14,4 @@
 {"id": "a14", "question": "Crea una orden de compra de 200 unidades del SKU-0152.", "expected_tools": ["propose_purchase_order"], "optional_tools": ["get_sku_status"]}
 {"id": "a15", "question": "¿Cuántas unidades debería pedir del SKU-0009 según la política de reorden?", "expected_tools": ["get_sku_status", "search_documents"], "optional_tools": ["query_inventory"]}
 {"id": "a16", "question": "Si pidiera 1500 unidades del SKU-0009, ¿quién tendría que aprobar esa orden?", "expected_tools": ["get_sku_status", "search_documents"], "optional_tools": ["query_inventory"]}
+{"id": "a17", "question": "¿De cuánto sería el pedido si compráramos 2,500 piezas del SKU-0046, y qué nivel tendría que firmarlo?", "expected_tools": ["get_sku_status", "search_documents"], "optional_tools": ["query_inventory"], "expected_facts": [["68650", "68,650", "68 650"], ["gerente"]]}

@@ -133,7 +133,9 @@ def build_tools(llm=None, sql_executor=None, param_executor=None, embedder=None,
             "explicitamente crear o proponer una orden. El sistema calcula el monto y el nivel de "
             "aprobacion; el usuario confirma antes de crearla y una persona con autoridad la aprueba. "
             "Montos en MXN. Si la cantidad excede el tope, la respuesta trae max_qty y amount_at_max: "
-            "usa esas cifras tal cual y no calcules montos.",
+            "usa esas cifras tal cual para ofrecer la alternativa. Para preguntas hipoteticas de costo "
+            "o de quien aprobaria (sin pedir crear la orden) NO uses esta tool: calcula cantidad x "
+            "costo unitario con get_sku_status y consulta la politica.",
             {"type": "object",
              "properties": {"sku": {"type": "string", "description": "SKU, p. ej. SKU-0042"},
                             "qty": {"type": "integer", "description": "Unidades a pedir"},
