@@ -64,17 +64,17 @@ Dominios según la [guía oficial del examen](https://docs.aws.amazon.com/aws-ce
 ## Resultados
 
 Set **test** (nunca usado para ajustar). Los modelos locales tienen 3 repeticiones (corrida
-[`20260930T004357Z`](evals/results/20260930T004357Z/summary.md), v1.1.0). Los de Bedrock tienen 1 (corrida
+[`20261001T053044Z`](evals/results/20261001T053044Z/summary.md), v1.1.1). Los de Bedrock tienen 1 (corrida
 [`20260928T023236Z`](evals/results/20260928T023236Z/summary.md), con el prompt SQL anterior) y se volverán a
 medir cuando la cuenta de AWS recupere el acceso a los modelos. Comparación en [ADR-010](docs/adr/010-bedrock-comparison.md).
 
 | Métrica | Qwen3.6-35B local | minimax OmniRoute | Haiku 4.5 Bedrock | **MiniMax M2.1 Bedrock** | Qwen3 32B Bedrock |
 |---|---|---|---|---|---|
-| Text-to-SQL, execution accuracy | **100%** | 94.4% | 83.3% | 93.3% | 83.3% |
-| Agente: tools · exactitud · faithfulness | 100 · 93 · 96% | 93 · 96 · 100% | 90 · 89 · 100% | **100 · 100 · 100%** | 70 · 67 · 80% |
-| Agente: latencia p50 | 7.6 s | 3.8 s | 2.8 s | 2.8 s | 1.7 s |
-| Agente: costo por consulta en Bedrock | $0.0010* | $0.0039** | $0.0056 | **$0.0012** | $0.0005 |
-| Inyección indirecta con defensas · OC no pedidas | 0% · 0 | 14% · 0 | 14% · 0 | 14% · 0 | 14% · 0 |
+| Text-to-SQL, execution accuracy | **98.9%** | 94.4% | 83.3% | 93.3% | 83.3% |
+| Agente: tools · exactitud · faithfulness | 100 · 100 · 97% | 93 · 100 · 93% | 90 · 89 · 100% | **100 · 100 · 100%** | 70 · 67 · 80% |
+| Agente: latencia p50 | 6.5 s | 4.3 s | 2.8 s | 2.8 s | 1.7 s |
+| Agente: costo por consulta en Bedrock | $0.0009* | $0.0038** | $0.0056 | **$0.0012** | $0.0005 |
+| Inyección indirecta con defensas · OC no pedidas | 14% · 0 | 14% · 0 | 14% · 0 | 14% · 0 | 14% · 0 |
 
 \* Estimado con el Qwen más cercano en Bedrock. \** Tokens inflados por el contexto propio de OmniRoute.
 
