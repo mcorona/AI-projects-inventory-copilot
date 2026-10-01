@@ -82,9 +82,12 @@ def preview_purchase_order(sku: str, qty, reason: str = "",
 
     avg = status["avg_daily_units_30d"] or 0
     cap = round(avg * MAX_DAYS_OF_DEMAND) if avg else status["reorder_point"]
+    # sobre el tope, la tool calcula la alternativa: el modelo no debe multiplicar a mano
+    amount_at_max = round(cap * status["unit_cost"], 2)
     if qty > cap:
         errors.append(f"La cantidad {qty} excede el tope de {cap} unidades "
-                      f"({MAX_DAYS_OF_DEMAND} dias de venta promedio)")
+                      f"({MAX_DAYS_OF_DEMAND} dias de venta promedio). Se pueden proponer hasta "
+                      f"{cap} unidades, con un monto de ${amount_at_max:,.2f} MXN")
 
     cols, rows = executor(validate_sql(OPEN_ORDERS_SQL, allowed_tables=PO_TABLES), {"sku": status["sku"]})
     open_orders = [dict(zip(cols, r)) for r in rows]
@@ -94,11 +97,13 @@ def preview_purchase_order(sku: str, qty, reason: str = "",
                       "la politica de reorden no permite duplicarla")
 
     amount = round(qty * status["unit_cost"], 2)
+    over_cap = {"max_qty": cap, "amount_at_max": amount_at_max,
+                "required_level_at_max": required_level(amount_at_max)} if qty > cap else {}
     return {
         "ok": not errors, "errors": errors,
         "sku": status["sku"], "name": status["name"], "qty": qty,
-        "unit_cost": status["unit_cost"], "amount": amount,
-        "required_level": required_level(amount),
+        "unit_cost": status["unit_cost"], "amount": amount, "currency": "MXN",
+        "required_level": required_level(amount), **over_cap,
         "reason": reason or "",
         "total_on_hand": status["total_on_hand"], "reorder_point": status["reorder_point"],
         "avg_daily_units_30d": avg,

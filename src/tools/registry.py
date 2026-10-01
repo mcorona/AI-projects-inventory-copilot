@@ -131,7 +131,9 @@ def build_tools(llm=None, sql_executor=None, param_executor=None, embedder=None,
             "propose_purchase_order",
             "Propone una orden de compra (queda PENDING_APPROVAL). Usar SOLO si el usuario pide "
             "explicitamente crear o proponer una orden. El sistema calcula el monto y el nivel de "
-            "aprobacion; el usuario confirma antes de crearla y una persona con autoridad la aprueba.",
+            "aprobacion; el usuario confirma antes de crearla y una persona con autoridad la aprueba. "
+            "Montos en MXN. Si la cantidad excede el tope, la respuesta trae max_qty y amount_at_max: "
+            "usa esas cifras tal cual y no calcules montos.",
             {"type": "object",
              "properties": {"sku": {"type": "string", "description": "SKU, p. ej. SKU-0042"},
                             "qty": {"type": "integer", "description": "Unidades a pedir"},

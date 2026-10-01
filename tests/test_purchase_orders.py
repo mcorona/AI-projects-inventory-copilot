@@ -98,3 +98,16 @@ def test_migration_sql_enforces_key_rules():
     assert "Nivel insuficiente" in sql and "NEW.status := 'PENDING_APPROVAL'" in sql
     # los umbrales de la DB coinciden con los de Python
     assert "amount < 50000 THEN 'comprador'" in sql and "amount <= 250000 THEN 'gerente'" in sql
+
+
+def test_preview_over_cap_returns_the_capped_alternative_already_computed():
+    p = preview_purchase_order("SKU-0009", 3000, executor=executor_for())   # tope: 22.3 x 90 = 2007
+    assert not p["ok"] and p["currency"] == "MXN"
+    assert (p["max_qty"], p["amount_at_max"], p["required_level_at_max"]) == (2007, 15594.39, "comprador")
+    assert p["amount"] == 23310.0                       # el monto pedido sigue reportandose
+    assert "hasta 2007 unidades, con un monto de $15,594.39 MXN" in p["errors"][0]
+
+
+def test_preview_within_cap_has_no_capped_alternative():
+    p = preview_purchase_order("SKU-0009", 1500, executor=executor_for())
+    assert p["ok"] and "max_qty" not in p and "amount_at_max" not in p

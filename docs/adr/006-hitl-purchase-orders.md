@@ -52,6 +52,21 @@ Se probó contra PostgreSQL real con cada rol. Todas estas operaciones son recha
 - insertar un SKU inexistente o una cantidad negativa;
 - leer o borrar la bitácora como `copilot_audit`.
 
+## Actualización (v1.1.2): la alternativa sobre el tope la calcula la tool
+Cuando la cantidad excedía el tope (90 días de venta), la vista previa devolvía el error y el monto de
+la cantidad *pedida*. Para ofrecer la alternativa, el modelo multiplicaba a mano tope × costo y se
+equivocaba (en test: $7,951.92 y 7,953.52 € en vez de $7,961.52 MXN).
+- Sobre el tope, la vista previa trae `max_qty`, `amount_at_max`, `required_level_at_max` y
+  `currency: "MXN"`. El error dice explícitamente hasta cuántas unidades y con qué monto.
+- La descripción de la tool pide usar esas cifras tal cual (cambia la huella del agente).
+- El monto real lo sigue fijando la DB al insertar; esto solo cambia lo que ve el modelo.
+- En dev, `a13` (5,000 piezas, tope 627) ahora exige el monto correcto ($5,868.72). Antes del cambio,
+  Qwen y MiniMax M2.1 ofrecían 627 unidades sin el monto; después, los dos dan la cifra exacta.
+- Se midió sin caché de OmniRoute: su clave de caché no incluye la descripción de las tools, así que
+  una corrida repetida devolvía respuestas del código anterior.
+- Pendiente aparte: MiniMax a veces no llama a la tool y pide el motivo, porque `reason` es
+  obligatorio (a14 en dev).
+
 ## Consecuencias
 - (+) La seguridad de la acción no depende del modelo ni de los guardrails de texto: una inyección
   exitosa como mucho produce una propuesta que una persona ve y puede rechazar dos veces.
