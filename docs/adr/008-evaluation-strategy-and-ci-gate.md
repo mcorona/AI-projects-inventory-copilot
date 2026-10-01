@@ -69,6 +69,13 @@ heurísticas, entre ellos desinformación sin instrucciones.
 - **Huellas:** hash de prompts, descripciones de tools, módulos de guardrails, corpus y datasets.
   Si el último `evals/results/latest.json` no coincide con el código actual, el CI falla: cambiar
   un prompt sin reevaluar rompe el build.
+  - Desde v1.1.1, cada huella cubre solo lo que determina los números reportados. En sql, agent y
+    rag eso es el prompt, las tools y el set **test**.
+  - Editar un `*_dev.jsonl` no cambia ninguna métrica de test, así que no invalida la corrida. Antes
+    obligaba a repetir las 2 h de `run_all`; así ocurrió cuando un commit de dev entró mientras
+    `run_all` ya corría.
+  - La huella de guardrails sí incluye los archivos de dev y el corpus, porque de ahí sale el set
+    de falsos positivos.
 - **Umbrales** (`evals/gate.json`): pisos de regresión sobre la media (línea base menos un
   margen), no metas aspiracionales.
 - **Pruebas de integración** con un contenedor pgvector en CI: la matriz de roles y triggers de

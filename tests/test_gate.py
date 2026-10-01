@@ -45,3 +45,18 @@ def test_fingerprints_are_stable_and_cover_suites():
     from evals.fingerprint import fingerprints
     a, b = fingerprints(), fingerprints()
     assert a == b and set(a) == {"sql", "agent", "rag", "guardrails", "judge"}
+
+
+def test_fingerprints_cover_only_what_each_suite_measures(monkeypatch):
+    """sql/agent/rag se miden en test: editar *_dev.jsonl no debe invalidar la corrida. Guardrails
+    si depende de dev, porque sus preguntas forman el set de falsos positivos."""
+    import evals.fingerprint as fp
+    monkeypatch.setattr(fp, "_h", lambda *parts: parts)
+    monkeypatch.setattr(fp, "_files", lambda *paths: [p.name for p in sorted(paths)])
+    got = fp.fingerprints()
+    names = {k: {x for x in v if isinstance(x, str) and x.endswith((".jsonl", ".md"))} for k, v in got.items()}
+    for suite in ("sql", "agent", "rag"):
+        assert f"{suite}_test.jsonl" in names[suite]
+        assert not any(n.endswith("_dev.jsonl") for n in names[suite])
+    assert {"sql_dev.jsonl", "agent_dev.jsonl", "rag_dev.jsonl", "guardrails_attacks.jsonl"} <= names["guardrails"]
+    assert "judge_calibration.jsonl" in names["judge"]
