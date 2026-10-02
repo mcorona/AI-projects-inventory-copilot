@@ -63,11 +63,11 @@ def test_purchase_order_flow_through_python(clean_orders, role_env, admin):
     from src.audit import DbAuditSink
     from src.tools.purchase_orders import create_purchase_order, decide_purchase_order, preview_purchase_order
 
-    p = preview_purchase_order("sku-9", 1500, "itest")
+    p = preview_purchase_order("sku-9", 1500, "reorden automatico")
     assert p["ok"] and p["required_level"] == "comprador"
     row = create_purchase_order(p["sku"], p["qty"], p["reason"], "copilot:itest", "itest")
     assert row["status"] == "PENDING_APPROVAL" and float(row["amount"]) == p["amount"]   # vista previa == DB
-    assert "orden abierta" in preview_purchase_order("SKU-0009", 10)["errors"][0]
+    assert any("orden abierta" in e for e in preview_purchase_order("SKU-0009", 10, "reorden automatico")["errors"])
     decided = decide_purchase_order(row["po_id"], True, "itest", "comprador")
     assert decided["status"] == "APPROVED"
     DbAuditSink(role_dsn("copilot_audit")).log("itest", "po_decided", {"po_id": row["po_id"]})
