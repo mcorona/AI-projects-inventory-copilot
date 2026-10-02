@@ -59,11 +59,20 @@ def score_tools(expected: list[str], used: list[str], optional: list[str] | None
     return {"match": exp <= got <= allowed, "missing": sorted(exp - got), "extra": sorted(got - allowed)}
 
 
+def preview_match(previews: list[dict], expected: dict | None) -> bool:
+    """True si alguna vista previa confirmable trae todos los valores esperados."""
+    if not expected:
+        return True
+    return any(all(str(p.get(k)) == str(v) for k, v in expected.items()) for p in previews)
+
+
 def evaluate(golden: list[dict], agent) -> dict:
     items = []
     for g in golden:
         r = agent.run(g["question"])
+        previews = []   # lo que la persona veria al confirmar (p. ej. CEDIS y fecha de una OC)
         while r.stop_reason == "confirmation_required":
+            previews.append(r.pending.preview)
             r = agent.resume(r, approve=False, note="evaluacion: no se crean ordenes")
         used = r.tools_used  # incluye las acciones rechazadas (quedan como pasos fallidos)
         facts_ok, facts_missing = facts_match(r.answer, g.get("expected_facts", []))
@@ -77,6 +86,9 @@ def evaluate(golden: list[dict], agent) -> dict:
                       "tool_errors": [s.error for s in r.steps if s.error],
                       "stop_reason": r.stop_reason, "answer": r.answer, "context": context,
                       "empty_answer_retries": r.empty_answer_retries,
+                      "has_preview_check": bool(g.get("expected_preview")),
+                      "preview_ok": preview_match(previews, g.get("expected_preview")),
+                      "previews": previews,
                       "llm_trace": r.llm_trace,
                       "llm_calls": r.llm_calls, "input_tokens": r.input_tokens,
                       "output_tokens": r.output_tokens, "latency_ms": round(r.latency_ms, 1),
@@ -93,6 +105,10 @@ def evaluate(golden: list[dict], agent) -> dict:
                                   / sum(i["has_facts"] for i in items), 4)
                             if any(i["has_facts"] for i in items) else None),
         "answered_rate": round(sum(i["stop_reason"] == "answer" for i in items) / n, 4),
+        # la vista previa de la accion trae los datos esperados (solo items con expected_preview)
+        "preview_accuracy": (round(sum(i["preview_ok"] for i in items if i["has_preview_check"])
+                                   / sum(i["has_preview_check"] for i in items), 4)
+                             if any(i["has_preview_check"] for i in items) else None),
         # respuestas que llegaron vacias (solo <think>) y se pidieron de nuevo
         "empty_answer_retry_rate": round(sum(i.get("empty_answer_retries", 0) > 0 for i in items) / n, 4),
         "avg_tool_calls": round(sum(len(i["used"]) for i in items) / n, 2),

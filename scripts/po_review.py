@@ -40,6 +40,7 @@ def main(argv: list[str] | None = None) -> int:
         for o in orders:
             print(f"#{o['po_id']:<4} {o['status']:<17} {o['sku']}  qty={o['qty']:<6} "
                   f"${float(o['amount']):>13,.2f}  requiere={o['required_level']:<9} "
+                  f"entrega={o['delivery_warehouse'] or '-'} para={o['required_date'] or '-'} "
                   f"propuso={o['requested_by']} confirmo={o['confirmed_by']}"
                   + (f"  decidio={o['decided_by']} ({o['decided_level']})" if o["decided_by"] else ""))
         return 0

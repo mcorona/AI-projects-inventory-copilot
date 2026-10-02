@@ -25,6 +25,10 @@ def executor_for(open_orders=(), avg=Decimal("22.30")):
         if "FROM purchase_orders" in sql:
             assert "LIMIT" in sql  # paso por el guard con allowed_tables
             return ["po_id", "qty", "status", "created_at"], list(open_orders)
+        if "FROM warehouses" in sql:
+            return ["warehouse_id", "name", "city"], [(1, "CEDIS Centro", "Ciudad de Mexico"),
+                                                      (2, "CEDIS Occidente", "Guadalajara"),
+                                                      (3, "CEDIS Norte", "Monterrey")]
         if "FROM products" in sql:
             return (["sku", "name", "category", "unit_cost", "reorder_point", "critical", "supplier",
                      "supplier_country", "lead_time_days"],
@@ -71,10 +75,12 @@ def test_create_and_decide_use_their_own_roles_sql():
         seen.append((sql, params))
         return {"po_id": 1, **params}
 
-    create_purchase_order("SKU-0009", 10, "reorden automatico", "copilot:ana", "ana", writer=writer)
+    create_purchase_order("SKU-0009", 10, "reorden automatico", "copilot:ana", "ana",
+                          delivery_warehouse_id=3, required_date="2026-10-26", writer=writer)
     sql, params = seen[0]
     assert sql.strip().startswith("INSERT") and "status" not in sql.split("VALUES")[0]
-    assert params == {"sku": "SKU-0009", "qty": 10, "reason": "reorden automatico", "requested_by": "copilot:ana", "confirmed_by": "ana"}
+    assert params == {"sku": "SKU-0009", "qty": 10, "reason": "reorden automatico", "delivery_warehouse_id": 3,
+                      "required_date": "2026-10-26", "requested_by": "copilot:ana", "confirmed_by": "ana"}
 
     decide_purchase_order(1, True, "Luis", "gerente", "ok", writer=writer)
     assert seen[1][1] == {"po_id": 1, "status": "APPROVED", "decided_by": "Luis", "level": "gerente", "note": "ok"}
@@ -141,3 +147,37 @@ def test_automatic_reorder_requires_stock_below_reorder_point():
     p = preview_purchase_order("SKU-0009", 100, "reorden automatico", executor=executor_above_reorder())
     assert not p["ok"] and "no aplica" in p["errors"][0]
     assert preview_purchase_order("SKU-0009", 100, "compra urgente", executor=executor_above_reorder())["ok"]
+
+
+@pytest.mark.parametrize("text,expected", [("CEDIS Norte", 3), ("norte", 3), ("Monterrey", 3),
+                                           ("Ciudad de México", 1), ("occidente", 2), ("Sur", None), ("", None)])
+def test_resolve_warehouse_by_name_short_name_or_city(text, expected):
+    from src.tools.purchase_orders import resolve_warehouse
+    ws = [{"warehouse_id": 1, "name": "CEDIS Centro", "city": "Ciudad de Mexico"},
+          {"warehouse_id": 2, "name": "CEDIS Occidente", "city": "Guadalajara"},
+          {"warehouse_id": 3, "name": "CEDIS Norte", "city": "Monterrey"}]
+    w = resolve_warehouse(text, ws)
+    assert (w["warehouse_id"] if w else None) == expected
+
+
+def test_preview_defaults_delivery_to_lowest_stock_cedis_and_lead_time_date():
+    p = preview_purchase_order("SKU-0009", 100, "reorden automatico", executor=executor_for())
+    # existencias solo en Centro: el de menos stock (empate en 0) es el de menor id, Occidente
+    assert p["ok"] and (p["delivery_warehouse"], p["delivery_warehouse_id"]) == ("CEDIS Occidente", 2)
+    assert p["required_date"] == p["earliest_arrival"] == "2026-10-26"   # 2026-09-26 + 30 dias de lead time
+    assert p["defaults"] == ["delivery_warehouse", "required_date"] and p["warnings"] == []
+
+
+def test_preview_uses_requested_cedis_and_date_and_warns_if_supplier_is_late():
+    p = preview_purchase_order("SKU-0009", 100, "compra urgente", warehouse="Monterrey",
+                               required_date="2026-10-05", executor=executor_for())
+    assert p["ok"] and p["delivery_warehouse"] == "CEDIS Norte" and p["required_date"] == "2026-10-05"
+    assert p["defaults"] == [] and "llegaria el 2026-10-26" in p["warnings"][0]
+
+
+@pytest.mark.parametrize("kwargs,msg", [({"warehouse": "CEDIS Sur"}, "CEDIS invalido"),
+                                        ({"required_date": "5 de octubre"}, "Fecha requerida invalida"),
+                                        ({"required_date": "2026-09-01"}, "ya paso")])
+def test_preview_rejects_unknown_cedis_and_bad_dates(kwargs, msg):
+    p = preview_purchase_order("SKU-0009", 100, "reorden automatico", executor=executor_for(), **kwargs)
+    assert not p["ok"] and any(msg in e for e in p["errors"])

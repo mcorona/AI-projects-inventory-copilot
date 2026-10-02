@@ -18,30 +18,35 @@ def denied(role: str, sql: str, match: str = "permission denied"):
 # ------------------------------------------------------------ minimo privilegio
 
 def test_agent_role_can_only_propose(clean_orders):
-    row = run_as("copilot_po", "INSERT INTO purchase_orders (sku, qty, requested_by, confirmed_by) "
-                               "VALUES ('SKU-0009', 10000, 'itest', 'itest') RETURNING status, amount, required_level")
+    row = run_as("copilot_po", "INSERT INTO purchase_orders (sku, qty, delivery_warehouse_id, required_date, "
+                               "requested_by, confirmed_by) VALUES ('SKU-0009', 10000, 3, '2026-10-26', 'itest', "
+                               "'itest') RETURNING status, amount, required_level")
     assert row == [("PENDING_APPROVAL", 77700, "gerente")]   # la DB calcula monto y nivel
     denied("copilot_po", "INSERT INTO purchase_orders (sku, qty, status) VALUES ('SKU-0001', 1, 'APPROVED')")
     denied("copilot_po", "UPDATE purchase_orders SET status = 'APPROVED'")
     denied("copilot_po", "DELETE FROM purchase_orders")
-    denied("copilot_ro", "INSERT INTO purchase_orders (sku, qty) VALUES ('SKU-0001', 1)")
+    denied("copilot_ro", "INSERT INTO purchase_orders (sku, qty, delivery_warehouse_id, required_date) VALUES ('SKU-0001', 1, 1, '2026-10-30')")
 
 
 def test_one_pending_order_per_sku_and_input_validation(clean_orders):
-    run_as("copilot_po", "INSERT INTO purchase_orders (sku, qty) VALUES ('SKU-0009', 1)")
-    denied("copilot_po", "INSERT INTO purchase_orders (sku, qty) VALUES ('SKU-0009', 2)", "po_one_pending_per_sku")
-    denied("copilot_po", "INSERT INTO purchase_orders (sku, qty) VALUES ('SKU-9999', 1)", "SKU inexistente")
-    denied("copilot_po", "INSERT INTO purchase_orders (sku, qty) VALUES ('SKU-0001', -5)", "po_qty_positive")
+    run_as("copilot_po", "INSERT INTO purchase_orders (sku, qty, delivery_warehouse_id, required_date) VALUES ('SKU-0009', 1, 1, '2026-10-30')")
+    denied("copilot_po", "INSERT INTO purchase_orders (sku, qty, delivery_warehouse_id, required_date) VALUES ('SKU-0009', 2, 1, '2026-10-30')", "po_one_pending_per_sku")
+    denied("copilot_po", "INSERT INTO purchase_orders (sku, qty, delivery_warehouse_id, required_date) VALUES ('SKU-9999', 1, 1, '2026-10-30')", "SKU inexistente")
+    denied("copilot_po", "INSERT INTO purchase_orders (sku, qty, delivery_warehouse_id, required_date) VALUES ('SKU-0001', -5, 1, '2026-10-30')", "po_qty_positive")
 
 
 def test_approval_requires_authority_and_is_final(clean_orders):
-    run_as("copilot_po", "INSERT INTO purchase_orders (sku, qty) VALUES ('SKU-0009', 10000)")   # gerente
-    run_as("copilot_po", "INSERT INTO purchase_orders (sku, qty) VALUES ('SKU-0179', 1000)")    # director
+    run_as("copilot_po", "INSERT INTO purchase_orders (sku, qty, delivery_warehouse_id, required_date) VALUES ('SKU-0009', 10000, 1, '2026-10-30')")   # gerente
+    run_as("copilot_po", "INSERT INTO purchase_orders (sku, qty, delivery_warehouse_id, required_date) "
+                         "VALUES ('SKU-0179', 1000, 1, '2026-10-30')")    # director
     denied("copilot_approver", "UPDATE purchase_orders SET status='APPROVED', decided_by='a', decided_level='comprador' "
                                "WHERE sku='SKU-0009'", "Nivel insuficiente")
     denied("copilot_approver", "UPDATE purchase_orders SET status='APPROVED', decided_by='l', decided_level='gerente' "
                                "WHERE sku='SKU-0179'", "Nivel insuficiente")
     denied("copilot_approver", "UPDATE purchase_orders SET qty=1 WHERE sku='SKU-0009'")
+    denied("copilot_approver", "UPDATE purchase_orders SET required_date='2026-12-31' WHERE sku='SKU-0009'")
+    denied("copilot_po", "INSERT INTO purchase_orders (sku, qty, requested_by, confirmed_by) "
+                         "VALUES ('SKU-0001', 1, 'itest', 'itest')", "CEDIS de entrega y fecha requerida")
     assert run_as("copilot_approver", "UPDATE purchase_orders SET status='APPROVED', decided_by='s', "
                                       "decided_level='director' WHERE sku='SKU-0179' RETURNING status") == [("APPROVED",)]
     denied("copilot_approver", "UPDATE purchase_orders SET status='REJECTED', decided_by='s', decided_level='director' "
@@ -65,8 +70,10 @@ def test_purchase_order_flow_through_python(clean_orders, role_env, admin):
 
     p = preview_purchase_order("sku-9", 1500, "reorden automatico")
     assert p["ok"] and p["required_level"] == "comprador"
-    row = create_purchase_order(p["sku"], p["qty"], p["reason"], "copilot:itest", "itest")
+    row = create_purchase_order(p["sku"], p["qty"], p["reason"], "copilot:itest", "itest",
+                                delivery_warehouse_id=p["delivery_warehouse_id"], required_date=p["required_date"])
     assert row["status"] == "PENDING_APPROVAL" and float(row["amount"]) == p["amount"]   # vista previa == DB
+    assert (row["delivery_warehouse_id"], str(row["required_date"])) == (p["delivery_warehouse_id"], p["required_date"])
     assert any("orden abierta" in e for e in preview_purchase_order("SKU-0009", 10, "reorden automatico")["errors"])
     decided = decide_purchase_order(row["po_id"], True, "itest", "comprador")
     assert decided["status"] == "APPROVED"

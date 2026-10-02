@@ -83,6 +83,7 @@ def build_tools(llm=None, sql_executor=None, param_executor=None, embedder=None,
 
     def preview_po(args: dict) -> dict:
         return po.preview_purchase_order(args["sku"], args["qty"], args.get("reason", ""),
+                                         warehouse=args.get("warehouse"), required_date=args.get("required_date"),
                                          executor=param_executor)
 
     def propose_po(args: dict) -> dict:
@@ -93,7 +94,8 @@ def build_tools(llm=None, sql_executor=None, param_executor=None, embedder=None,
         if not p["ok"]:
             return {"error": "; ".join(p["errors"])}
         row = po.create_purchase_order(p["sku"], p["qty"], p["reason"], args["_requested_by"],
-                                       args["_confirmed_by"], writer=po_writer)
+                                       args["_confirmed_by"], delivery_warehouse_id=p["delivery_warehouse_id"],
+                                       required_date=p["required_date"], writer=po_writer)
         audit.log(args["_requested_by"], "po_created", {**row, "confirmed_by": args["_confirmed_by"]})
         return {**row, "message": f"Orden #{row['po_id']} creada en PENDING_APPROVAL; requiere "
                                   f"aprobacion de nivel {row['required_level']}."}
@@ -145,7 +147,15 @@ def build_tools(llm=None, sql_executor=None, param_executor=None, embedder=None,
                                                       "primero consulta get_sku_status: si el stock total esta "
                                                       "bajo el punto de reorden usa 'reorden automatico'; si no, "
                                                       "pregunta el motivo al usuario y no llames esta tool "
-                                                      "hasta tenerlo"}},
+                                                      "hasta tenerlo"},
+                            "warehouse": {"type": "string",
+                                          "description": "CEDIS de entrega (nombre o ciudad, p. ej. 'Norte' o "
+                                                         "'Monterrey'). Si el usuario no lo dice, omitelo: la "
+                                                         "tool usa el CEDIS con menos existencias del SKU"},
+                            "required_date": {"type": "string",
+                                              "description": "Fecha requerida AAAA-MM-DD. Si el usuario no la "
+                                                             "dice, omitela: la tool usa hoy + tiempo de entrega "
+                                                             "del proveedor"}},
              "required": ["sku", "qty", "reason"]},
             propose_po, requires_confirmation=True, preview=preview_po))
     return {t.name: t for t in tools}

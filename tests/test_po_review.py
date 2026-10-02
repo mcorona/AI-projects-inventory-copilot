@@ -7,8 +7,11 @@ def test_list_and_decide(monkeypatch, capsys):
     monkeypatch.setattr(cli, "list_purchase_orders", lambda status: [
         {"po_id": 1, "status": "PENDING_APPROVAL", "sku": "SKU-0009", "qty": 1500, "amount": 11655,
          "required_level": "comprador", "requested_by": "copilot:Ana", "confirmed_by": "Ana",
-         "decided_by": None, "decided_level": None}])
-    assert cli.main(["list"]) == 0 and "SKU-0009" in capsys.readouterr().out
+         "decided_by": None, "decided_level": None, "delivery_warehouse": "CEDIS Norte",
+         "required_date": "2026-10-26"}])
+    assert cli.main(["list"]) == 0
+    out = capsys.readouterr().out
+    assert "SKU-0009" in out and "entrega=CEDIS Norte para=2026-10-26" in out
 
     monkeypatch.setattr(cli, "decide_purchase_order", lambda *a: {
         "po_id": 1, "status": "APPROVED", "decided_by": "Luis", "decided_level": "gerente"})

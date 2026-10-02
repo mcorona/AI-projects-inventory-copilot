@@ -25,7 +25,8 @@ agente GenAI gobernado sobre un sistema de inventario. Costo objetivo: $0 en loc
 - Argumentos de tools con prefijo `_` son internos: el loop los quita de lo que manda el modelo.
 - Guardrails en `src/guardrails/pipeline.py` (PII, inyeccion directa/indirecta, spotlighting); el
   agente los usa por defecto. No ajustar heuristicas mirando `evals/datasets/guardrails_attacks.jsonl` (sobreajuste).
-- Migraciones: `python -m scripts.migrate` aplica `db/init/0[2-9]_*.sql` (idempotentes).
+- Migraciones: `python -m scripts.migrate` aplica `db/init/0[2-9]_*.sql` (idempotentes). `03_po_delivery.sql`:
+  CEDIS de entrega y fecha requerida obligatorios en OC nuevas (la tool pone valores por defecto visibles).
 
 ## Evaluaciones (Semana 5)
 - Datasets en `evals/datasets/{sql,agent,rag}_{dev,test}.jsonl`. **El split test NUNCA se usa para

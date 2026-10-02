@@ -6,7 +6,7 @@ from src.guardrails.sql_guard import validate_sql
 from src.tools.sql_tool import SCHEMA_PROMPT
 
 
-@pytest.mark.parametrize("suite,split,n", [("sql", "dev", 34), ("sql", "test", 30), ("agent", "dev", 18),
+@pytest.mark.parametrize("suite,split,n", [("sql", "dev", 34), ("sql", "test", 30), ("agent", "dev", 19),
                                           ("agent", "test", 10), ("rag", "dev", 15), ("rag", "test", 8)])
 def test_dataset_sizes_and_unique_ids(suite, split, n):
     rows = load_dataset(suite, split)
@@ -82,3 +82,11 @@ def test_invalid_split():
 ])
 def test_facts_match(answer, groups, ok):
     assert facts_match(answer, groups)[0] is ok
+
+
+def test_preview_match():
+    from evals.run_agent_eval import preview_match
+    pv = [{"delivery_warehouse": "CEDIS Occidente", "required_date": "2026-10-15", "qty": 200}]
+    assert preview_match(pv, {"delivery_warehouse": "CEDIS Occidente", "required_date": "2026-10-15"})
+    assert not preview_match(pv, {"delivery_warehouse": "CEDIS Norte"})
+    assert not preview_match([], {"delivery_warehouse": "CEDIS Norte"}) and preview_match([], None)

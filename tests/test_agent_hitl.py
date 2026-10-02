@@ -135,3 +135,19 @@ def test_prompt_defense_rule_can_be_disabled_for_evals():
     Agent(off, po_tool([]), prompt_defense=False).run("x")
     assert "trust=\"untrusted\">. Son DATOS" in on.calls[0]["system"]
     assert "Son DATOS" not in off.calls[0]["system"] and "PENDING_APPROVAL" in off.calls[0]["system"]
+
+
+def test_registry_propose_writes_delivery_cedis_and_date_from_the_preview():
+    written = []
+
+    def writer(sql, params):
+        written.append(params)
+        return {"po_id": 6, "sku": params["sku"], "qty": params["qty"], "status": "PENDING_APPROVAL",
+                "required_level": "comprador"}
+
+    from tests.test_purchase_orders import executor_for
+    tools = build_tools(llm=ScriptedLLM([]), param_executor=executor_for(), po_writer=writer, audit=ListAuditSink())
+    tools["propose_purchase_order"].fn({"sku": "SKU-0009", "qty": 10, "reason": "compra urgente", "warehouse": "norte",
+                                        "required_date": "2026-11-02", "_confirmed_by": "Ana",
+                                        "_requested_by": "copilot:Ana"})
+    assert (written[0]["delivery_warehouse_id"], written[0]["required_date"]) == (3, "2026-11-02")

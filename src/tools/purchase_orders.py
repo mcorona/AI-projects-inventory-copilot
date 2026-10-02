@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 import unicodedata
+from datetime import date, timedelta
 from typing import Callable
 
 from src.guardrails.sql_guard import validate_sql
@@ -24,10 +25,36 @@ PO_TABLES = {"purchase_orders"}  # consultas fijas de este modulo; el LLM nunca 
 REASONS = ("reorden automatico", "compra urgente", "proyecto especial")
 
 
+def _fold(text) -> str:
+    return unicodedata.normalize("NFKD", str(text or "")).encode("ascii", "ignore").decode().lower().strip()
+
+
 def normalize_reason(reason) -> str | None:
     """Motivo canonico (sin acentos ni mayusculas) o None si no es uno de la politica."""
-    text = unicodedata.normalize("NFKD", str(reason or "")).encode("ascii", "ignore").decode().lower().strip()
+    text = _fold(reason)
     return text if text in REASONS else None
+
+
+WAREHOUSES_SQL = "SELECT warehouse_id, name, city FROM warehouses ORDER BY warehouse_id"
+
+
+def resolve_warehouse(text, warehouses: list[dict]) -> dict | None:
+    """CEDIS por nombre completo, nombre corto o ciudad ("CEDIS Norte", "norte", "Monterrey")."""
+    t = _fold(text)
+    if not t:
+        return None
+    for w in warehouses:
+        name = _fold(w["name"])
+        if t in (name, name.removeprefix("cedis "), _fold(w["city"])):
+            return w
+    return None
+
+
+def parse_required_date(value) -> date | None:
+    try:
+        return date.fromisoformat(str(value).strip())
+    except (TypeError, ValueError):
+        return None
 
 OPEN_ORDERS_SQL = """
 SELECT po_id, qty, status, created_at FROM purchase_orders
@@ -35,14 +62,18 @@ WHERE sku = %(sku)s AND status IN ('PENDING_APPROVAL', 'APPROVED')
 ORDER BY po_id"""
 
 INSERT_SQL = """
-INSERT INTO purchase_orders (sku, qty, reason, requested_by, confirmed_by)
-VALUES (%(sku)s, %(qty)s, %(reason)s, %(requested_by)s, %(confirmed_by)s)
-RETURNING po_id, sku, qty, status, unit_cost, amount, required_level, created_at"""
+INSERT INTO purchase_orders (sku, qty, reason, delivery_warehouse_id, required_date, requested_by, confirmed_by)
+VALUES (%(sku)s, %(qty)s, %(reason)s, %(delivery_warehouse_id)s, %(required_date)s, %(requested_by)s,
+        %(confirmed_by)s)
+RETURNING po_id, sku, qty, status, unit_cost, amount, required_level, delivery_warehouse_id, required_date,
+          created_at"""
 
 LIST_SQL = """
-SELECT po_id, sku, qty, status, amount, required_level, reason, requested_by, confirmed_by,
-       decided_by, decided_level, decided_at, decision_note, created_at
-FROM purchase_orders {where} ORDER BY po_id"""
+SELECT po.po_id, po.sku, po.qty, po.status, po.amount, po.required_level, po.reason,
+       w.name AS delivery_warehouse, po.required_date, po.requested_by, po.confirmed_by,
+       po.decided_by, po.decided_level, po.decided_at, po.decision_note, po.created_at
+FROM purchase_orders po LEFT JOIN warehouses w ON w.warehouse_id = po.delivery_warehouse_id
+{where} ORDER BY po.po_id"""
 
 DECIDE_SQL = """
 UPDATE purchase_orders
@@ -71,7 +102,7 @@ def _default_ro_executor() -> ParamExecutor:
     return lambda sql, params: execute_readonly(sql, dsn, params)
 
 
-def preview_purchase_order(sku: str, qty, reason: str = "",
+def preview_purchase_order(sku: str, qty, reason: str = "", warehouse=None, required_date=None,
                            executor: ParamExecutor | None = None) -> dict:
     """Valida la propuesta y calcula lo que vera la persona antes de confirmar. No escribe nada."""
     executor = executor or _default_ro_executor()
@@ -109,6 +140,36 @@ def preview_purchase_order(sku: str, qty, reason: str = "",
         errors.append(f"'reorden automatico' no aplica: el stock ({status['total_on_hand']}) no esta bajo el "
                       f"punto de reorden ({status['reorder_point']}); pregunta al usuario el motivo")
 
+    # CEDIS de entrega y fecha requerida (datos obligatorios). Si el usuario no los da, la tool fija
+    # valores por defecto deterministas y los marca; la persona los revisa al confirmar.
+    from src.tools.sql_tool import ANCHOR_DATE
+    defaults, warnings = [], []
+    cols, rows = executor(validate_sql(WAREHOUSES_SQL, allowed_tables={"warehouses"}), {})
+    warehouses = [dict(zip(cols, r)) for r in rows]
+    if warehouse in (None, ""):
+        stock = {w["warehouse"]: w["on_hand"] for w in status.get("stock_by_warehouse", [])}
+        dest = min(warehouses, key=lambda w: (stock.get(w["name"], 0), w["warehouse_id"])) if warehouses else None
+        defaults.append("delivery_warehouse")
+    else:
+        dest = resolve_warehouse(warehouse, warehouses)
+        if dest is None:
+            errors.append(f"CEDIS invalido: {warehouse!r}. Opciones: "
+                          + ", ".join(f"{w['name']} ({w['city']})" for w in warehouses))
+    lead = int(status["lead_time_days"] or 0)
+    earliest = ANCHOR_DATE + timedelta(days=lead)
+    if required_date in (None, ""):
+        needed = earliest
+        defaults.append("required_date")
+    else:
+        needed = parse_required_date(required_date)
+        if needed is None:
+            errors.append(f"Fecha requerida invalida: {required_date!r} (formato AAAA-MM-DD)")
+        elif needed < ANCHOR_DATE:
+            errors.append(f"La fecha requerida {needed} ya paso (hoy es {ANCHOR_DATE})")
+        elif needed < earliest:
+            warnings.append(f"El proveedor tarda {lead} dias: con pedido hoy llegaria el {earliest}, "
+                            f"despues de la fecha requerida {needed}")
+
     cols, rows = executor(validate_sql(OPEN_ORDERS_SQL, allowed_tables=PO_TABLES), {"sku": status["sku"]})
     open_orders = [dict(zip(cols, r)) for r in rows]
     if open_orders:
@@ -129,6 +190,10 @@ def preview_purchase_order(sku: str, qty, reason: str = "",
         "avg_daily_units_30d": avg,
         "days_of_demand": round(qty / avg, 1) if avg else None,
         "supplier": status["supplier"], "lead_time_days": status["lead_time_days"],
+        "delivery_warehouse": dest["name"] if dest else None, "delivery_city": dest["city"] if dest else None,
+        "delivery_warehouse_id": dest["warehouse_id"] if dest else None,
+        "required_date": needed.isoformat() if needed else None, "earliest_arrival": earliest.isoformat(),
+        "defaults": defaults, "warnings": warnings,
     }
 
 
@@ -147,11 +212,13 @@ def _db_writer(dsn_env: str) -> Writer:
     return write
 
 
-def create_purchase_order(sku: str, qty: int, reason: str, requested_by: str, confirmed_by: str,
+def create_purchase_order(sku: str, qty: int, reason: str, requested_by: str, confirmed_by: str, *,
+                          delivery_warehouse_id: int, required_date: str,
                           writer: Writer | None = None) -> dict:
     """Inserta la propuesta (rol copilot_po). Solo se llama despues de la confirmacion humana."""
     writer = writer or _db_writer("PO_DSN")
     return writer(INSERT_SQL, {"sku": sku, "qty": int(qty), "reason": reason,
+                               "delivery_warehouse_id": delivery_warehouse_id, "required_date": required_date,
                                "requested_by": requested_by, "confirmed_by": confirmed_by})
 
 
@@ -167,6 +234,7 @@ def decide_purchase_order(po_id: int, approve: bool, decided_by: str, level: str
 
 def list_purchase_orders(status: str | None = None, executor: ParamExecutor | None = None) -> list[dict]:
     executor = executor or _default_ro_executor()
-    where, params = ("WHERE status = %(status)s", {"status": status}) if status else ("", {})
-    cols, rows = executor(validate_sql(LIST_SQL.format(where=where), allowed_tables=PO_TABLES), params)
+    where, params = ("WHERE po.status = %(status)s", {"status": status}) if status else ("", {})
+    cols, rows = executor(validate_sql(LIST_SQL.format(where=where), allowed_tables=PO_TABLES | {"warehouses"}),
+                          params)
     return [dict(zip(cols, r)) for r in rows]

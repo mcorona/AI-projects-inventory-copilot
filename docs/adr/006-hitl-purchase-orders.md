@@ -105,3 +105,34 @@ inventaba.
 - Límite: en esos fallos de a18, MiniMax lee la política y pide otros datos obligatorios que la tool
   no captura (CEDIS de entrega, fecha requerida). Es una diferencia real entre la política y la tool;
   agregarlos queda como trabajo aparte.
+
+## Actualización (v1.3.0): CEDIS de entrega y fecha requerida
+La política pide en cada orden "CEDIS de entrega, fecha requerida y motivo"; la tool solo capturaba el
+motivo. MiniMax lo notaba y pedía esos datos antes de proponer (a18).
+- **DB** (`db/init/03_po_delivery.sql`, idempotente):
+  - columnas `delivery_warehouse_id` (FK a `warehouses`) y `required_date`;
+  - un trigger las exige en órdenes nuevas (las anteriores quedan con NULL) y otro impide cambiarlas
+    al decidir;
+  - `copilot_po` puede insertarlas; `copilot_approver` no puede modificarlas.
+- **Tool:** `warehouse` acepta nombre, nombre corto o ciudad ("Norte", "Monterrey") y se valida contra
+  `warehouses`. `required_date` (AAAA-MM-DD) no puede ser anterior a la fecha de referencia del
+  proyecto (`ANCHOR_DATE`, no el reloj). Si es anterior a la llegada posible del proveedor, la vista
+  previa lo avisa sin bloquear.
+- **Valores por defecto (decisión).** Si el usuario no los da, la tool fija el CEDIS con menos
+  existencias del SKU y la fecha "hoy + tiempo de entrega". Los marca en `defaults` y la persona los ve
+  al confirmar.
+  - Se descartó preguntar siempre, como con el motivo. Hay un valor por defecto operativo razonable y
+    a la vista. Sin él, cada orden costaría 2 o 3 turnos y at08 (test, que no se modifica) fallaría
+    por diseño.
+  - El motivo, en cambio, no tiene un valor por defecto honesto.
+- **Eval:** `expected_preview` compara la vista previa confirmable (lo que la persona aprueba) y reporta
+  `preview_accuracy`. El caso `a19` da CEDIS por ciudad y fecha, y espera que la vista previa los respete.
+- **Resultado en dev** (19 preguntas, sin caché):
+  - Qwen: 19/19 en tools, exactitud y vista previa. a18 usa los valores por defecto (CEDIS Centro,
+    hoy + 14 días) y a19 respeta CEDIS Occidente y 2026-10-15.
+  - MiniMax M2.1: vista previa 100%; a18 y a19 en 3/4 cada uno. a18 estaba en 3/6, y ya no pide CEDIS
+    ni fecha. Cuando falla, resume la orden y pide confirmar por texto en vez de llamar a la tool, que ya
+    tiene su propia confirmación.
+- **Verificación:** pruebas unitarias de resolución, fechas y valores por defecto. Las de integración
+  (roles, triggers e inmutabilidad) se corrieron también contra una base desechable antes del CI.
+
