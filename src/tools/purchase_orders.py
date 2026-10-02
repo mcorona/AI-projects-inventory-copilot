@@ -11,6 +11,7 @@ Aqui se replican los umbrales solo para mostrar la vista previa antes de confirm
 from __future__ import annotations
 
 import os
+import unicodedata
 from typing import Callable
 
 from src.guardrails.sql_guard import validate_sql
@@ -19,6 +20,14 @@ from src.tools.sku_status import ParamExecutor, get_sku_status
 LEVELS = ("comprador", "gerente", "director")
 MAX_DAYS_OF_DEMAND = 90   # tope de cantidad por orden: 90 dias de venta promedio
 PO_TABLES = {"purchase_orders"}  # consultas fijas de este modulo; el LLM nunca las escribe
+# motivos validos segun data/docs/ordenes_de_compra.md ("Datos obligatorios de una orden")
+REASONS = ("reorden automatico", "compra urgente", "proyecto especial")
+
+
+def normalize_reason(reason) -> str | None:
+    """Motivo canonico (sin acentos ni mayusculas) o None si no es uno de la politica."""
+    text = unicodedata.normalize("NFKD", str(reason or "")).encode("ascii", "ignore").decode().lower().strip()
+    return text if text in REASONS else None
 
 OPEN_ORDERS_SQL = """
 SELECT po_id, qty, status, created_at FROM purchase_orders
@@ -89,6 +98,17 @@ def preview_purchase_order(sku: str, qty, reason: str = "",
                       f"({MAX_DAYS_OF_DEMAND} dias de venta promedio). Se pueden proponer hasta "
                       f"{cap} unidades, con un monto de ${amount_at_max:,.2f} MXN")
 
+    # el motivo es dato obligatorio de la politica; el agente no debe inventarlo
+    below_reorder = status["total_on_hand"] < status["reorder_point"]
+    canonical = normalize_reason(reason)
+    if canonical is None:
+        hint = ("el stock esta bajo el punto de reorden, asi que corresponde 'reorden automatico'"
+                if below_reorder else "pregunta al usuario el motivo antes de proponer")
+        errors.append(f"Motivo invalido o faltante ({reason!r}): debe ser uno de {', '.join(REASONS)}; {hint}")
+    elif canonical == "reorden automatico" and not below_reorder:
+        errors.append(f"'reorden automatico' no aplica: el stock ({status['total_on_hand']}) no esta bajo el "
+                      f"punto de reorden ({status['reorder_point']}); pregunta al usuario el motivo")
+
     cols, rows = executor(validate_sql(OPEN_ORDERS_SQL, allowed_tables=PO_TABLES), {"sku": status["sku"]})
     open_orders = [dict(zip(cols, r)) for r in rows]
     if open_orders:
@@ -104,7 +124,7 @@ def preview_purchase_order(sku: str, qty, reason: str = "",
         "sku": status["sku"], "name": status["name"], "qty": qty,
         "unit_cost": status["unit_cost"], "amount": amount, "currency": "MXN",
         "required_level": required_level(amount), **over_cap,
-        "reason": reason or "",
+        "reason": canonical or (reason or ""),
         "total_on_hand": status["total_on_hand"], "reorder_point": status["reorder_point"],
         "avg_daily_units_30d": avg,
         "days_of_demand": round(qty / avg, 1) if avg else None,

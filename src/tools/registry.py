@@ -139,7 +139,13 @@ def build_tools(llm=None, sql_executor=None, param_executor=None, embedder=None,
             {"type": "object",
              "properties": {"sku": {"type": "string", "description": "SKU, p. ej. SKU-0042"},
                             "qty": {"type": "integer", "description": "Unidades a pedir"},
-                            "reason": {"type": "string", "description": "Motivo de la orden"}},
+                            "reason": {"type": "string", "enum": ["reorden automatico", "compra urgente",
+                                                                  "proyecto especial"],
+                                       "description": "Motivo segun la politica. Si el usuario no lo dice, "
+                                                      "primero consulta get_sku_status: si el stock total esta "
+                                                      "bajo el punto de reorden usa 'reorden automatico'; si no, "
+                                                      "pregunta el motivo al usuario y no llames esta tool "
+                                                      "hasta tenerlo"}},
              "required": ["sku", "qty", "reason"]},
             propose_po, requires_confirmation=True, preview=preview_po))
     return {t.name: t for t in tools}

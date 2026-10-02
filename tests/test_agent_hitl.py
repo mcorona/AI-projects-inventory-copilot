@@ -19,7 +19,7 @@ def po_tool(created, preview=PREVIEW_OK):
 
 
 def propose_llm(final="Orden #1 propuesta, pendiente de aprobacion."):
-    return ScriptedLLM([("", [call("propose_purchase_order", "p1", sku="SKU-0009", qty=1500, reason="r")]), final])
+    return ScriptedLLM([("", [call("propose_purchase_order", "p1", sku="SKU-0009", qty=1500, reason="reorden automatico")]), final])
 
 
 def test_pauses_before_executing_and_resumes_on_approval():
@@ -114,13 +114,13 @@ def test_registry_propose_requires_injected_confirmation_and_revalidates():
     audit = ListAuditSink()
     tools = build_tools(llm=ScriptedLLM([]), param_executor=executor_for(), po_writer=writer, audit=audit)
     t = tools["propose_purchase_order"]
-    assert t.requires_confirmation and t.preview({"sku": "SKU-0009", "qty": 10})["ok"]
-    assert "confirmacion humana" in t.fn({"sku": "SKU-0009", "qty": 10, "reason": "r"})["error"]
-    out = t.fn({"sku": "SKU-0009", "qty": 10, "reason": "r", "_confirmed_by": "Ana", "_requested_by": "copilot:Ana"})
+    assert t.requires_confirmation and t.preview({"sku": "SKU-0009", "qty": 10, "reason": "reorden automatico"})["ok"]
+    assert "confirmacion humana" in t.fn({"sku": "SKU-0009", "qty": 10, "reason": "reorden automatico"})["error"]
+    out = t.fn({"sku": "SKU-0009", "qty": 10, "reason": "reorden automatico", "_confirmed_by": "Ana", "_requested_by": "copilot:Ana"})
     assert out["po_id"] == 5 and "PENDING_APPROVAL" in out["message"] and written[0]["confirmed_by"] == "Ana"
     assert audit.events[0]["event"] == "po_created"
     # revalidacion: si la vista previa ya no es valida, no se escribe nada
-    out = t.fn({"sku": "SKU-0009", "qty": 999_999, "reason": "r", "_confirmed_by": "Ana", "_requested_by": "x"})
+    out = t.fn({"sku": "SKU-0009", "qty": 999_999, "reason": "reorden automatico", "_confirmed_by": "Ana", "_requested_by": "x"})
     assert "excede el tope" in out["error"] and len(written) == 1
 
 

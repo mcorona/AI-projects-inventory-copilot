@@ -13,7 +13,7 @@ from tests.fakes import ScriptedLLM, call
 
 PREVIEW = {"ok": True, "errors": [], "sku": "SKU-0009", "name": "Perno", "qty": 1500, "amount": 11655.0,
            "required_level": "comprador", "total_on_hand": 84, "reorder_point": 1036, "days_of_demand": 67.3,
-           "reason": "r"}
+           "reason": "reorden automatico"}
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def env(monkeypatch):
 
     tools = {"propose_purchase_order": Tool("propose_purchase_order", "d", {}, propose,
                                             requires_confirmation=True, preview=lambda a: dict(PREVIEW))}
-    llm = ScriptedLLM([("", [call("propose_purchase_order", sku="SKU-0009", qty=1500, reason="r",
+    llm = ScriptedLLM([("", [call("propose_purchase_order", sku="SKU-0009", qty=1500, reason="reorden automatico",
                                   _confirmed_by="director")])])
     svc = Services(agent=Agent(llm, tools, audit=audit), tools=tools, audit=audit,
                    list_orders=lambda status: [{"po_id": 7, "status": "PENDING_APPROVAL"}])
@@ -57,7 +57,7 @@ def test_ask_returns_signed_pending_action_without_internal_args(env):
     assert r["stop_reason"] == "confirmation_required" and created == []
     assert r["pending"]["preview"]["amount"] == 11655.0
     action = verify_action(r["pending"]["token"], "ana")
-    assert action["args"] == {"sku": "SKU-0009", "qty": 1500, "reason": "r"}   # sin _confirmed_by del modelo
+    assert action["args"] == {"sku": "SKU-0009", "qty": 1500, "reason": "reorden automatico"}   # sin _confirmed_by del modelo
 
 
 def test_confirm_creates_order_as_the_confirming_user(env):

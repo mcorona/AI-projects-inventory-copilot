@@ -73,8 +73,6 @@ equivocaba (en test: $7,951.92 y 7,953.52 € en vez de $7,961.52 MXN).
   - La descripción ahora limita la instrucción al caso de la alternativa y pide calcular con
     `get_sku_status` y la política en preguntas hipotéticas. Con eso, a17 salió bien 3 de 3, y el
     set dev completo dio 100% con Qwen y con MiniMax M2.1.
-- Pendiente aparte: MiniMax a veces no llama a la tool y pide el motivo, porque `reason` es
-  obligatorio (a14 en dev).
 
 ## Consecuencias
 - (+) La seguridad de la acción no depende del modelo ni de los guardrails de texto: una inyección
@@ -90,3 +88,20 @@ equivocaba (en test: $7,951.92 y 7,953.52 € en vez de $7,961.52 MXN).
   hasta que se modele la recepción.
 - (−) Cualquier nivel puede rechazar. Es una decisión deliberada: detener una compra no requiere
   autoridad de gasto.
+
+## Actualización (v1.1.3): el motivo es uno de la política y el agente no lo inventa
+`reason` era texto libre. La política (`ordenes_de_compra.md`) lo pide como dato obligatorio y solo
+admite tres valores: reorden automático, compra urgente o proyecto especial. Ante "crea una orden de
+200 unidades del SKU-0152", MiniMax preguntaba el motivo y Qwen inventaba uno. El eval premiaba al que
+inventaba.
+- `reason` es un enum de los tres motivos. La vista previa lo normaliza (mayúsculas y acentos) y
+  rechaza un motivo faltante o libre.
+- "reorden automático" solo se acepta si el stock total está bajo el punto de reorden; en ese caso el
+  agente puede deducirlo. Si no, el error le indica preguntar al usuario.
+- En dev, `a14` (stock sobre el punto de reorden, sin motivo) ahora espera la pregunta, y `a18` (bajo
+  el punto de reorden, sin motivo) espera la propuesta con reorden automático.
+- Resultado (dev, sin caché): Qwen 6/6 en a14 y a18, y 18/18 en el set completo. MiniMax M2.1: a14 6/6
+  y set completo 18/18, pero a18 solo 3/6.
+- Límite: en esos fallos de a18, MiniMax lee la política y pide otros datos obligatorios que la tool
+  no captura (CEDIS de entrega, fecha requerida). Es una diferencia real entre la política y la tool;
+  agregarlos queda como trabajo aparte.
