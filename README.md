@@ -4,8 +4,15 @@ Agente de IA generativa para consultar y operar un sistema de inventario en leng
 **segura, auditable, evaluada y agnóstica de proveedor**. Corre a $0 en local (LM Studio, OmniRoute) y
 en **Amazon Bedrock** cambiando una variable, con la infraestructura en **AWS CDK revisada con cdk-nag**.
 
-> **v1.0** · 6 semanas · 320+ pruebas · evaluaciones con sets dev/test, repeticiones y juez validado ·
+> **v1.3** · 340+ pruebas · evaluaciones con sets dev/test, repeticiones y juez validado ·
 > gate de evaluación en CI · todos los datos son **sintéticos**.
+
+> **Proyecto complementario: [LegacyBridge](https://github.com/mcorona/AI-projects-legacybridge).**
+> Inventory Copilot responde *¿puedo confiar en lo que el agente **hace**?*: acciones gobernadas por la
+> base de datos y despliegue real en AWS. LegacyBridge responde *¿puedo confiar en lo que el agente **dice**
+> sobre mis datos?*: preguntas sobre un ERP legado con esquema hostil, vía MCP, con evidencia verificable,
+> medición de respuestas equivocadas dichas con confianza (SWAR) y una cascada de modelos al 6% del costo
+> de Bedrock.
 
 ![Demo: respuesta con cita de política](docs/demo/politica-con-cita.jpg)
 ![Demo: orden de compra con confirmación humana](docs/demo/confirmacion-orden.jpg)
