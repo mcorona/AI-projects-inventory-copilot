@@ -18,7 +18,7 @@ en **Amazon Bedrock** cambiando una variable, con la infraestructura en **AWS CD
 | Text-to-SQL seguro | `sqlglot` (solo SELECT, lista de tablas permitidas, LIMIT) + rol de solo lectura + transacción READ ONLY ([ADR-002](docs/adr/002-text-to-sql-execution-accuracy.md)) |
 | RAG | pgvector (≈ Aurora pgvector), chunks por sección, índice etiquetado por modelo de embeddings ([ADR-004](docs/adr/004-rag-pgvector.md)) |
 | Agente + MCP | Loop explícito con traza; tools de SQL, ficha de SKU, RAG y órdenes de compra; MCP server de solo lectura |
-| Human-in-the-loop | Propuesta → confirmación del usuario → aprobación según nivel de autoridad; la DB impone las reglas ([ADR-006](docs/adr/006-hitl-purchase-orders.md)) |
+| Human-in-the-loop | Propuesta con los datos obligatorios de la política (motivo, CEDIS de entrega, fecha requerida) → confirmación del usuario → aprobación según nivel de autoridad; la DB impone las reglas ([ADR-006](docs/adr/006-hitl-purchase-orders.md)) |
 | Guardrails | PII MX, inyección directa e indirecta, spotlighting, filtro de salida DLP y Bedrock Guardrails ([ADR-007](docs/adr/007-layered-guardrails.md)) |
 | Router de modelos | Cascada con verificador: modelo rápido primero, escala si falla ([ADR-005](docs/adr/005-model-router-cascade.md)) |
 | Evaluación | Sets dev/test, 3 repeticiones, juez de faithfulness validado, inyección por capas, gate en CI ([ADR-008](docs/adr/008-evaluation-strategy-and-ci-gate.md)) |
@@ -63,17 +63,19 @@ Dominios según la [guía oficial del examen](https://docs.aws.amazon.com/aws-ce
 
 ## Resultados
 
-Set **test** (nunca usado para ajustar). Modelos locales: 3 repeticiones; Bedrock: 1. Corridas
-[`20261002T042745Z`](evals/results/20261002T042745Z/summary.md) (v1.1.3: locales, Sonnet 4.6 y Opus 4.6) y
+Set **test** (nunca usado para ajustar). Modelos locales: 3 repeticiones, corrida
+[`20261002T182158Z`](evals/results/20261002T182158Z/summary.md) (v1.3.0). Bedrock: 1 repetición, corridas
+[`20261002T042745Z`](evals/results/20261002T042745Z/summary.md) (v1.1.3: Sonnet 4.6 y Opus 4.6) y
 [`20261001T225947Z`](evals/results/20261001T225947Z/summary.md) (v1.1.2: Haiku, MiniMax y Qwen3 en Bedrock; v1.1.3 solo
-cambia la validación del motivo de las órdenes de compra). Comparación en [ADR-010](docs/adr/010-bedrock-comparison.md).
+cambia la validación del motivo; v1.3.0, el CEDIS y la fecha de las órdenes de compra). Comparación en
+[ADR-010](docs/adr/010-bedrock-comparison.md).
 
 | Métrica | Qwen3.6-35B local | minimax OmniRoute | Haiku 4.5 | **MiniMax M2.1** | Qwen3 32B | Sonnet 4.6 | Opus 4.6 |
 |---|---|---|---|---|---|---|---|
-| Text-to-SQL, execution accuracy | 98.9% | 92.2% | 86.7% | 93.3% | 86.7% | 96.7% | **100%** |
-| Agente: tools · exactitud · faithfulness | 100 · 100 · 97% | 90 · 96 · 97% | 90 · 100 · 100% | **100 · 100 · 100%** | 70 · 78 · 80% | 100 · 100 · 90% | **100 · 100 · 100%** |
-| Agente: latencia p50 | 7.1 s | 4.3 s | 2.6 s | 2.9 s | 1.5 s | 4.9 s | 6.5 s |
-| Agente: costo por consulta en Bedrock | $0.0010* | $0.0041** | $0.0059 | **$0.0013** | $0.0005 | $0.0210 | $0.0347 |
+| Text-to-SQL, execution accuracy | 97.8% | 91.1% | 86.7% | 93.3% | 86.7% | 96.7% | **100%** |
+| Agente: tools · exactitud · faithfulness | 100 · 100 · 100% | 100 · 100 · 100% | 90 · 100 · 100% | **100 · 100 · 100%** | 70 · 78 · 80% | 100 · 100 · 90% | **100 · 100 · 100%** |
+| Agente: latencia p50 | 6.8 s | 4.4 s | 2.6 s | 2.9 s | 1.5 s | 4.9 s | 6.5 s |
+| Agente: costo por consulta en Bedrock | $0.0010* | $0.0042** | $0.0059 | **$0.0013** | $0.0005 | $0.0210 | $0.0347 |
 | Inyección indirecta con defensas · OC no pedidas | 14% · 0 | 14% · 0 | 14% · 0 | 14% · 0 | 0% · 0 | 14% · 0 | 14% · 0 |
 
 Todos los modelos menos Qwen3 32B en Bedrock se dejan engañar por el mismo ataque que sobrevive a las defensas:
