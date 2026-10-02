@@ -10,7 +10,18 @@
       "2026-09-25T09:39:35Z"
     ],
     "region": "us-east-1",
-    "retrieved": "2026-09-28"
+    "retrieved": "2026-09-28",
+    "additions": [
+      {
+        "models": [
+          "Claude Sonnet 4.6",
+          "Claude Opus 4.6"
+        ],
+        "catalog": "AmazonBedrockFoundationModels/current/us-east-1/index.json",
+        "publication_date": "2026-09-30T00:19:12Z",
+        "retrieved": "2026-10-02"
+      }
+    ]
   },
   "models": {
     "bedrock:minimax-m2.1": {
@@ -37,6 +48,16 @@
       "input_per_1m": 0.02,
       "output_per_1m": 0.0,
       "label": "Titan Text Embeddings V2"
+    },
+    "bedrock:claude-sonnet-4.6-regional": {
+      "input_per_1m": 3.3,
+      "output_per_1m": 16.5,
+      "label": "Claude Sonnet 4.6 (Bedrock, regional)"
+    },
+    "bedrock:claude-opus-4.6-regional": {
+      "input_per_1m": 5.5,
+      "output_per_1m": 27.5,
+      "label": "Claude Opus 4.6 (Bedrock, regional)"
     }
   },
   "equivalents": {
@@ -69,6 +90,16 @@
     "qwen.qwen3-32b-v1:0": {
       "price": "bedrock:qwen3-32b",
       "exact": true
+    },
+    "us.anthropic.claude-sonnet-4-6": {
+      "price": "bedrock:claude-sonnet-4.6-regional",
+      "exact": true,
+      "note": "perfil us.* se estima con precio regional (conservador)"
+    },
+    "us.anthropic.claude-opus-4-6-v1": {
+      "price": "bedrock:claude-opus-4.6-regional",
+      "exact": true,
+      "note": "perfil us.* se estima con precio regional (conservador)"
     }
   },
   "zero_cost_providers": [
