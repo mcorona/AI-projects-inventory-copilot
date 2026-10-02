@@ -29,6 +29,26 @@ Corrida `20260928T023236Z`, split test. Los modelos locales tienen 3 repeticione
 **RAG** (split test, 8 preguntas): hit@1 de **100% con Titan Embeddings V2** y 87.5% con bge-m3
 local. En dev, ambos dan 100%.
 
+### Nueva medición (v1.1.2, corrida `20261001T225947Z`)
+Con el acceso a Bedrock restablecido (2026-10-01), los cinco proveedores se midieron con el mismo
+código: prompt SQL con nombres de almacenes, reintento ante respuesta vacía y vista previa de OC que
+calcula la alternativa sobre el tope.
+
+| Métrica | Qwen3.6 local | minimax OmniRoute | Haiku 4.5 | MiniMax M2.1 | Qwen3 32B |
+|---|---|---|---|---|---|
+| SQL execution accuracy | 100% | 93.3% | 86.7% | 93.3% | 86.7% |
+| Agente: tools · exactitud · faithfulness | 100 · 100 · 100% | 97 · 96 · 97% | 90 · 100 · 100% | 100 · 100 · 100% | 70 · 78 · 80% |
+| Agente: latencia p50 | 6.4 s | 4.1 s | 2.6 s | 2.9 s | 1.5 s |
+| Agente: costo por consulta (Bedrock) | $0.0009 | $0.0037 | $0.0059 | $0.0013 | $0.0005 |
+
+- La recomendación no cambia: **MiniMax M2.1** sigue en 100% en el agente, con el segundo costo más
+  bajo. Haiku y Qwen3 subieron en SQL (83.3% → 86.7%).
+- El caso de la OC sobre el tope (at08) ahora da el monto correcto en los 5 proveedores.
+- Bedrock sigue con 1 repetición: las diferencias de un caso (3.3 puntos en SQL, 10 en tools) están
+  dentro del ruido.
+- Claude Opus 4.8 aparece en el catálogo de la cuenta, pero Converse responde *"not available for this
+  account"*; no se incluyó.
+
 ## Resultados de Bedrock Guardrails (en vivo)
 Entrada: 30 ataques y 110 preguntas legítimas. Grounding: 16 casos etiquetados.
 
