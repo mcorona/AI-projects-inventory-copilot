@@ -164,9 +164,9 @@ menos de US$5 estimado con `config/pricing.json`.
 
 ## Limitaciones
 - Los sets test son pequeños (8–30 casos) y los modelos de Bedrock se evaluaron con 1 repetición.
-- El juez de faithfulness está validado con 16 casos de errores claros, no con errores sutiles.
+- El juez de faithfulness está validado con 29 casos etiquetados (16 errores claros y 13 sutiles); se le escapa 1 de los 8 casos sutiles infieles.
 - Fallos conocidos sin corregir a propósito, porque corregirlos mirando el set test lo contaminaría: t08 (nombres de almacén) y una falsa alarma del verificador del router.
-- El despliegue completo (Data + App) no se probó en vivo. `decided_by` en las aprobaciones es texto; en producción vendría de IAM o Cognito.
+- Los tres stacks se desplegaron y probaron en vivo durante un día, pero el camino con modelos en AWS (respuesta del agente, órdenes por la API, RAG con Titan) no: Bedrock estaba bloqueado para la cuenta en ese momento. `decided_by` en las aprobaciones es texto; en producción vendría de IAM o Cognito.
 - La desinformación en los datos (sin instrucciones) no la detiene ningún guardrail de texto.
 
 ## Decisiones de arquitectura

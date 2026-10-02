@@ -165,9 +165,9 @@ estimated with `config/pricing.json`.
 
 ## Limitations
 - The test sets are small (8–30 cases) and the Bedrock models were evaluated with 1 repetition.
-- The faithfulness judge is validated on 16 clear-error cases, not on subtle errors.
+- The faithfulness judge is validated on 29 labeled cases (16 clear errors, 13 subtle ones); it misses 1 of the 8 unfaithful subtle cases.
 - Known failures deliberately left unfixed, because fixing them by looking at the test set would contaminate it: t08 (warehouse names) and one false alarm from the router's verifier.
-- The full deployment (Data + App) was not tested live. `decided_by` in approvals is free text; in production it would come from IAM or Cognito.
+- The three stacks were deployed and tested live for one day, but the model path in AWS (agent answers, purchase orders through the API, RAG with Titan) was not: Bedrock was blocked for the account at the time. `decided_by` in approvals is free text; in production it would come from IAM or Cognito.
 - Misinformation in the data (without instructions) is not stopped by any text guardrail.
 
 ## Architecture decisions (in Spanish)

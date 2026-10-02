@@ -98,7 +98,8 @@ Entrada: 30 ataques y 110 preguntas legítimas. Grounding: 16 casos etiquetados.
    que por OmniRoute, pero con **3.4 veces menos costo**: OmniRoute agrega unos 4,500 tokens de
    contexto propio por llamada (13,603 contra 3,209 tokens por consulta). Queda confirmada la
    sospecha de la Semana 5.
-2. **Haiku 4.5 no fue el mejor en esta tarea.** SQL 83.3% y exactitud 88.9%, a 4.7 veces el costo
+2. **Haiku 4.5 no fue el mejor en esta tarea.** SQL 83.3% y exactitud 88.9% en la primera corrida
+   (86.7% y 100% en la nueva medición v1.1.2), a 4.7 veces el costo
    de MiniMax. Sus fallos son semánticos: comparó el stock por almacén en lugar del total contra el
    punto de reorden. Con 1 repetición la diferencia es indicativa, no concluyente.
 3. **Qwen3 32B es rápido y barato, pero no sirve como agente:** 70% en tools y 66.7% en

@@ -41,7 +41,7 @@ petición.
 **Bootstrap:** una Lambda aparte aplica las migraciones, reemplaza las contraseñas de los roles
 por las de Secrets Manager, carga los datos sintéticos e indexa el corpus con Titan.
 
-**Despliegue mínimo:**
+**Despliegue mínimo** (plan original; lo amplió el *Despliegue real* del 2026-09-28, más abajo):
 - Solo se desplegó `InventoryGuardrail`, que no tiene costo fijo, con `LegacyStackSynthesizer`.
   Ese sintetizador no exige `cdk bootstrap`, así que no crea bucket, ECR ni roles de despliegue
   con permisos de administrador en la cuenta.
