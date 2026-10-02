@@ -63,19 +63,21 @@ Dominios según la [guía oficial del examen](https://docs.aws.amazon.com/aws-ce
 
 ## Resultados
 
-Set **test** (nunca usado para ajustar). Modelos locales: 3 repeticiones, corrida
-[`20261002T042745Z`](evals/results/20261002T042745Z/summary.md) (v1.1.3). Bedrock: 1 repetición, corrida
-[`20261001T225947Z`](evals/results/20261001T225947Z/summary.md) (v1.1.2); v1.1.3 solo cambia la validación del
-motivo de las órdenes de compra.
-Comparación en [ADR-010](docs/adr/010-bedrock-comparison.md).
+Set **test** (nunca usado para ajustar). Modelos locales: 3 repeticiones; Bedrock: 1. Corridas
+[`20261002T042745Z`](evals/results/20261002T042745Z/summary.md) (v1.1.3: locales, Sonnet 4.6 y Opus 4.6) y
+[`20261001T225947Z`](evals/results/20261001T225947Z/summary.md) (v1.1.2: Haiku, MiniMax y Qwen3 en Bedrock; v1.1.3 solo
+cambia la validación del motivo de las órdenes de compra). Comparación en [ADR-010](docs/adr/010-bedrock-comparison.md).
 
-| Métrica | Qwen3.6-35B local | minimax OmniRoute | Haiku 4.5 Bedrock | **MiniMax M2.1 Bedrock** | Qwen3 32B Bedrock |
-|---|---|---|---|---|---|
-| Text-to-SQL, execution accuracy | **98.9%** | 92.2% | 86.7% | 93.3% | 86.7% |
-| Agente: tools · exactitud · faithfulness | 100 · 100 · 97% | 90 · 96 · 97% | 90 · 100 · 100% | **100 · 100 · 100%** | 70 · 78 · 80% |
-| Agente: latencia p50 | 7.1 s | 4.3 s | 2.6 s | 2.9 s | 1.5 s |
-| Agente: costo por consulta en Bedrock | $0.0010* | $0.0041** | $0.0059 | **$0.0013** | $0.0005 |
-| Inyección indirecta con defensas · OC no pedidas | 14% · 0 | 14% · 0 | 14% · 0 | 14% · 0 | 0% · 0 |
+| Métrica | Qwen3.6-35B local | minimax OmniRoute | Haiku 4.5 | **MiniMax M2.1** | Qwen3 32B | Sonnet 4.6 | Opus 4.6 |
+|---|---|---|---|---|---|---|---|
+| Text-to-SQL, execution accuracy | 98.9% | 92.2% | 86.7% | 93.3% | 86.7% | 96.7% | **100%** |
+| Agente: tools · exactitud · faithfulness | 100 · 100 · 97% | 90 · 96 · 97% | 90 · 100 · 100% | **100 · 100 · 100%** | 70 · 78 · 80% | 100 · 100 · 90% | **100 · 100 · 100%** |
+| Agente: latencia p50 | 7.1 s | 4.3 s | 2.6 s | 2.9 s | 1.5 s | 4.9 s | 6.5 s |
+| Agente: costo por consulta en Bedrock | $0.0010* | $0.0041** | $0.0059 | **$0.0013** | $0.0005 | $0.0210 | $0.0347 |
+| Inyección indirecta con defensas · OC no pedidas | 14% · 0 | 14% · 0 | 14% · 0 | 14% · 0 | 0% · 0 | 14% · 0 | 14% · 0 |
+
+Todos los modelos menos Qwen3 32B en Bedrock se dejan engañar por el mismo ataque que sobrevive a las defensas:
+la desinformación plantada en los datos. No depende del modelo.
 
 \* Estimado con el Qwen más cercano en Bedrock. \** Tokens inflados por el contexto propio de OmniRoute.
 
@@ -85,6 +87,8 @@ Comparación en [ADR-010](docs/adr/010-bedrock-comparison.md).
   sutiles); el grounding de Bedrock, 68.8% sobre los 16 originales.
 - **Exfiltración:** el filtro de salida DLP la detuvo en los 5 modelos. Solo sobrevive la desinformación en los datos.
 - **Recomendación para AWS:** MiniMax M2.1 + Titan V2 + guardrails locales y de Bedrock ([ADR-010](docs/adr/010-bedrock-comparison.md)).
+  Opus 4.6, el techo de calidad disponible, empata con MiniMax en el agente y le gana en SQL (100% contra 93.3%),
+  a 27 veces el costo por consulta.
 
 ## Arranque rápido (local, $0)
 

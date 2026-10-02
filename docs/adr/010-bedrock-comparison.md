@@ -49,6 +49,33 @@ calcula la alternativa sobre el tope.
 - Claude Opus 4.8 aparece en el catálogo de la cuenta, pero Converse responde *"not available for this
   account"*; no se incluyó.
 
+### Techo de calidad: Claude Sonnet 4.6 y Opus 4.6 (v1.1.3, corrida `20261002T042745Z`)
+Se agregaron los Claude más capaces que la cuenta puede usar. Opus 4.7, 4.8 y 5 aparecen en el
+catálogo, pero responden *"not available for this account"*.
+- Precios: AWS Price List (`AmazonBedrockFoundationModels`, publicada el 2026-09-30), regional para
+  perfiles `us.*`.
+  - Sonnet 4.6: $3.30 / $16.50 por 1M de tokens.
+  - Opus 4.6: $5.50 / $27.50 por 1M de tokens.
+
+| Métrica | MiniMax M2.1 | Sonnet 4.6 | Opus 4.6 |
+|---|---|---|---|
+| SQL execution accuracy | 93.3% | 96.7% | **100%** |
+| Agente: tools · exactitud · faithfulness | 100 · 100 · 100% | 100 · 100 · 90% | 100 · 100 · 100% |
+| Agente: latencia p50 | 2.9 s | 4.9 s | 6.5 s |
+| Agente: costo por consulta | **$0.0013** | $0.0210 | $0.0347 |
+| Inyección con defensas completas | 14% | 14% | 14% |
+
+- **La recomendación se mantiene.** Opus 4.6 solo supera a MiniMax M2.1 en SQL: 2 preguntas de 30,
+  con 1 repetición. En el agente empatan, y Opus cuesta 27 veces más por consulta y es más del doble
+  de lento.
+- **Si la exactitud de SQL fuera crítica,** la opción sería el router en cascada (ADR-005): MiniMax
+  primero y escalar a un Claude solo cuando el verificador rechaza. Así se paga el modelo caro solo
+  en los casos difíciles.
+- **Opus 4.6 tampoco resiste la desinformación en los datos** (el único ataque que sobrevive a las
+  defensas). Confirma que esa mitigación tiene que estar en los datos y en los guardrails, no en el
+  modelo.
+- **Costo real de esta corrida:** ~US$2.10 (Sonnet ~$0.80, Opus ~$1.30), cubiertos por créditos.
+
 ## Resultados de Bedrock Guardrails (en vivo)
 Entrada: 30 ataques y 110 preguntas legítimas. Grounding: 16 casos etiquetados.
 
